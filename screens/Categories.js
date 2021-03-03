@@ -8,7 +8,6 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import RadioButtonRN from "radio-buttons-react-native";
 import {
   Card,
   List,
@@ -148,15 +147,6 @@ function Categories({ route, navigation }) {
               {timeRange.label}
             </Button>
           ))}
-          {/* 
-          <RadioButtonRN
-            style={{ width: "100%" }}
-            data={timeRanges}
-            initial={0}
-            selectedBtn={(e) => _timeSelected(e.value)}
-            circleSize={10}
-          /> */}
-          {/* <Button onPress={() => setModalVisible(false)}>Close</Button> */}
         </View>
       </Modal>
     );

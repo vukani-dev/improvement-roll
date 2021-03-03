@@ -10,7 +10,6 @@ import {
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
 import {Fumi, Kaede, Isao, Sae, Hoshi} from 'react-native-textinput-effects';
 import SegmentedControl from '@react-native-community/segmented-control';
-import RadioButtonRN from 'radio-buttons-react-native';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {FlatList} from 'react-native-gesture-handler';

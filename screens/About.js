@@ -13,7 +13,6 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Hyperlink from 'react-native-hyperlink';
 
-// import DeviceInfo from 'react-native-device-info';
 
 import {
   getUniqueId,
@@ -53,15 +52,6 @@ function AboutScreen({route, navigation}) {
     );
   };
 
-  const defaultLink = () => (
-    <Hyperlink linkDefault={true}>
-      <Text style={{fontSize: 15}}>
-        This text will be parsed to check for clickable strings like
-        https://github.com/vukani-dev and made clickable.
-      </Text>
-    </Hyperlink>
-  );
-
   const _clearData = () => {
     try {
       AsyncStorage.removeItem('categories');
@@ -72,12 +62,12 @@ function AboutScreen({route, navigation}) {
   };
 
   const openGithub = () => {
-    Linking.canOpenURL('https://github.com/vukani-dev').then((supported) => {
+    Linking.canOpenURL('https://github.com/vukani-dev/improvement-roll.git').then((supported) => {
       if (supported) {
-        Linking.openURL('https://github.com/vukani-dev');
+        Linking.openURL('https://github.com/vukani-dev/improvement-roll.git');
       } else {
         console.log(
-          "Don't know how to open URI: https://github.com/vukani-dev",
+          "Don't know how to open URI: https://github.com/vukani-dev/improvement-roll.git",
         );
       }
     });
@@ -112,8 +102,6 @@ function AboutScreen({route, navigation}) {
             <Image source={require('../pictures/octo64.png')}></Image>
           </View>
         </TouchableOpacity>
-        {/* <Button onPress={() => openGithub()}>Github</Button> */}
-        {/* {defaultLink()} */}
       </View>
       {_renderModal()}
     </View>
