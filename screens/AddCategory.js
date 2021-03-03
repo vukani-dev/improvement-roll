@@ -13,8 +13,6 @@ import SegmentedControl from '@react-native-community/segmented-control';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {FlatList} from 'react-native-gesture-handler';
-import Textarea from '@freakycoder/react-native-text-area';
-import Textareachin from 'react-native-textarea';
 
 import {
   Divider,

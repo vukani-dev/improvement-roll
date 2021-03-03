@@ -1,7 +1,6 @@
 # Improvement Roll
 Randomly selected todo list
 
----
 ## What??
 Inspired from "rolling" threads on 4chan. You can create category of tasks that you want to do (in no particular order). 
 Then press the button and it will randomly give you a task to do from said list.
@@ -24,7 +23,7 @@ Now its up to you to do them but at least you didnt have to think about what to 
 
 ### Timed Example:
 I bet you're thinking: 
-*What if the random task ive been given takes too much time to complete! :(*
+*What if the random task ive been given takes too much time to complete!* :(
 
 Whether you are or aren't I built this feature anyways!
 
@@ -35,16 +34,14 @@ Now you can enter in tasks and select how much time it takes for you to complete
 
 Once you select the **Fitness** category to roll this time you will be asked how much time you have. And you will onyl be given tasks that are within that time range (If I only have 5 minutes id rather do pushups, But if I have an hour I can go for a run)
 
----
 ## Screenshots
 
 
-[home]: pictures/home.png "home"
-[roll]: pictures/roll.png "roll"
-[category]: pictures/category.png "category"
+<img src="pictures/home.png" alt="home" width="200">
+<img src="pictures/category.png" alt="category" width="200">
+<img src="pictures/roll.png" alt="roll" width="200">
 
 
----
 ## What are these "rolling" threads
 On 4chan every post give you a corresponding ID. The ID generated from a post is what people would refer to as "rolling".
 

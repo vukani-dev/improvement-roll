@@ -13,7 +13,6 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Hyperlink from 'react-native-hyperlink';
 
-
 import {
   getUniqueId,
   getManufacturer,
@@ -62,7 +61,9 @@ function AboutScreen({route, navigation}) {
   };
 
   const openGithub = () => {
-    Linking.canOpenURL('https://github.com/vukani-dev/improvement-roll.git').then((supported) => {
+    Linking.canOpenURL(
+      'https://github.com/vukani-dev/improvement-roll.git',
+    ).then((supported) => {
       if (supported) {
         Linking.openURL('https://github.com/vukani-dev/improvement-roll.git');
       } else {
@@ -86,17 +87,19 @@ function AboutScreen({route, navigation}) {
       <View style={{alignItems: 'center', marginVertical: 40}}>
         <Text>BITCOIN</Text>
         <Image source={require('../pictures/bitcoin.png')} />
-        
+
         <Text selectable={true}>3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY</Text>
       </View>
       <View style={{alignItems: 'center'}}>
         <Text>ETHEREUM</Text>
         <Image source={require('../pictures/eth.png')} />
-        <Text selectable={true}>0xd75205A0Fb016e3a0C368F964D142cD29a829BF2</Text>
+        <Text selectable={true}>
+          0xd75205A0Fb016e3a0C368F964D142cD29a829BF2
+        </Text>
       </View>
 
-      <View style={{ alignItems:"center", marginTop: 30, marginHorizontal:30}}>
-
+      <View style={{alignItems: 'center', marginTop: 30, marginHorizontal: 30}}>
+        <Text>View on github for instructions and code</Text>
         <TouchableOpacity onPress={() => openGithub()}>
           <View>
             <Image source={require('../pictures/octo64.png')}></Image>
