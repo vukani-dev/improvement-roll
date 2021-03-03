@@ -11,7 +11,6 @@ import {
   Modal,
 } from '@ui-kitten/components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Hyperlink from 'react-native-hyperlink';
 
 import {
   getUniqueId,

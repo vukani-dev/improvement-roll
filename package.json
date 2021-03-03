@@ -24,7 +24,6 @@
     "react-native": "0.63.4",
     "react-native-device-info": "^8.0.1",
     "react-native-gesture-handler": "~1.7.0",
-    "react-native-hyperlink": "^0.0.19",
     "react-native-radio-buttons": "^1.0.0",
     "react-native-reanimated": "~1.13.0",
     "react-native-safe-area-context": "3.1.4",
