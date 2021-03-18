@@ -1,0 +1,6 @@
+Inspired from "rolling" threads on 4chan. You can create category of tasks that you want to do (in no particular order). 
+Then press the button and it will randomly give you a task to do from said list.
+
+You can also sort tasks in a category by how long it would take to complete them and randomly select based on time.
+
+More info at https://github.com/vukani-dev/improvement-roll/

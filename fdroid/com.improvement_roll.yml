@@ -10,7 +10,6 @@ IssueTracker: https://github.com/vukani-dev/improvement-roll/issues
 Bitcoin: 3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY
 
 AutoName: Improvement Roll
-Summary: Create a list of productive things to do and improve yourself one task at a time
 
 RepoType: git
 Repo: https://github.com/vukani-dev/improvement-roll
@@ -18,7 +17,7 @@ Repo: https://github.com/vukani-dev/improvement-roll
 Builds:
   - versionName: '1.0'
     versionCode: 1
-    commit: 9992adbfaa32236d74dde25adeb7e5babf65368a
+    commit: v1.0
     subdir: android/app
     sudo:
       - sysctl fs.inotify.max_user_watches=524288
@@ -48,5 +47,5 @@ Builds:
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '1.0'
+CurrentVersion: 1.0
 CurrentVersionCode: 1

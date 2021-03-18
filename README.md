@@ -1,5 +1,6 @@
-# Improvement Roll
-Randomly selected todo list
+<img src="pictures/featureGraphic.png" alt="banner">
+---
+A randomly selected todo list
 
 ## What??
 Inspired from "rolling" threads on 4chan. You can create category of tasks that you want to do (in no particular order). 
