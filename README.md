@@ -2,6 +2,10 @@
 ---
 A randomly selected todo list
 
+[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+     alt="Get it on F-Droid"
+     height="80">](https://f-droid.org/packages/com.improvement_roll/)
+
 ## What??
 Inspired from "rolling" threads on 4chan. You can create category of tasks that you want to do (in no particular order). 
 Then press the button and it will randomly give you a task to do from said list.
