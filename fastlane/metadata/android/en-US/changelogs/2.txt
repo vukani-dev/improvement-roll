@@ -1,0 +1,3 @@
+Adding dark mode toggle.
+Restyling.
+Small bug fixes.

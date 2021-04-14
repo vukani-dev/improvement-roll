@@ -13,11 +13,13 @@ function MainScreen({route, navigation}) {
       Toast.show('Reset complete.');
       const jsonValue = JSON.stringify([generalCategory]);
       AsyncStorage.setItem('categories', jsonValue);
+      
     } else {
       Toast.show(
         `Category "${route.params.categoryName}" ${route.params.action}.`,
       );
     }
+    route.params = undefined
   }
 
   React.useEffect(() => {
