@@ -25,7 +25,6 @@ export default ({navigation}) => {
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
-
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
   );
@@ -35,14 +34,18 @@ export default ({navigation}) => {
   );
   const OctoIcon = (props) => <Icon name="github-outline" {...props} />;
 
-
   const makeVersionString = () => {
     return `Version ${getVersion()}`;
   };
 
   const clearData = () => {
     try {
-      AsyncStorage.removeItem('categories');
+      AsyncStorage.removeItem('categories').then((val) => {
+        navigation.navigate('Main', {
+          categoryName: "",
+          action: 'reset',
+        });
+      });
     } catch (e) {
       console.log(e);
       console.log('something happend');
@@ -70,7 +73,7 @@ export default ({navigation}) => {
       }
     });
   };
-  
+
   const _renderModal = () => {
     return (
       <Modal
@@ -123,7 +126,7 @@ export default ({navigation}) => {
           flexWrap: 'wrap',
           justifyContent: 'space-evenly',
           marginTop: 40,
-          backgroundColor: themeContext.backgroundColor
+          backgroundColor: themeContext.backgroundColor,
         }}>
         <Button
           status="warning"
@@ -147,7 +150,7 @@ export default ({navigation}) => {
           flexWrap: 'wrap',
           justifyContent: 'space-evenly',
           marginTop: 40,
-          backgroundColor: themeContext.backgroundColor
+          backgroundColor: themeContext.backgroundColor,
         }}>
         <Button
           style={{marginBottom: 30}}
@@ -162,13 +165,14 @@ export default ({navigation}) => {
       <Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
         Donate
       </Text>
-      <Layout style={{flex: 0.6, backgroundColor: themeContext.backgroundColor}}>
+      <Layout
+        style={{flex: 0.6, backgroundColor: themeContext.backgroundColor}}>
         <Layout
           style={{
             flexDirection: 'row',
             marginVertical: 20,
             justifyContent: 'space-evenly',
-            backgroundColor: themeContext.backgroundColor
+            backgroundColor: themeContext.backgroundColor,
           }}>
           <BTCIcon width={48} height={48}></BTCIcon>
           <Text style={{marginTop: 10}} selectable={true}>
@@ -180,7 +184,7 @@ export default ({navigation}) => {
             flexDirection: 'row',
             marginVertical: 20,
             justifyContent: 'space-evenly',
-            backgroundColor: themeContext.backgroundColor
+            backgroundColor: themeContext.backgroundColor,
           }}>
           <ETHIcon width={48} height={48}></ETHIcon>
           <Text style={{marginTop: 10}} selectable={true}>
@@ -198,4 +202,4 @@ export default ({navigation}) => {
       {_renderModal()}
     </Layout>
   );
-}
+};

@@ -9,9 +9,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function MainScreen({route, navigation}) {
   if (route.params != undefined) {
-    Toast.show(
-      `Category "${route.params.categoryName}" ${route.params.action}.`,
-    );
+    if (route.params.action == 'reset') {
+      Toast.show('Reset complete.');
+      const jsonValue = JSON.stringify([generalCategory]);
+      AsyncStorage.setItem('categories', jsonValue);
+    } else {
+      Toast.show(
+        `Category "${route.params.categoryName}" ${route.params.action}.`,
+      );
+    }
   }
 
   React.useEffect(() => {
@@ -21,12 +27,12 @@ function MainScreen({route, navigation}) {
         AsyncStorage.setItem('categories', jsonValue);
       }
 
-      if(value.indexOf('theme') >= 0){
+      if (value.indexOf('theme') >= 0) {
         AsyncStorage.getItem('theme').then((val) => {
-          if(val == 'dark'){
-            themeContext.toggleTheme()
+          if (val == 'dark') {
+            themeContext.toggleTheme();
           }
-        })
+        });
       }
     });
   }, []);
@@ -37,13 +43,12 @@ function MainScreen({route, navigation}) {
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
-
   return (
     <Layout style={styleSheet.centered_container}>
-      <Text style={{marginTop: 100, fontWeight:'bold'}} category="h1" >
+      <Text style={{marginTop: 100, fontWeight: 'bold'}} category="h1">
         Improvement
       </Text>
-      <Text style={{marginBottom: 100, fontWeight:'bold'}} category="h1">
+      <Text style={{marginBottom: 100, fontWeight: 'bold'}} category="h1">
         Roll
       </Text>
 
