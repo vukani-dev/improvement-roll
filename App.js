@@ -1,73 +1,34 @@
-import * as React from "react";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import Main from "./screens/Main";
-import Roll from "./screens/Roll";
-import About from "./screens/About";
-import Categories from "./screens/Categories";
-import AddCategory from "./screens/AddCategory";
-import Toast from "react-native-simple-toast";
-import * as eva from "@eva-design/eva";
-import {
-  ApplicationProvider,
-  Layout,
-  Text,
-  IconRegistry,
-} from "@ui-kitten/components";
-import { default as theme } from "./theme.json"; // <-- Import app theme
+import React from 'react';
+import * as eva from '@eva-design/eva';
+import { ApplicationProvider, IconRegistry } from '@ui-kitten/components';
+import { EvaIconsPack } from '@ui-kitten/eva-icons';
+import { ThemeContext } from './utility_components/theme-context';
+import { AppNavigator } from './utility_components/navigation.component';
+import {default as mapping} from './utility_components/mapping.json'
 
-import { EvaIconsPack } from "@ui-kitten/eva-icons";
 
-const Stack = createStackNavigator();
+export default () => {
 
-const test = () => {
-  return <Button>hello</Button>;
-};
+  const [theme, setTheme] = React.useState('light');
+  const [backgroundColor, setBackgroundColor] = React.useState('#ffffee');
 
-const App = () => {
+  const toggleTheme = () => {
+    const nextTheme = theme === 'light' ? 'dark' : 'light';
+    const color = nextTheme === 'dark'? '#222B45': '#ffffee'
+
+    setTheme(nextTheme);
+    setBackgroundColor(color);
+    
+  };
+
   return (
     <>
-      <IconRegistry icons={EvaIconsPack} />
-      <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen
-              name="Main"
-              component={Main}
-              options={{
-                title: "Improvement Roll",
-                headerTitleAlign: "center",
-                headerShown: false,
-              }}
-            />
-            <Stack.Screen
-              name="Roll"
-              component={Roll}
-              options={{
-                title: "Select a Category",
-                headerShown: false
-              }}
-            />
-            <Stack.Screen
-              name="Categories"
-              component={Categories}
-              options={{ title: "categories", headerShown: false }}
-            />
-            <Stack.Screen
-              name="AddCategory"
-              component={AddCategory}
-              options={{ title: "Add a Category", headerShown: false }}
-            />
-            <Stack.Screen
-              name="About"
-              component={About}
-              options={{ headerShown: false }}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </ApplicationProvider>
+      <IconRegistry icons={EvaIconsPack}/>
+      <ThemeContext.Provider value={{ theme, toggleTheme, backgroundColor }}>
+        <ApplicationProvider customMapping={mapping} {...eva} theme={eva[theme]}>
+            <AppNavigator/>
+        </ApplicationProvider>
+      </ThemeContext.Provider>
     </>
   );
 };
-
-export default App;

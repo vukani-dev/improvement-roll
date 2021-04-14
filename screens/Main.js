@@ -1,75 +1,74 @@
-import * as React from "react";
-import { View, StyleSheet } from "react-native";
-import Toast from "react-native-simple-toast";
-import generalCategory from "../categories/DefaultCategories";
-import { Button, Icon, Text } from "@ui-kitten/components";
+import * as React from 'react';
+import Toast from 'react-native-simple-toast';
+import generalCategory from '../categories/DefaultCategories';
+import {Button, Icon, Text, Layout} from '@ui-kitten/components';
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import {ThemeContext} from '../utility_components/theme-context';
+import StyleSheetFactory from '../utility_components/styles.js';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function MainScreen({ route, navigation }) {
+function MainScreen({route, navigation}) {
   if (route.params != undefined) {
-    Toast.show(`Category "${route.params.categoryName}" ${route.params.action}.`);
+    Toast.show(
+      `Category "${route.params.categoryName}" ${route.params.action}.`,
+    );
   }
 
   React.useEffect(() => {
     AsyncStorage.getAllKeys().then((value) => {
-      if (value.indexOf("categories") == -1) {
+      console.log(value)
+      if (value.indexOf('categories') == -1) {
         const jsonValue = JSON.stringify([generalCategory]);
-        AsyncStorage.setItem("categories", jsonValue);
+        AsyncStorage.setItem('categories', jsonValue);
+      }
+
+      if(value.indexOf('theme') >= 0){
+        AsyncStorage.getItem('theme').then((val) => {
+          console.log(val)
+          if(val == 'dark'){
+            themeContext.toggleTheme()
+          }
+        })
       }
     });
-
   }, []);
 
   const RollIcon = (props) => <Icon name="flip-outline" {...props} />;
   const ListIcon = (props) => <Icon name="list-outline" {...props} />;
   const SettingsIcon = (props) => <Icon name="settings-2-outline" {...props} />;
+  const themeContext = React.useContext(ThemeContext);
+  const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
+
 
   return (
-    <View style={styles.container}>
-      <Text style={{ marginTop: 100 }} category="h1">
+    <Layout style={styleSheet.centered_container}>
+      <Text style={{marginTop: 100}} category="h1">
         Improvement
       </Text>
-      <Text style={{ marginBottom: 100 }} category="h1">
+      <Text style={{marginBottom: 100}} category="h1">
         Roll
       </Text>
 
       <Button
         accessoryLeft={RollIcon}
-        onPress={() => navigation.navigate("Categories", { action: "roll" })}
-      >
+        onPress={() => navigation.navigate('Categories', {action: 'roll'})}>
         Roll
       </Button>
       <Button
-        style={{ margin: 10 }}
+        style={{margin: 10}}
         accessoryLeft={ListIcon}
-        onPress={() => navigation.navigate("Categories", { action: "view" })}
-      >
+        onPress={() => navigation.navigate('Categories', {action: 'view'})}>
         View Categories
       </Button>
 
       <Button
         accessoryLeft={SettingsIcon}
-        onPress={() => navigation.navigate("About")}
-      >
+        onPress={() => navigation.navigate('Options')}>
         Options
       </Button>
-      {/* <Button onPress={() => navigation.navigate("AddCategory")}>Add</Button> */}
-
-      {/* <Button title="Clear Data" onPress={() => _clearData()}></Button> */}
-    </View>
+      {/* <Button onPress={() => themeContext.toggleTheme()}>Add</Button>V */}
+    </Layout>
   );
 }
-export default MainScreen;
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    backgroundColor: "#ffffee",
-  },
-  button_container: {
-    padding: 30,
-  },
-});
+export default MainScreen;

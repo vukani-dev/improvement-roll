@@ -58,7 +58,7 @@ const generalCategory = {
     {
       name: "Read a chapter of a book",
       desc:
-        "Pick up a book you've been meaning to read or have been reading. Read a chapter or for 30 minutes, whichever comes first",
+        "Pick up a book you've been meaning to read or have been reading. Read a chapter or for 20 minutes, whichever comes first",
       time: 2,
     },
     {

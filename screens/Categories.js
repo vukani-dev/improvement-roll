@@ -1,13 +1,13 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   View,
   FlatList,
   StyleSheet,
   TouchableWithoutFeedback,
-} from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+} from 'react-native';
+import {NavigationContainer} from '@react-navigation/native';
+import {createStackNavigator} from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Card,
   List,
@@ -16,39 +16,60 @@ import {
   Button,
   Icon,
   Modal,
-} from "@ui-kitten/components";
+  Layout,
+  TopNavigation,
+  TopNavigationAction,
+} from '@ui-kitten/components';
 
-function Categories({ route, navigation }) {
+import {ThemeContext} from '../utility_components/theme-context';
+import StyleSheetFactory from '../utility_components/styles.js';
+
+function CategoriesScreen({route, navigation}) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [selectedCategory, setSelectedCategory] = React.useState({});
   const [timeRanges, setTimeRanges] = React.useState([]);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const { action } = route.params;
+  const {action} = route.params;
+
+  const themeContext = React.useContext(ThemeContext);
+  const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
   const data = [
     {
-      label: "0 - 10 min",
+      label: '0 - 10 min',
       value: 1,
     },
     {
-      label: "10 - 20 min",
+      label: '10 - 20 min',
       value: 2,
     },
     {
-      label: "30 min - 1 hour",
+      label: '30 min - 1 hour',
       value: 3,
     },
     {
-      label: "1 hour +",
+      label: '1 hour +',
       value: 4,
     },
   ];
 
+  const BackAction = () => (
+    <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
+  );
+
+  const AddAction = () => (
+    <TopNavigationAction icon={AddIcon} onPress={navigation.navigate('AddCategory')} />
+  )
+
+  const AddIcon = (props) => (
+  <Icon {...props} name='plus-square-outline'/>
+);
+  const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
   React.useEffect(() => {
-    AsyncStorage.getItem("categories").then((value) => {
+    AsyncStorage.getItem('categories').then((value) => {
       var categories = value != null ? JSON.parse(value) : [];
 
-      // lookup better way to do this 
+      // lookup better way to do this
       for (var i = 0; i < categories.length; i++) {
         categories[i].key = i;
       }
@@ -57,8 +78,8 @@ function Categories({ route, navigation }) {
   }, []);
 
   const _categorySelected = (category) => {
-    if (action == "view") {
-      navigation.navigate("AddCategory", { categoryName: category.name });
+    if (action == 'view') {
+      navigation.navigate('AddCategory', {categoryName: category.name});
     } else {
       if (category.timeSensitive) {
         var newTimeRange = [];
@@ -72,7 +93,7 @@ function Categories({ route, navigation }) {
 
         console.log(newTimeRange);
         if (newTimeRange.length == 1) {
-          navigation.navigate("Roll", { tasks: category.tasks });
+          navigation.navigate('Roll', {tasks: category.tasks});
           return;
         }
 
@@ -80,14 +101,14 @@ function Categories({ route, navigation }) {
         setSelectedCategory(category);
         setModalVisible(true);
       } else {
-        navigation.navigate("Roll", { tasks: category.tasks });
+        navigation.navigate('Roll', {tasks: category.tasks});
       }
       //bring up popup for time selection
     }
   };
 
   const _renderCategoryFooter = (item) => (
-    <Text category="p2" style={{ margin: 5, textAlign: "center" }}>
+    <Text category="p2" style={{margin: 5, textAlign: 'center'}}>
       {item.desc}
     </Text>
   );
@@ -96,14 +117,12 @@ function Categories({ route, navigation }) {
     return (
       <Card
         onPress={() => _categorySelected(item)}
-        status="danger"
-        style={{ margin: 10 }}
-        footer={() => _renderCategoryFooter(item)}
-      >
+        status="info"
+        style={{margin: 10}}
+        footer={() => _renderCategoryFooter(item)}>
         <Text
-          style={{ alignContent: "center", textAlign: "center" }}
-          category="h6"
-        >
+          style={{alignContent: 'center', textAlign: 'center'}}
+          category="h6">
           {item.name}
         </Text>
       </Card>
@@ -118,7 +137,7 @@ function Categories({ route, navigation }) {
       }
     }
     setModalVisible(false);
-    navigation.navigate("Roll", { tasks: eligibleTasks });
+    navigation.navigate('Roll', {tasks: eligibleTasks});
   };
 
   const _renderTimeModal = () => {
@@ -131,19 +150,17 @@ function Categories({ route, navigation }) {
         transparent={true}
         visible={modalVisible}
         onBackdropPress={() => setModalVisible(false)}
-        backdropStyle={styles.backdrop}
-      >
+        backdropStyle={styles.backdrop}>
         <View style={styles.modalView}>
-          <Text style={{ marginBottom: 10 }}>How much time do you have?</Text>
+          <Text style={{marginBottom: 10}}>How much time do you have?</Text>
 
           {timeRanges.map((timeRange) => (
             <Button
               status="primary"
               accessoryLeft={renderInfiniteAnimationIcon}
               onPress={() => _timeSelected(timeRange.value)}
-              style={{ marginTop: 15 }}
-              key={timeRange.value}
-            >
+              style={{marginTop: 15}}
+              key={timeRange.value}>
               {timeRange.label}
             </Button>
           ))}
@@ -153,77 +170,65 @@ function Categories({ route, navigation }) {
   };
 
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: "#ffffee",
-      }}
-    >
+    <Layout style={styleSheet.columned_container}>
+      
+      <TopNavigation
+        alignment="center"
+        style={{backgroundColor: themeContext.backgroundColor}}
+        title='Select a category'
+        accessoryLeft={BackAction}
+        // accessoryRight={AddAction}
+      />
       {_renderTimeModal()}
-      <Text category="h2" style={{ marginBottom: 40, marginTop: 50 }}>
-        Select a category
-      </Text>
       <List
-        style={{ flex: 1, backgroundColor: "#ffffee", marginBottom: 15 }}
+        style={{flex: 1, marginBottom: 15, backgroundColor: themeContext.theme === 'dark'? "#1A2138": "#FFFFEE"}}
         data={allCategories}
-        renderItem={({ item }) => _renderCategory(item)}
-      ></List>
-      <View style={{ flexDirection: "row" }}>
-        <Button
-          style={{
-            marginBottom: 20,
-            marginRight: action == "view" ? 200 : 290,
-          }}
-          onPress={() => navigation.goBack()}
-        >
-          Back
-        </Button>
+        renderItem={({item}) => _renderCategory(item)}></List>
+      <View style={{flexDirection: 'row', flex: .1, justifyContent:'center'}}>
 
-        {action == "view" ? (
+        {action == 'view' ? (
           <Button
-            style={{ marginBottom: 20 }}
+            style={{marginBottom: 20}}
             hidden
-            onPress={() => navigation.navigate("AddCategory")}
-          >
-            Create
+            accessoryRight={AddIcon}
+            onPress={() => navigation.navigate('AddCategory')}>
+            Create a new Category
           </Button>
         ) : (
           <View></View>
         )}
       </View>
-    </View>
+    </Layout>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
   checkboxContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginBottom: 20,
   },
   checkbox: {
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   label: {
     margin: 8,
   },
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 22,
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -231,29 +236,29 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    justifyContent: "space-around",
-    flexDirection: "column",
-    alignItems: "center",
+    justifyContent: 'space-around',
+    flexDirection: 'column',
+    alignItems: 'center',
   },
   backdrop: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   openButton: {
-    backgroundColor: "#F194FF",
+    backgroundColor: '#F194FF',
     borderRadius: 20,
     padding: 10,
     elevation: 2,
   },
   textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center",
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   modalText: {
     marginBottom: 15,
-    textAlign: "center",
+    textAlign: 'center',
   },
   timeSelectionContainer: {},
 });
 
-export default Categories;
+export default CategoriesScreen;

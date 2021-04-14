@@ -30,7 +30,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Categories from './Categories';
 
-function AddCategory({route, navigation}) {
+function AddCategoryScreen({route, navigation}) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [categoryName, setCategoryName] = React.useState('');
   const [categoryDesc, setCategoryDesc] = React.useState('');
@@ -451,4 +451,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddCategory;
+export default AddCategoryScreen;

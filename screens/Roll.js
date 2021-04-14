@@ -28,7 +28,7 @@ const _rollAndPickTask = (tasks) => {
   return tasks[randomIndex];
 };
 
-const Roll = ({ route, navigation }) => {
+const RollResultScreen = ({ route, navigation }) => {
   const tasks = route.params.tasks;
   const [lastRolledTask, setLastRolledTask] = React.useState({});
   const [loading, setLoading] = React.useState(true);
@@ -106,7 +106,7 @@ const Roll = ({ route, navigation }) => {
     </View>
   );
 };
-export default Roll;
+export default RollResultScreen;
 
 const styles = StyleSheet.create({
   container: {

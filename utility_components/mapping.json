@@ -1,0 +1,20 @@
+{
+  "components": {
+    "Button": {
+      "meta": {},
+      "appearances": {
+        "filled": {
+          "mapping": {},
+          "variantGroups": {
+            "status": {
+              "primary": {
+                "borderColor": "#800",
+                "backgroundColor": "#800"
+              }
+            }
+          } 
+        }
+      }
+    }
+  }
+}
