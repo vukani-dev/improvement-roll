@@ -49,13 +49,6 @@ function CategoriesScreen({route, navigation}) {
     <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
   );
 
-  const AddAction = () => (
-    <TopNavigationAction
-      icon={AddIcon}
-      onPress={navigation.navigate('AddCategory')}
-    />
-  );
-
   const AddIcon = (props) => <Icon {...props} name="plus-square-outline" />;
   const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
   React.useEffect(() => {
@@ -84,7 +77,6 @@ function CategoriesScreen({route, navigation}) {
           }
         }
 
-        console.log(newTimeRange);
         if (newTimeRange.length == 1) {
           navigation.navigate('Roll', {tasks: category.tasks});
           return;
@@ -96,7 +88,6 @@ function CategoriesScreen({route, navigation}) {
       } else {
         navigation.navigate('Roll', {tasks: category.tasks});
       }
-      //bring up popup for time selection
     }
   };
 
@@ -204,64 +195,5 @@ function CategoriesScreen({route, navigation}) {
     </Layout>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  checkbox: {
-    alignSelf: 'center',
-  },
-  label: {
-    margin: 8,
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-    justifyContent: 'space-around',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  backdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  openButton: {
-    backgroundColor: '#F194FF',
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  timeSelectionContainer: {},
-});
 
 export default CategoriesScreen;

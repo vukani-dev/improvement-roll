@@ -13,6 +13,13 @@ export default class StyleSheetFactory {
         flexDirection: 'column',
         backgroundColor: themeBackgroundColor,
       },
+      loading_container: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        flex: 1,
+        backgroundColor: themeBackgroundColor,
+      },
       modal_container: {
         margin: 30,
         marginBottom: 100,

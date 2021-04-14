@@ -1,19 +1,10 @@
 import * as React from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableHighlight,
-} from 'react-native';
+import {ActivityIndicator} from 'react-native';
 
-import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome';
-import {Fumi, Kaede, Isao, Sae, Hoshi} from 'react-native-textinput-effects';
-import SegmentedControl from '@react-native-community/segmented-control';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import {FlatList} from 'react-native-gesture-handler';
+import {Jiro} from 'react-native-textinput-effects';
 
+import {ThemeContext} from '../utility_components/theme-context';
+import StyleSheetFactory from '../utility_components/styles.js';
 import {
   Divider,
   CheckBox,
@@ -23,12 +14,15 @@ import {
   ListItem,
   Modal,
   Radio,
+  Text,
   RadioGroup,
+  Layout,
   Input,
+  TopNavigation,
+  TopNavigationAction,
 } from '@ui-kitten/components';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Categories from './Categories';
 
 function AddCategoryScreen({route, navigation}) {
   const [allCategories, setAllCategories] = React.useState([]);
@@ -46,9 +40,30 @@ function AddCategoryScreen({route, navigation}) {
   const [taskTime, setTaskTime] = React.useState(0);
   const [taskId, setTaskId] = React.useState(0);
   const [tasks, setTasks] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+  const [menuVisible, setMenuVisible] = React.useState(false);
 
+  const themeContext = React.useContext(ThemeContext);
+  const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
+
+  const renderRightActions = () => (
+    <React.Fragment>
+      {categoryMode == 'edit' ? (
+        <TopNavigationAction
+          icon={TrashIcon}
+          onPress={() => _removeCategory()}
+        />
+      ) : null}
+      <TopNavigationAction
+        style={{marginLeft: 20}}
+        icon={SaveIcon}
+        onPress={() => _categoryComplete()}
+      />
+    </React.Fragment>
+  );
   React.useEffect(() => {
     AsyncStorage.getItem('categories').then((value) => {
+      setLoading(true);
       var categories = value != null ? JSON.parse(value) : [];
 
       setAllCategories(categories);
@@ -68,6 +83,11 @@ function AddCategoryScreen({route, navigation}) {
             break;
           }
         }
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
+      } else {
+        setLoading(false);
       }
     });
   }, []);
@@ -90,6 +110,12 @@ function AddCategoryScreen({route, navigation}) {
       value: 4,
     },
   ];
+
+  const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+
+  const BackAction = () => (
+    <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
+  );
   const _openModal = (task) => {
     if (JSON.stringify(task) == JSON.stringify({})) {
       console.log('task is empty so its a new one');
@@ -196,15 +222,19 @@ function AddCategoryScreen({route, navigation}) {
   };
 
   const _renderEditButton = (task) => (
-    <ListItem
-      title={task.name}
-      description={task.desc}
-      accessoryRight={() => (
-        <Button onPress={() => _removeTask(task)} size="tiny">
-          REMOVE
-        </Button>
-      )}
-      onPress={() => _openModal(task)}></ListItem>
+    <>
+      <ListItem
+        title={task.name}
+        description={task.desc}
+        style={{backgroundColor: themeContext.backgroundColor}}
+        accessoryRight={() => (
+          <Button onPress={() => _removeTask(task)} size="tiny">
+            REMOVE
+          </Button>
+        )}
+        onPress={() => _openModal(task)}></ListItem>
+      <Divider style={{marginHorizontal: 10}} />
+    </>
   );
 
   const _renderDeleteModal = () => {
@@ -213,22 +243,22 @@ function AddCategoryScreen({route, navigation}) {
         transparent={true}
         visible={deleteModalVisible}
         onBackdropPress={() => setDeleteModalVisible(false)}
-        backdropStyle={styles.backdrop}>
-        <View style={styles.modalView}>
+        backdropStyle={styleSheet.modal_backdrop}>
+        <Layout style={styleSheet.modal_container}>
           <Text>Are you sure you want to delete this category?</Text>
 
-          <View
+          <Layout
             style={{
               flex: 1,
               flexDirection: 'row',
               justifyContent: 'space-between',
-              marginTop: 10,
+              marginTop: 20,
               marginHorizontal: 70,
             }}>
             <Button onPress={() => setDeleteModalVisible(false)}>No</Button>
             <Button onPress={() => _deleteCat()}>Yes</Button>
-          </View>
-        </View>
+          </Layout>
+        </Layout>
       </Modal>
     );
   };
@@ -240,8 +270,8 @@ function AddCategoryScreen({route, navigation}) {
         transparent={true}
         visible={modalVisible}
         onBackdropPress={() => setModalVisible(false)}
-        backdropStyle={styles.backdrop}>
-        <View style={styles.modalView}>
+        backdropStyle={styleSheet.modal_backdrop}>
+        <Layout style={styleSheet.modal_container}>
           <Input
             placeholder="Enter a task"
             value={taskName}
@@ -257,7 +287,7 @@ function AddCategoryScreen({route, navigation}) {
             onChangeText={(text) => setTaskDesc(text)}></Input>
 
           {timeSensitive ? (
-            <View style={{padding: 10}}>
+            <Layout style={{padding: 10}}>
               <Text>How long does it take to do this task?</Text>
               <RadioGroup
                 selectedIndex={taskTime}
@@ -268,187 +298,127 @@ function AddCategoryScreen({route, navigation}) {
                 <Radio>{data[2].label}</Radio>
                 <Radio>{data[3].label}</Radio>
               </RadioGroup>
-            </View>
+            </Layout>
           ) : null}
 
-          <View>
-            <Button onPress={() => _closeModal('save')}>
+          <Layout
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-evenly',
+              marginTop: 10,
+            }}>
+            <Button onPress={() => setModalVisible(false)}>Cancel</Button>
+            <Button
+              onPress={() => _closeModal('save')}
+              accessoryRight={taskMode == 'new' ? AddIcon : SaveIcon}>
               {taskMode == 'new' ? 'Add Task' : 'Save Task'}
             </Button>
-            <Button
-              style={{marginTop: 10}}
-              onPress={() => setModalVisible(false)}>
-              Cancel
-            </Button>
-          </View>
-        </View>
+          </Layout>
+        </Layout>
       </Modal>
     );
   };
 
-  const renderInfiniteAnimationIcon = (props) => (
-    <Icon {...props} name="plus-circle-outline" />
-  );
+  const AddIcon = (props) => <Icon {...props} name="plus-circle-outline" />;
+  const SaveIcon = (props) => <Icon {...props} name="save" />;
+  const TrashIcon = (props) => <Icon {...props} name="trash" />;
 
   return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: '#ffffee',
-        padding: 15,
-        paddingTop: 30,
-      }}>
-      <Fumi
-        label={'Name'}
-        iconClass={FontAwesomeIcon}
-        iconName={'i-cursor'}
-        iconColor={'#800'}
-        iconSize={20}
-        iconWidth={40}
-        inputPadding={16}
-        value={categoryName}
-        onChangeText={(text) => setCategoryName(text)}
-        style={{marginBottom: 20}}
-      />
-
-      <Input
-        multiline={true}
-        numberOfLines={4}
-        placeholder="Enter a description for the category"
-        value={categoryDesc}
-        returnKeyLabel="done"
-        onChangeText={(text) => setCategoryDesc(text)}
-        blurOnSubmit={true}></Input>
-      <View style={styles.checkboxContainer}>
-        <CheckBox
-          style={styles.checkbox}
-          checked={timeSensitive}
-          onChange={setTimeSensitive}
-        />
-        <Text style={styles.label} category="h2">
-          This category is split by time
-        </Text>
-      </View>
-
-      <Divider />
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'stretch',
-          justifyContent: 'space-between',
-          marginVertical: 10,
-        }}>
-        <Text style={styles.label2}>Tasks</Text>
-        <Button
-          status="primary"
-          size="small"
-          accessoryLeft={renderInfiniteAnimationIcon}
-          onPress={() => _openModal({})}>
-          Add Task
-        </Button>
-      </View>
-
-      <List
-        style={{marginBottom: 10}}
-        data={tasks}
-        renderItem={({item}) => _renderEditButton(item)}></List>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        <Icon
-          onPress={() => navigation.goBack()}
-          fill="#800"
-          name="arrow-back-outline"
-          style={{width: '32', height: '32'}}
-        />
-
-        {categoryMode == 'edit' ? (
-          <Icon
-            onPress={() => _removeCategory()}
-            fill="#800"
-            name="trash"
-            style={{width: '32', height: '32'}}
+    <>
+      {loading ? (
+        <Layout style={styleSheet.loading_container}>
+          <ActivityIndicator
+            style={{alignSelf: 'center'}}
+            size="large"
+            color="#800"
+            animating={loading}
           />
-        ) : null}
-        <Icon
-          fill="#800"
-          onPress={() => _categoryComplete()}
-          name="save"
-          style={{width: '32', height: '32'}}
-        />
-      </View>
-      {_renderModal()}
-      {_renderDeleteModal()}
-    </View>
+        </Layout>
+      ) : (
+        <Layout
+          style={{flex: 1, backgroundColor: themeContext.backgroundColor}}>
+          <TopNavigation
+            alignment="center"
+            style={{backgroundColor: themeContext.backgroundColor}}
+            title={
+              categoryMode == 'edit'
+                ? 'Editing a Category...'
+                : 'Creating a Category...'
+            }
+            accessoryLeft={BackAction}
+            accessoryRight={renderRightActions}
+          />
+
+          <Jiro
+            label={'Name'}
+            borderColor={'#800'}
+            inputPadding={16}
+            value={categoryName}
+            style={{backgroundColor: themeContext.backgroundColor}}
+            onChangeText={(text) => setCategoryName(text)}
+            inputStyle={{color: 'white'}}
+          />
+
+          <Input
+            multiline={true}
+            numberOfLines={4}
+            placeholder="Enter a description for the category"
+            value={categoryDesc}
+            returnKeyLabel="done"
+            onChangeText={(text) => setCategoryDesc(text)}
+            blurOnSubmit={true}></Input>
+          <Layout
+            style={{
+              flexDirection: 'row',
+              marginBottom: 10,
+              marginLeft: 13,
+              backgroundColor: themeContext.backgroundColor,
+            }}>
+            <CheckBox
+              style={{alignSelf: 'center'}}
+              checked={timeSensitive}
+              onChange={setTimeSensitive}
+            />
+            <Text style={{margin: 20}}>This category is split by time</Text>
+          </Layout>
+
+          <Divider />
+          <Layout
+            style={{
+              flexDirection: 'row',
+              alignItems: 'stretch',
+              justifyContent: 'space-between',
+              marginVertical: 10,
+              marginHorizontal: 13,
+              backgroundColor: themeContext.backgroundColor,
+            }}>
+            <Text
+              style={{
+                fontSize: 20,
+                alignSelf: 'center',
+                fontWeight: 'bold',
+              }}>
+              Tasks
+            </Text>
+            <Button
+              status="primary"
+              size="small"
+              accessoryLeft={AddIcon}
+              onPress={() => _openModal({})}>
+              Add Task
+            </Button>
+          </Layout>
+
+          <List
+            style={{backgroundColor: themeContext.backgroundColor}}
+            data={tasks}
+            renderItem={({item}) => _renderEditButton(item)}></List>
+          {_renderModal()}
+          {_renderDeleteModal()}
+        </Layout>
+      )}
+    </>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  checkboxContainer: {
-    flexDirection: 'row',
-    marginBottom: 10,
-  },
-  checkbox: {
-    alignSelf: 'center',
-  },
-  inputStyle: {
-    fontSize: 14,
-  },
-  textArea: {
-    height: 70,
-  },
-  label: {
-    margin: 8,
-    color: '#800',
-  },
-  label2: {
-    fontSize: 20,
-    alignSelf: 'center',
-    marginLeft: 10,
-    color: '#800',
-  },
-  centeredView: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 22,
-  },
-  modalView: {
-    margin: 20,
-    marginBottom: 100,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 15,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  openButton: {
-    backgroundColor: '#F194FF',
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: 'center',
-  },
-  timeSelectionContainer: {},
-  backdrop: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-});
 
 export default AddCategoryScreen;
