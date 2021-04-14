@@ -16,7 +16,6 @@ function MainScreen({route, navigation}) {
 
   React.useEffect(() => {
     AsyncStorage.getAllKeys().then((value) => {
-      console.log(value)
       if (value.indexOf('categories') == -1) {
         const jsonValue = JSON.stringify([generalCategory]);
         AsyncStorage.setItem('categories', jsonValue);
@@ -24,7 +23,6 @@ function MainScreen({route, navigation}) {
 
       if(value.indexOf('theme') >= 0){
         AsyncStorage.getItem('theme').then((val) => {
-          console.log(val)
           if(val == 'dark'){
             themeContext.toggleTheme()
           }
@@ -42,10 +40,10 @@ function MainScreen({route, navigation}) {
 
   return (
     <Layout style={styleSheet.centered_container}>
-      <Text style={{marginTop: 100}} category="h1">
+      <Text style={{marginTop: 100, fontWeight:'bold'}} category="h1" >
         Improvement
       </Text>
-      <Text style={{marginBottom: 100}} category="h1">
+      <Text style={{marginBottom: 100, fontWeight:'bold'}} category="h1">
         Roll
       </Text>
 

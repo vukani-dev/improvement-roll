@@ -1,18 +1,10 @@
 import * as React from 'react';
-import {
-  View,
-  FlatList,
-  StyleSheet,
-  TouchableWithoutFeedback,
-} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
+import {View, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Card,
   List,
   Text,
-  Divider,
   Button,
   Icon,
   Modal,
@@ -58,12 +50,13 @@ function CategoriesScreen({route, navigation}) {
   );
 
   const AddAction = () => (
-    <TopNavigationAction icon={AddIcon} onPress={navigation.navigate('AddCategory')} />
-  )
+    <TopNavigationAction
+      icon={AddIcon}
+      onPress={navigation.navigate('AddCategory')}
+    />
+  );
 
-  const AddIcon = (props) => (
-  <Icon {...props} name='plus-square-outline'/>
-);
+  const AddIcon = (props) => <Icon {...props} name="plus-square-outline" />;
   const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
   React.useEffect(() => {
     AsyncStorage.getItem('categories').then((value) => {
@@ -141,51 +134,61 @@ function CategoriesScreen({route, navigation}) {
   };
 
   const _renderTimeModal = () => {
-    const renderInfiniteAnimationIcon = (props) => (
-      <Icon {...props} name="clock-outline" />
+    const timeIcon = (props) => <Icon {...props} name="clock-outline" />;
+    const cancelIcon = (props) => (
+      <Icon {...props} name="close-circle-outline" />
     );
     return (
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onBackdropPress={() => setModalVisible(false)}
-        backdropStyle={styles.backdrop}>
-        <View style={styles.modalView}>
+        backdropStyle={styleSheet.modal_backdrop}>
+        <Layout style={styleSheet.modal_container}>
           <Text style={{marginBottom: 10}}>How much time do you have?</Text>
 
           {timeRanges.map((timeRange) => (
             <Button
               status="primary"
-              accessoryLeft={renderInfiniteAnimationIcon}
+              accessoryLeft={timeIcon}
               onPress={() => _timeSelected(timeRange.value)}
               style={{marginTop: 15}}
               key={timeRange.value}>
               {timeRange.label}
             </Button>
           ))}
-        </View>
+
+          <Button
+          style={{marginTop:20
+          }}
+            appearance="ghost"
+            accessoryLeft={cancelIcon}
+            onPress={() => setModalVisible(false)}
+          />
+        </Layout>
       </Modal>
     );
   };
 
   return (
     <Layout style={styleSheet.columned_container}>
-      
       <TopNavigation
         alignment="center"
         style={{backgroundColor: themeContext.backgroundColor}}
-        title='Select a category'
+        title="Select a category"
         accessoryLeft={BackAction}
-        // accessoryRight={AddAction}
       />
       {_renderTimeModal()}
       <List
-        style={{flex: 1, marginBottom: 15, backgroundColor: themeContext.theme === 'dark'? "#1A2138": "#FFFFEE"}}
+        style={{
+          flex: 1,
+          marginBottom: 15,
+          backgroundColor:
+            themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE',
+        }}
         data={allCategories}
         renderItem={({item}) => _renderCategory(item)}></List>
-      <View style={{flexDirection: 'row', flex: .1, justifyContent:'center'}}>
-
+      <View style={{flexDirection: 'row', flex: 0.1, justifyContent: 'center'}}>
         {action == 'view' ? (
           <Button
             style={{marginBottom: 20}}

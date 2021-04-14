@@ -14,10 +14,10 @@ export default class StyleSheetFactory {
         backgroundColor: themeBackgroundColor,
       },
       modal_container: {
-        margin: 20,
+        margin: 30,
         marginBottom: 100,
         borderRadius: 20,
-        padding: 15,
+        padding: 25,
         shadowColor: '#000',
         shadowOffset: {
           width: 0,

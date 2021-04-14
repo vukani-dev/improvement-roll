@@ -1,121 +1,119 @@
-import * as React from "react";
-import { View, FlatList, ActivityIndicator, StyleSheet } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import SortableList from "react-native-sortable-list";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import Categories from "./Categories";
+import * as React from 'react';
+import {ActivityIndicator} from 'react-native';
 
-import {
-  Card,
-  List,
-  Text,
-  Divider,
-  Button,
-  Icon,
-  Modal,
-} from "@ui-kitten/components";
+import {Text, Button, Icon, Layout} from '@ui-kitten/components';
 
-var decks = [
-  { key: "General", splitByTime: true },
-  { key: "Training", splitByTime: true },
-  { key: "Creative", splitByTime: false },
-  { key: "Organization", splitByTime: true },
-];
+import {ThemeContext} from '../utility_components/theme-context';
 
-const _rollAndPickTask = (tasks) => {
-  var randomIndex = Math.floor(Math.random() * tasks.length);
-  return tasks[randomIndex];
-};
-
-const RollResultScreen = ({ route, navigation }) => {
+const RollResultScreen = ({route, navigation}) => {
   const tasks = route.params.tasks;
   const [lastRolledTask, setLastRolledTask] = React.useState({});
   const [loading, setLoading] = React.useState(true);
 
+  const themeContext = React.useContext(ThemeContext);
+
+  const rollAndPickTask = (tasks) => {
+    var randomIndex = Math.floor(Math.random() * tasks.length);
+    return tasks[randomIndex];
+  };
   React.useEffect(() => {
     setTimeout(() => {
-      var selectedTask = _rollAndPickTask(tasks);
+      var selectedTask = rollAndPickTask(tasks);
       setLastRolledTask(selectedTask);
       setLoading(false);
     }, 2000);
   }, []);
 
-  const _reRoll = () => {
+  const reRoll = () => {
     setLoading(true);
     setTimeout(() => {
       if (tasks.length > 1) {
         var filteredTasks = tasks.filter((e) => e.name != lastRolledTask.name);
-        setLastRolledTask(_rollAndPickTask(filteredTasks));
+        setLastRolledTask(rollAndPickTask(filteredTasks));
         setLoading(false);
       }
     }, 3000);
   };
 
   const renderRerollIcon = (props) => <Icon {...props} name="flip-2-outline" />;
-
   const homeIcon = (props) => <Icon {...props} name="home" />;
-  return (
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: "#ffffee",
-        padding: 15,
-        paddingTop: 50,
-        alignContent: "center",
-      }}
-    >
-      {loading ? (
-        <ActivityIndicator
-          style={{ alignSelf: "center" }}
-          size="large"
-          color="#0000ff"
-          animating={loading}
-        />
-      ) : (
-        <View>
-          <Text
-            category="h3"
-            style={{ marginBottom: 40, marginTop: 50, textAlign: "center" }}
-          >
-            {lastRolledTask.name}
-          </Text>
-          <Text
-            category="h5"
-            style={{ marginBottom: 70, marginTop: 50, textAlign: "center" }}
-          >
-            {lastRolledTask.desc}
-          </Text>
 
-          <Button
-            accessoryLeft={renderRerollIcon}
-            style={{ marginHorizontal: 30, marginBottom: 25 }}
-            onPress={_reRoll}
-          >
-            Re-roll
-          </Button>
-          <Button
-            accessoryLeft={homeIcon}
-            title="Home"
-            onPress={navigation.popToTop}
-          >
-            Home
-          </Button>
-        </View>
+  return (
+    <>
+      {loading ? (
+        <Layout
+          style={{
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flex: 1,
+            backgroundColor: themeContext.backgroundColor,
+          }}>
+          <ActivityIndicator
+            style={{alignSelf: 'center'}}
+            size="large"
+            color="#800"
+            animating={loading}
+          />
+        </Layout>
+      ) : (
+        <>
+          <Layout
+            style={{
+              flex: 1,
+              padding: 20,
+              backgroundColor: themeContext.backgroundColor,
+            }}>
+            <Text
+              category="h3"
+              style={{
+                marginBottom: 40,
+                marginTop: 50,
+                textAlign: 'center',
+                fontWeight: 'bold',
+              }}>
+              {lastRolledTask.name}
+            </Text>
+            <Text
+              category="h6"
+              style={{
+                marginBottom: 70,
+                marginTop: 50,
+                textAlign: 'center',
+                backgroundColor: themeContext.backgroundColor,
+              }}>
+              {lastRolledTask.desc}
+            </Text>
+
+            <Layout
+              style={{
+                backgroundColor: themeContext.backgroundColor,
+              }}>
+              <Button
+                accessoryLeft={renderRerollIcon}
+                style={{marginHorizontal: 130, height: 80}}
+                onPress={reRoll}>
+                Re-roll
+              </Button>
+            </Layout>
+          </Layout>
+
+          <Layout
+            style={{
+              padding: 30,
+              backgroundColor: themeContext.backgroundColor,
+            }}>
+            <Button
+              style={{marginHorizontal: 80}}
+              accessoryLeft={homeIcon}
+              title="Home"
+              onPress={navigation.popToTop}>
+              Home
+            </Button>
+          </Layout>
+        </>
       )}
-    </View>
+    </>
   );
 };
 export default RollResultScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  horizontal: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    padding: 10,
-  },
-});
