@@ -42,9 +42,9 @@ Once you select the **Fitness** category to roll this time you will be asked how
 ## Screenshots
 
 
-<img src="pictures/home.png" alt="home" width="200">
-<img src="pictures/category.png" alt="category" width="200">
-<img src="pictures/roll.png" alt="roll" width="200">
+<img src="pictures/home.png" alt="home" width="100">
+<img src="pictures/category.png" alt="category" width="100">
+<img src="pictures/roll.png" alt="roll" width="100">
 
 
 ## What are these "rolling" threads
