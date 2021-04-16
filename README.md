@@ -6,6 +6,7 @@ A randomly selected todo list
      alt="Get it on F-Droid"
      height="80">](https://f-droid.org/packages/com.improvement_roll/)
 
+<img src="https://img.shields.io/f-droid/v/com.improvement_roll.svg" width="200">
 ## What??
 Inspired from "rolling" threads on 4chan. You can create category of tasks that you want to do (in no particular order). 
 Then press the button and it will randomly give you a task to do from said list.
@@ -41,10 +42,11 @@ Once you select the **Fitness** category to roll this time you will be asked how
 
 ## Screenshots
 
-
-<img src="pictures/home.png" alt="home" width="100">
-<img src="pictures/category.png" alt="category" width="100">
-<img src="pictures/roll.png" alt="roll" width="100">
+<p>
+<img src="pictures/home.png" alt="home" width="250">
+<img src="pictures/category.png" alt="category" width="250">
+<img src="pictures/roll.png" alt="roll" width="250">
+</p>
 
 
 ## What are these "rolling" threads
