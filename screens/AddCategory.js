@@ -79,7 +79,7 @@ function AddCategoryScreen({route, navigation}) {
             setCategoryMode('edit');
             setCategoryName(categories[i].name);
             setTimeSensitive(categories[i].timeSensitive);
-            setCategoryDesc(categories[i].desc);
+            setCategoryDesc(categories[i].description);
             break;
           }
         }
@@ -195,7 +195,7 @@ function AddCategoryScreen({route, navigation}) {
       name: categoryName,
       timeSensitive: timeSensitive,
       tasks: tasks,
-      desc: categoryDesc,
+      description: categoryDesc,
       key: Date.now(),
     };
 

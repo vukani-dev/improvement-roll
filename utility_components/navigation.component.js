@@ -10,6 +10,7 @@ import OptionsScreen from '../screens/Options';
 import CategoriesScreen from '../screens/Categories';
 import RollResultScreen from '../screens/Roll';
 import AddCategoryScreen from '../screens/AddCategory';
+import ImportExportScreen from '../screens/ImportExport';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -23,6 +24,7 @@ const HomeNavigator = () => (
     <Screen name="Categories" component={CategoriesScreen} />
     <Screen name="AddCategory" component={AddCategoryScreen} />
     <Screen name="Roll" component={RollResultScreen} />
+    <Screen name="ImportExport" component={ImportExportScreen} />
   </Navigator>
 );
 

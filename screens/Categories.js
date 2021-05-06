@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Card,
@@ -93,7 +93,7 @@ function CategoriesScreen({route, navigation}) {
 
   const _renderCategoryFooter = (item) => (
     <Text category="p2" style={{margin: 5, textAlign: 'center'}}>
-      {item.desc}
+      {item.description}
     </Text>
   );
 

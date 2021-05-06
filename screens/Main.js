@@ -2,6 +2,9 @@ import * as React from 'react';
 import Toast from 'react-native-simple-toast';
 import generalCategory from '../categories/DefaultCategories';
 import {Button, Icon, Text, Layout} from '@ui-kitten/components';
+import * as Toml from 'toml';
+import FilePickerManager from 'react-native-file-picker';
+import RNFS from 'react-native-fs';
 
 import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
@@ -13,13 +16,12 @@ function MainScreen({route, navigation}) {
       Toast.show('Reset complete.');
       const jsonValue = JSON.stringify([generalCategory]);
       AsyncStorage.setItem('categories', jsonValue);
-      
     } else {
       Toast.show(
         `Category "${route.params.categoryName}" ${route.params.action}.`,
       );
     }
-    route.params = undefined
+    route.params = undefined;
   }
 
   React.useEffect(() => {
@@ -37,6 +39,31 @@ function MainScreen({route, navigation}) {
         });
       }
     });
+    // FilePickerManager.showFilePicker(null, (response) => {
+    //   console.log('Response = ', response);
+
+    //   if (response.didCancel) {
+    //     console.log('User cancelled file picker');
+    //   } else if (response.error) {
+    //     console.log('FilePickerManager Error: ', response.error);
+    //   } else {
+    //     console.log(response.path);
+    //     RNFS.readFile(response.path).then((res) => {
+    //       // console.log(res)
+    //       var parsed = Toml.parse(res);
+    //       console.log(parsed);
+    //       AsyncStorage.getItem('categories').then((value) => {
+    //         var categories = value != null ? JSON.parse(value) : [];
+    //         categories.push(parsed);
+
+    //         const jsonValue = JSON.stringify(categories);
+    //         AsyncStorage.setItem('categories',jsonValue);
+    //       });
+    //     });
+    //   }
+    // });
+    // var x = Toml.parse('');
+    // console.log(x);
   }, []);
 
   const RollIcon = (props) => <Icon name="flip-outline" {...props} />;

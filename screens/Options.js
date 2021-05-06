@@ -32,6 +32,12 @@ export default ({navigation}) => {
   const CautionIcon = (props) => (
     <Icon name="alert-triangle-outline" {...props} />
   );
+  const ImportIcon = (props) => (
+    <Icon name="download-outline" {...props} />
+  );
+  const ExportIcon = (props) => (
+    <Icon name="upload-outline" {...props} />
+  );
   const OctoIcon = (props) => <Icon name="github-outline" {...props} />;
 
   const makeVersionString = () => {
@@ -42,7 +48,7 @@ export default ({navigation}) => {
     try {
       AsyncStorage.removeItem('categories').then((val) => {
         navigation.navigate('Main', {
-          categoryName: "",
+          categoryName: '',
           action: 'reset',
         });
       });
@@ -128,12 +134,21 @@ export default ({navigation}) => {
           marginTop: 40,
           backgroundColor: themeContext.backgroundColor,
         }}>
-        <Button
-          status="warning"
-          accessoryLeft={CautionIcon}
-          onPress={() => setModalVisible(true)}>
-          Reset Data
-        </Button>
+        <Layout >
+          <Button
+            style={{marginBottom:20}}
+            accessoryLeft={ImportIcon}
+            accessoryRight={ExportIcon}
+            onPress={() => navigation.navigate('ImportExport')}>
+              Import / Export
+          </Button>
+          <Button
+            status="warning"
+            accessoryLeft={CautionIcon}
+            onPress={() => setModalVisible(true)}>
+            Reset Data
+          </Button>
+        </Layout>
 
         <Toggle checked={themeContext.theme == 'dark'} onChange={toggleTheme}>
           Dark Mode

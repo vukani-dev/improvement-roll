@@ -1,7 +1,7 @@
 const generalCategory = {
   name: "General",
   timeSensitive: true,
-  desc: "A mix of physical, creative, organizational and social tasks",
+  description: "A mix of physical, creative, organizational and social tasks",
   key: Date.now(),
   tasks: [
     {
