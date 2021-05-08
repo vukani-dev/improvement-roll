@@ -16,12 +16,14 @@ import {
 import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 
+import RNFS from 'react-native-fs';
+
 function CategoriesScreen({route, navigation}) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [selectedCategory, setSelectedCategory] = React.useState({});
   const [timeRanges, setTimeRanges] = React.useState([]);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const {action} = route.params;
+  const {action, type} = route.params;
 
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
@@ -64,30 +66,61 @@ function CategoriesScreen({route, navigation}) {
   }, []);
 
   const _categorySelected = (category) => {
-    if (action == 'view') {
-      navigation.navigate('AddCategory', {categoryName: category.name});
-    } else {
-      if (category.timeSensitive) {
-        var newTimeRange = [];
-        var highestTimeRange = 0;
-        for (var i = 0; i < category.tasks.length; i++) {
-          if (category.tasks[i].time > highestTimeRange) {
-            highestTimeRange = category.tasks[i].time;
-            newTimeRange.push(data[highestTimeRange - 1]);
+    console.log(category);
+    switch (action) {
+      case 'view':
+        navigation.navigate('AddCategory', {categoryName: category.name});
+        break;
+      case 'roll':
+        if (category.timeSensitive) {
+          var newTimeRange = [];
+          var highestTimeRange = 0;
+          for (var i = 0; i < category.tasks.length; i++) {
+            if (category.tasks[i].time > highestTimeRange) {
+              highestTimeRange = category.tasks[i].time;
+              newTimeRange.push(data[highestTimeRange - 1]);
+            }
           }
-        }
 
-        if (newTimeRange.length == 1) {
+          if (newTimeRange.length == 1) {
+            navigation.navigate('Roll', {tasks: category.tasks});
+            return;
+          }
+
+          setTimeRanges(newTimeRange);
+          setSelectedCategory(category);
+          setModalVisible(true);
+        } else {
           navigation.navigate('Roll', {tasks: category.tasks});
-          return;
+        }
+        break;
+      case 'export':
+        console.log('export time buddy');
+        var n = Date.now();
+        var path = RNFS.DocumentDirectoryPath + `/test${n}.${type}`;
+        console.log(path)
+        var data = '';
+
+        switch (type) {
+          case 'JSON':
+            data = JSON.stringify(category);
+            break;
+          case 'TOML':
+            break;
+          case 'YAML':
+            break;
         }
 
-        setTimeRanges(newTimeRange);
-        setSelectedCategory(category);
-        setModalVisible(true);
-      } else {
-        navigation.navigate('Roll', {tasks: category.tasks});
-      }
+        console.log(data)
+        RNFS.writeFile(path, data, 'utf8')
+          .then((success) => {
+            console.log(success);
+            console.log('WORKED')
+          })
+          .catch((err) => {
+            console.log('ERROR');
+          });
+        break;
     }
   };
 
@@ -150,8 +183,7 @@ function CategoriesScreen({route, navigation}) {
           ))}
 
           <Button
-          style={{marginTop:20
-          }}
+            style={{marginTop: 20}}
             appearance="ghost"
             accessoryLeft={cancelIcon}
             onPress={() => setModalVisible(false)}
