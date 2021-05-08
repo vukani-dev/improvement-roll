@@ -39,31 +39,6 @@ function MainScreen({route, navigation}) {
         });
       }
     });
-    // FilePickerManager.showFilePicker(null, (response) => {
-    //   console.log('Response = ', response);
-
-    //   if (response.didCancel) {
-    //     console.log('User cancelled file picker');
-    //   } else if (response.error) {
-    //     console.log('FilePickerManager Error: ', response.error);
-    //   } else {
-    //     console.log(response.path);
-    //     RNFS.readFile(response.path).then((res) => {
-    //       // console.log(res)
-    //       var parsed = Toml.parse(res);
-    //       console.log(parsed);
-    //       AsyncStorage.getItem('categories').then((value) => {
-    //         var categories = value != null ? JSON.parse(value) : [];
-    //         categories.push(parsed);
-
-    //         const jsonValue = JSON.stringify(categories);
-    //         AsyncStorage.setItem('categories',jsonValue);
-    //       });
-    //     });
-    //   }
-    // });
-    // var x = Toml.parse('');
-    // console.log(x);
   }, []);
 
   const RollIcon = (props) => <Icon name="flip-outline" {...props} />;

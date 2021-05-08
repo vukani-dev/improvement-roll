@@ -13,6 +13,7 @@ import {
 
 import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
+import FilePickerManager from 'react-native-file-picker';
 
 const exportTypes = ['JSON', 'TOML', 'YAML'];
 
@@ -25,6 +26,37 @@ export default ({navigation}) => {
   const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
+
+  const openFile = () => {
+
+    FilePickerManager.showFilePicker(null, (response) => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled file picker');
+      } else if (response.error) {
+        console.log('FilePickerManager Error: ', response.error);
+      } else {
+        console.log(response.path);
+        RNFS.readFile(response.path).then((res) => {
+          // console.log(res)
+          var parsed = Toml.parse(res);
+          console.log(parsed);
+          AsyncStorage.getItem('categories').then((value) => {
+            var categories = value != null ? JSON.parse(value) : [];
+            categories.push(parsed);
+
+            const jsonValue = JSON.stringify(categories);
+            AsyncStorage.setItem('categories',jsonValue);
+          });
+        });
+      }
+    });
+    var x = Toml.parse('');
+    console.log(x);
+    
+  };
+
   return (
     <Layout style={styleSheet.columned_container}>
       <TopNavigation
@@ -40,7 +72,8 @@ export default ({navigation}) => {
             marginBottom: 70,
             height: 90,
             marginHorizontal: 60,
-          }}>
+          }}
+          onPress={() => openFile}>
           Import
         </Button>
 
