@@ -17,6 +17,9 @@ import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 
 import RNFS from 'react-native-fs';
+import {PermissionsAndroid} from 'react-native';
+import * as TOML from '@iarna/toml';
+import * as YAML from 'js-yaml';
 
 function CategoriesScreen({route, navigation}) {
   const [allCategories, setAllCategories] = React.useState([]);
@@ -52,6 +55,7 @@ function CategoriesScreen({route, navigation}) {
   );
 
   const AddIcon = (props) => <Icon {...props} name="plus-square-outline" />;
+  const ExportIcon = (props) => <Icon {...props} name="arrow-upward-outline" />;
   const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
   React.useEffect(() => {
     AsyncStorage.getItem('categories').then((value) => {
@@ -95,33 +99,53 @@ function CategoriesScreen({route, navigation}) {
         }
         break;
       case 'export':
-        console.log('export time buddy');
-        var n = Date.now();
-        var path = RNFS.DocumentDirectoryPath + `/test${n}.${type}`;
-        console.log(path)
-        var data = '';
-
-        switch (type) {
-          case 'JSON':
-            data = JSON.stringify(category);
-            break;
-          case 'TOML':
-            break;
-          case 'YAML':
-            break;
-        }
-
-        console.log(data)
-        RNFS.writeFile(path, data, 'utf8')
-          .then((success) => {
-            console.log(success);
-            console.log('WORKED')
-          })
-          .catch((err) => {
-            console.log('ERROR');
-          });
+        _export([category]);
         break;
     }
+  };
+
+  const _export = (categories) => {
+    var granted = PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      {
+        title: 'Storage Permissions',
+        message: 'Your app needs permission.',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      },
+    ).then((res) => {
+      console.log(res);
+      var filename =
+        categories.length > 1
+          ? `imp_roll_categories_${Date.now()}`
+          : categories[0].name;
+      var path2 = RNFS.DownloadDirectoryPath + `/${filename}.${type.toLowerCase()}`;
+      var data = '';
+
+      switch (type) {
+        case 'JSON':
+          data = JSON.stringify(categories);
+          break;
+        case 'TOML':
+          data = TOML.stringify(categories[0]);
+          break;
+        case 'YAML':
+          data = YAML.dump(categories[0])
+          break;
+      }
+
+      RNFS.writeFile(path2, data, 'utf8')
+        .then((success) => {
+          console.log(success);
+          navigation.navigate('ImportExport',{action:'export',path:path2});
+          console.log('WORKED');
+        })
+        .catch((err) => {
+          console.log('ERROR');
+          console.log(err);
+        });
+    });
   };
 
   const _renderCategoryFooter = (item) => (
@@ -219,6 +243,18 @@ function CategoriesScreen({route, navigation}) {
             accessoryRight={AddIcon}
             onPress={() => navigation.navigate('AddCategory')}>
             Create a new Category
+          </Button>
+        ) : (
+          <View></View>
+        )}
+        {action == 'export' && type == 'JSON' ? (
+          <Button
+            style={{marginBottom: 20}}
+            hidden
+            accessoryRight={ExportIcon}
+            accessoryLeft={ExportIcon}
+            onPress={() => _export(allCategories)}>
+            Export all
           </Button>
         ) : (
           <View></View>

@@ -2,7 +2,7 @@ name: Test Yaml
 time_sensitive: true
 description: This is a test for yaml import
 
-Tasks:
+tasks:
   - name: task1
     desc: desc for task1
     time: 1

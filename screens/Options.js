@@ -33,10 +33,10 @@ export default ({navigation}) => {
     <Icon name="alert-triangle-outline" {...props} />
   );
   const ImportIcon = (props) => (
-    <Icon name="download-outline" {...props} />
+    <Icon name="arrow-downward-outline" {...props} />
   );
   const ExportIcon = (props) => (
-    <Icon name="upload-outline" {...props} />
+    <Icon name="arrow-upward-outline" {...props} />
   );
   const OctoIcon = (props) => <Icon name="github-outline" {...props} />;
 
