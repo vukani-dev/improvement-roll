@@ -10,6 +10,7 @@ import {
   SelectItem,
   IndexPath,
   Modal,
+  Card
 } from '@ui-kitten/components';
 
 import Toast from 'react-native-simple-toast';
@@ -54,13 +55,15 @@ export default ({navigation, route}) => {
       if (response.didCancel) {
         console.log('User cancelled file picker');
       } else if (response.error) {
-        console.log('FilePickerManager Error: ', response.error);
+          setErrorText('Error while selecting file. Only JSON, TOML, and YAML files are accepted');
+          setVisible(true);
+          return;
       } else {
         var filetype = response.path
           .substr(response.path.length - 4)
           .toLowerCase();
-        console.log(filetype);
-        if (!exportTypes.indexOf(filetype.toUpperCase()) > -1) {
+
+        if (!(exportTypes.indexOf(filetype.toUpperCase()) > -1)) {
           setErrorText('Only JSON, TOML, and YAML files are accepted');
           setVisible(true);
           return;
@@ -134,7 +137,7 @@ export default ({navigation, route}) => {
         accessoryLeft={BackAction}
       />
 
-      {_errorModal}
+      {_errorModal()}
 
       <Layout
         style={{
