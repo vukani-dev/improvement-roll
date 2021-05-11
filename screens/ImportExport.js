@@ -9,6 +9,7 @@ import {
   Select,
   SelectItem,
   IndexPath,
+  Modal,
 } from '@ui-kitten/components';
 
 import Toast from 'react-native-simple-toast';
@@ -37,6 +38,9 @@ export default ({navigation, route}) => {
 
   const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0));
   const displayValue = exportTypes[selectedIndex.row];
+  const [visible, setVisible] = React.useState(false);
+  const [errorText, setErrorText] = React.useState('');
+  const [errorDetailText, setErrorDetailText] = React.useState('');
 
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
@@ -56,40 +60,69 @@ export default ({navigation, route}) => {
           .substr(response.path.length - 4)
           .toLowerCase();
         console.log(filetype);
+        if (!exportTypes.indexOf(filetype.toUpperCase()) > -1) {
+          setErrorText('Only JSON, TOML, and YAML files are accepted');
+          setVisible(true);
+          return;
+        }
+
         RNFS.readFile(response.path).then((res) => {
-          var parsedArray = [];
-          switch (filetype) {
-            case 'json':
-              parsedArray = JSON.parse(res);
-              break;
-            case 'yaml':
-              var x = YAML.load(res);
-              console.log(x);
-              parsedArray.push(YAML.load(res));
-              break;
-            case 'toml':
-              parsedArray.push(TOML.parse(res));
-              break;
+          try {
+            var parsedArray = [];
+            switch (filetype) {
+              case 'json':
+                parsedArray = JSON.parse(res);
+                break;
+              case 'yaml':
+                var x = YAML.load(res);
+                console.log(x);
+                parsedArray.push(YAML.load(res));
+                break;
+              case 'toml':
+                parsedArray.push(TOML.parse(res));
+                break;
+            }
+            AsyncStorage.getItem('categories').then((value) => {
+              var categories = value != null ? JSON.parse(value) : [];
+
+              for (var i = 0; i < parsedArray.length; i++) {
+                categories.push(parsedArray[i]);
+              }
+
+              const jsonValue = JSON.stringify(categories);
+              AsyncStorage.setItem('categories', jsonValue);
+
+              if (parsedArray.length > 1) {
+                Toast.show(`Imported multiple categories `, 20);
+              } else {
+                Toast.show(`Imported category: ${parsedArray[0].name}`, 20);
+              }
+            });
+          } catch (err) {
+            setErrorText(
+              'Error parsing category. Ensure the file is formatted correctly.',
+            );
+            setErrorDetailText(err.message);
+            setVisible(true);
           }
-          AsyncStorage.getItem('categories').then((value) => {
-            var categories = value != null ? JSON.parse(value) : [];
-
-            for (var i = 0; i < parsedArray.length; i++) {
-              categories.push(parsedArray[i]);
-            }
-
-            const jsonValue = JSON.stringify(categories);
-            AsyncStorage.setItem('categories', jsonValue);
-
-            if (parsedArray.length > 1) {
-              Toast.show(`Imported multiple categories `, 20);
-            } else {
-              Toast.show(`Imported category: ${parsedArray[0].name}`, 20);
-            }
-          });
         });
       }
     });
+  };
+
+  const _errorModal = () => {
+    return (
+      <Modal
+        visible={visible}
+        backdropStyle={styleSheet.modal_backdrop}
+        onBackdropPress={() => setVisible(false)}>
+        <Card disabled={true}>
+          <Text>{errorText}</Text>
+          <Text>{errorDetailText}</Text>
+          <Button onPress={() => setVisible(false)}>DISMISS</Button>
+        </Card>
+      </Modal>
+    );
   };
 
   return (
@@ -100,6 +133,9 @@ export default ({navigation, route}) => {
         title="Import / Export"
         accessoryLeft={BackAction}
       />
+
+      {_errorModal}
+
       <Layout
         style={{
           backgroundColor: themeContext.backgroundColor,
