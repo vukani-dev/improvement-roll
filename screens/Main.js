@@ -7,13 +7,17 @@ import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function MainScreen({route, navigation}) {
+export default ({route, navigation}) => {
+
+  const themeContext = React.useContext(ThemeContext);
+  const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
+ 
+  // check for route params to show relevant toasts
   if (route.params != undefined) {
     switch (route.params.action) {
       case 'reset':
-        Toast.show('Reset complete.');
-        const jsonValue = JSON.stringify([generalCategory]);
-        AsyncStorage.setItem('categories', jsonValue);
+        Toast.show('Reset complete');
+        AsyncStorage.setItem('categories', JSON.stringify([generalCategory]));
         break;
       default:
         Toast.show(
@@ -24,11 +28,12 @@ function MainScreen({route, navigation}) {
     route.params = undefined;
   }
 
+  // on load check if there are categories. If not ass the general category.
+  // check the theme and change it based on saved setting
   React.useEffect(() => {
     AsyncStorage.getAllKeys().then((value) => {
       if (value.indexOf('categories') == -1) {
-        const jsonValue = JSON.stringify([generalCategory]);
-        AsyncStorage.setItem('categories', jsonValue);
+        AsyncStorage.setItem('categories', JSON.stringify([generalCategory]));
       }
 
       if (value.indexOf('theme') >= 0) {
@@ -44,8 +49,6 @@ function MainScreen({route, navigation}) {
   const RollIcon = (props) => <Icon name="flip-outline" {...props} />;
   const ListIcon = (props) => <Icon name="list-outline" {...props} />;
   const SettingsIcon = (props) => <Icon name="settings-2-outline" {...props} />;
-  const themeContext = React.useContext(ThemeContext);
-  const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
   return (
     <Layout style={styleSheet.centered_container}>
@@ -73,9 +76,6 @@ function MainScreen({route, navigation}) {
         onPress={() => navigation.navigate('Options')}>
         Options
       </Button>
-      {/* <Button onPress={() => themeContext.toggleTheme()}>Add</Button>V */}
     </Layout>
   );
 }
-
-export default MainScreen;

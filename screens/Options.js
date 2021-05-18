@@ -19,9 +19,10 @@ import {getVersion} from 'react-native-device-info';
 
 import BTCIcon from '../pictures/bitcoin-btc-logo.svg';
 import ETHIcon from '../pictures/ethereum-eth-logo.svg';
+import Toast from 'react-native-simple-toast';
 
 export default ({navigation}) => {
-  const [modalVisible, setModalVisible] = React.useState(false);
+  const [resetModalVisible, setResetModalVisible] = React.useState(false);
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
@@ -35,9 +36,7 @@ export default ({navigation}) => {
   const ImportIcon = (props) => (
     <Icon name="arrow-downward-outline" {...props} />
   );
-  const ExportIcon = (props) => (
-    <Icon name="arrow-upward-outline" {...props} />
-  );
+  const ExportIcon = (props) => <Icon name="arrow-upward-outline" {...props} />;
   const OctoIcon = (props) => <Icon name="github-outline" {...props} />;
 
   const makeVersionString = () => {
@@ -53,8 +52,7 @@ export default ({navigation}) => {
         });
       });
     } catch (e) {
-      console.log(e);
-      console.log('something happend');
+      Toast.show('Error reseting categores. Please try again.');
     }
   };
 
@@ -80,13 +78,13 @@ export default ({navigation}) => {
     });
   };
 
-  const _renderModal = () => {
+  const _renderResetModal = () => {
     return (
       <Modal
         transparent={true}
-        visible={modalVisible}
+        visible={resetModalVisible}
         backdropStyle={styleSheet.modal_backdrop}
-        onBackdropPress={() => setModalVisible(false)}>
+        onBackdropPress={() => setResetModalVisible(false)}>
         <Layout style={styleSheet.modal_container}>
           <Layout
             style={{
@@ -109,7 +107,7 @@ export default ({navigation}) => {
               marginTop: 10,
               marginHorizontal: 70,
             }}>
-            <Button onPress={() => setModalVisible(false)}>No</Button>
+            <Button onPress={() => setResetModalVisible(false)}>No</Button>
             <Button onPress={() => clearData()}>Yes</Button>
           </Layout>
         </Layout>
@@ -134,18 +132,18 @@ export default ({navigation}) => {
           marginTop: 40,
           backgroundColor: themeContext.backgroundColor,
         }}>
-        <Layout >
+        <Layout>
           <Button
-            style={{marginBottom:20}}
+            style={{marginBottom: 20}}
             accessoryLeft={ImportIcon}
             accessoryRight={ExportIcon}
             onPress={() => navigation.navigate('ImportExport')}>
-              Import / Export
+            Import / Export
           </Button>
           <Button
             status="warning"
             accessoryLeft={CautionIcon}
-            onPress={() => setModalVisible(true)}>
+            onPress={() => setResetModalVisible(true)}>
             Reset Data
           </Button>
         </Layout>
@@ -207,14 +205,8 @@ export default ({navigation}) => {
           </Text>
         </Layout>
       </Layout>
-
-      <Layout
-        style={{
-          alignItems: 'center',
-          marginTop: 30,
-          marginHorizontal: 30,
-        }}></Layout>
-      {_renderModal()}
+        
+      {_renderResetModal()}
     </Layout>
   );
 };
