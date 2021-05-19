@@ -205,7 +205,6 @@ export default ({navigation}) => {
           </Text>
         </Layout>
       </Layout>
-        
       {_renderResetModal()}
     </Layout>
   );
