@@ -1,0 +1,3 @@
+Adds the ability to import and export categories.
+Supported files are JSON, YAML, and TOML.
+JSON supports import/export of multiple categories
