@@ -54,7 +54,7 @@ Available formats:
 - **YAML**
 
 However only with **JSON** can you import multiple Categories from one file.  
-Examples can be found under [categories/examples](https://github.com/vukani-dev/improvement-roll/tree/v1.2/categories/examples)  
+Examples can be found under [categories/examples](https://github.com/vukani-dev/improvement-roll/tree/main/categories/examples)  
 The `time` variable under tasks is associated with the time it takes to usually complete it. This is only necessary for Categories that are timeSensitive (denoted by `timeSensitive` bool under the Category).  
 
 - 1 = 0 - 10 minutes
