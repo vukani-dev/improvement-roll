@@ -69,7 +69,7 @@ const generalCategory = {
     {
       name: "Run a mile",
       desc:
-        "Lace up those shoes and go run a mile. Try to run the whole way through, if you cant stop but dont keep walking until youve recovered.",
+        "Lace up those shoes and go run a mile. You must run the entire way. If you get tired stop and rest before continuing.",
       time: 2,
     },
     {

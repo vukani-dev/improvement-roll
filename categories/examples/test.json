@@ -1,0 +1,43 @@
+[
+    {
+        "name": "TestCat1",
+        "timeSensitive": true,
+        "description": "test desc1",
+        "tasks": [
+            {
+                "name": "task1",
+                "desc": "task desc 1",
+                "time": 1
+            },
+            {
+                "name": "task2",
+                "desc": "task desc 2",
+                "time": 2
+            },
+            {
+                "name": "task3",
+                "desc": "task desc 3", 
+                "time": 3
+            }
+        ]
+    },
+    {
+        "name": "TestCat2",
+        "timeSensitive": false,
+        "description": "test desc2",
+        "tasks": [
+            {
+                "name": "task1",
+                "desc": "task desc 1"
+            },
+            {
+                "name": "task2",
+                "desc": "task desc 2"
+            },
+            {
+                "name": "task3",
+                "desc": "task desc 3"
+            }
+        ]
+    }
+]

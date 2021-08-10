@@ -40,6 +40,53 @@ Now you can enter in tasks and select how much time it takes for you to complete
 
 Once you select the **Fitness** category to roll this time you will be asked how much time you have. And you will onyl be given tasks that are within that time range (If I only have 5 minutes id rather do pushups, But if I have an hour I can go for a run)
 
+## Import/Export
+
+### Importing
+
+If creating Categories on the app is too cumbersome, you can create Categories via text editor and import them into the app.  
+This feature is located in the options page.
+
+Available formats:
+
+- **JSON**
+- **TOML**
+- **YAML**
+
+However only with **JSON** can you import multiple Categories from one file.  
+Examples can be found under [categories/examples](https://github.com/vukani-dev/improvement-roll/tree/v1.2/categories/examples)  
+The `time` variable under tasks is associated with the time it takes to usually complete it. This is only necessary for Categories that are timeSensitive (denoted by `timeSensitive` bool under the Category).  
+
+- 1 = 0 - 10 minutes
+- 2 = 10 - 20 minutes
+- 3 = 30 minutes - 1 hour
+- 4 = 1+ hours
+
+### Exporting
+
+Categories in the app can also be exported into any of the supported formats. They will automatically be exported to your Downloads folder. Once again, the *Export All* feature is only available if you are exporting to JSON.  
+
+Both of these features require the app to need permission to read/save files on your phone. If you are not using this feature the permissions are not needed.
+
+## Development
+
+### Linux
+
+- Follow react-native instructions for setting up the environment
+  - Essentially you need the following and any relevant tools added to your path:
+    - Java version 8+ (I use 8 from openjdk)
+    - Node/npm (I use nvm to install lts version which is 14.17.4)
+    - yarn (Im using version 1.22.11)
+    - Android SDK Manager (You can install via android-studio or command-line tool)
+      - Android SDK Platform 29
+      - Intel x86 Atom_64 System Image
+      - Android SDK Tools 29.0.2
+    - An android VM or device connected to pc
+
+- `yarn` to install packages
+- `yarn start` to start react native server
+- `yarn run android` start the app
+
 ## Screenshots
 
 <p>

@@ -1,12 +1,10 @@
 {
   "name": "improvement_roll",
-  "version": "0.0.1",
+  "version": "1.2.0",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
-    "ios": "react-native run-ios",
     "start": "react-native start",
-    "test": "jest",
     "lint": "eslint ."
   },
   "dependencies": {
