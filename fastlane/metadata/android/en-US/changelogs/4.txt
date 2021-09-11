@@ -1,0 +1,1 @@
+Adding global crash reporter with accompanying logging.
