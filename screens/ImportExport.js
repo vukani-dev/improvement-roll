@@ -13,12 +13,11 @@ import {
   Card
 } from '@ui-kitten/components';
 
-import { logger, fileAsyncTransport } from "react-native-logs";
 import Toast from 'react-native-simple-toast';
-import { ThemeContext } from '../utility_components/theme-context';
+import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import FilePickerManager from 'react-native-file-picker';
-import RNFS, { readFile } from 'react-native-fs';
+import RNFS from 'react-native-fs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as TOML from '@iarna/toml';
@@ -26,7 +25,7 @@ import * as YAML from 'js-yaml';
 
 const exportTypes = ['JSON', 'TOML', 'YAML'];
 
-export default ({ navigation, route }) => {
+export default ({navigation, route}) => {
   if (route.params != undefined) {
     switch (route.params.action) {
       case 'import':
@@ -50,97 +49,69 @@ export default ({ navigation, route }) => {
   const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
-  const config = {
-    transport: fileAsyncTransport,
-    transportOptions: {
-      FS: RNFS,
-      fileName: `log.txt`,
-    },
-  };
-  var log = logger.createLogger(config);
-
 
   const openFile = () => {
-    try {
-
-      var filePickerOptions = { title: "Select category file" };
-      FilePickerManager.showFilePicker(filePickerOptions, (response) => {
-
-
-
-        if (response.didCancel) {
-          console.log('User cancelled file picker');
-        } else if (response.error) {
+    FilePickerManager.showFilePicker(null, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled file picker');
+      } else if (response.error) {
           setErrorText('Error while selecting file. Only JSON, TOML, and YAML files are accepted');
           setVisible(true);
           return;
-        } else {
-          var filetype = response.path
-            .substr(response.path.length - 4)
-            .toLowerCase();
+      } else {
+        var filetype = response.path
+          .substr(response.path.length - 4)
+          .toLowerCase();
 
-          if (!(exportTypes.indexOf(filetype.toUpperCase()) > -1)) {
-            setErrorText('Only JSON, TOML, and YAML files are accepted');
+        if (!(exportTypes.indexOf(filetype.toUpperCase()) > -1)) {
+          setErrorText('Only JSON, TOML, and YAML files are accepted');
+          setVisible(true);
+          return;
+        }
+
+        RNFS.readFile(response.path).then((res) => {
+          try {
+            var parsedArray = [];
+            switch (filetype) {
+              case 'json':
+                parsedArray = JSON.parse(res);
+                break;
+              case 'yaml':
+                var x = YAML.load(res);
+                console.log(x);
+                parsedArray.push(YAML.load(res));
+                break;
+              case 'toml':
+                parsedArray.push(TOML.parse(res));
+                break;
+            }
+            AsyncStorage.getItem('categories').then((value) => {
+              var categories = value != null ? JSON.parse(value) : [];
+
+              for (var i = 0; i < parsedArray.length; i++) {
+                categories.push(parsedArray[i]);
+              }
+
+              const jsonValue = JSON.stringify(categories);
+              AsyncStorage.setItem('categories', jsonValue);
+
+              if (parsedArray.length > 1) {
+                Toast.show(`Imported multiple categories `, 20);
+              } else {
+                Toast.show(`Imported category: ${parsedArray[0].name}`, 20);
+              }
+            });
+          } catch (err) {
+            setErrorText(
+              'Error parsing category. Ensure the file is formatted correctly.',
+            );
+            setErrorDetailText(err.message);
             setVisible(true);
-            return;
-          }
-          readFile(response.path, filetype);
-
-        }
-      });
-    }
-    catch (err) {
-      log.error(err)
-      log.error("This is an error log")
-
-    }
-  };
-
-  const readFile = (path, filetype) => {
-
-
-    RNFS.readFile(path).then((res) => {
-      try {
-        var parsedArray = [];
-        switch (filetype) {
-          case 'json':
-            parsedArray = JSON.parse(res);
-            break;
-          case 'yaml':
-            var x = YAML.load(res);
-            console.log(x);
-            parsedArray.push(YAML.load(res));
-            break;
-          case 'toml':
-            parsedArray.push(TOML.parse(res));
-            break;
-        }
-        AsyncStorage.getItem('categories').then((value) => {
-          var categories = value != null ? JSON.parse(value) : [];
-
-          for (var i = 0; i < parsedArray.length; i++) {
-            categories.push(parsedArray[i]);
-          }
-
-          const jsonValue = JSON.stringify(categories);
-          AsyncStorage.setItem('categories', jsonValue);
-
-          if (parsedArray.length > 1) {
-            Toast.show(`Imported multiple categories `, 20);
-          } else {
-            Toast.show(`Imported category: ${parsedArray[0].name}`, 20);
           }
         });
-      } catch (err) {
-        setErrorText(
-          'Error parsing category. Ensure the file is formatted correctly.',
-        );
-        setErrorDetailText(err.message);
-        setVisible(true);
       }
     });
-  }
-
+  };
 
   const _errorModal = () => {
     return (
@@ -161,14 +132,13 @@ export default ({ navigation, route }) => {
     <Layout style={styleSheet.columned_container}>
       <TopNavigation
         alignment="center"
-        style={{ backgroundColor: themeContext.backgroundColor }}
+        style={{backgroundColor: themeContext.backgroundColor}}
         title="Import / Export"
         accessoryLeft={BackAction}
       />
 
       {_errorModal()}
 
-      {/* {this.test()} */}
       <Layout
         style={{
           backgroundColor: themeContext.backgroundColor,
@@ -200,7 +170,7 @@ export default ({ navigation, route }) => {
             Export as...
           </Button>
           <Select
-            style={{ width: 200 }}
+            style={{width: 200}}
             selectedIndex={selectedIndex}
             onSelect={(index) => setSelectedIndex(index)}
             value={displayValue}>
