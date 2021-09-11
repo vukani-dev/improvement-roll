@@ -1,17 +1,18 @@
 import * as React from 'react';
 import Toast from 'react-native-simple-toast';
 import generalCategory from '../categories/DefaultCategories';
-import {Button, Icon, Text, Layout} from '@ui-kitten/components';
+import { Button, Icon, Text, Layout } from '@ui-kitten/components';
 
-import {ThemeContext} from '../utility_components/theme-context';
+import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { check, PERMISSIONS, RESULTS, checkMultiple } from 'react-native-permissions';
 
-export default ({route, navigation}) => {
+export default ({ route, navigation }) => {
 
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
- 
+
   // check for route params to show relevant toasts
   if (route.params != undefined) {
     switch (route.params.action) {
@@ -23,7 +24,7 @@ export default ({route, navigation}) => {
         Toast.show(
           `Category "${route.params.categoryName}" ${route.params.action}.`,
         );
-      break;
+        break;
     }
     route.params = undefined;
   }
@@ -31,6 +32,7 @@ export default ({route, navigation}) => {
   // on load check if there are categories. If not ass the general category.
   // check the theme and change it based on saved setting
   React.useEffect(() => {
+
     AsyncStorage.getAllKeys().then((value) => {
       if (value.indexOf('categories') == -1) {
         AsyncStorage.setItem('categories', JSON.stringify([generalCategory]));
@@ -52,22 +54,22 @@ export default ({route, navigation}) => {
 
   return (
     <Layout style={styleSheet.centered_container}>
-      <Text style={{marginTop: 100, fontWeight: 'bold'}} category="h1">
+      <Text style={{ marginTop: 100, fontWeight: 'bold' }} category="h1">
         Improvement
       </Text>
-      <Text style={{marginBottom: 100, fontWeight: 'bold'}} category="h1">
+      <Text style={{ marginBottom: 100, fontWeight: 'bold' }} category="h1">
         Roll
       </Text>
 
       <Button
         accessoryLeft={RollIcon}
-        onPress={() => navigation.navigate('Categories', {action: 'roll'})}>
+        onPress={() => navigation.navigate('Categories', { action: 'roll' })}>
         Roll
       </Button>
       <Button
-        style={{margin: 10}}
+        style={{ margin: 10 }}
         accessoryLeft={ListIcon}
-        onPress={() => navigation.navigate('Categories', {action: 'view'})}>
+        onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         View Categories
       </Button>
 
