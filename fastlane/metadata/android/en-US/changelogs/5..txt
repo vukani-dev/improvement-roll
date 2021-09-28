@@ -1,0 +1,1 @@
+Fixing crash when importing a single Category.

@@ -14,7 +14,7 @@ import {
 } from '@ui-kitten/components';
 
 import Toast from 'react-native-simple-toast';
-import {ThemeContext} from '../utility_components/theme-context';
+import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import FilePickerManager from 'react-native-file-picker';
 import RNFS from 'react-native-fs';
@@ -25,7 +25,7 @@ import * as YAML from 'js-yaml';
 
 const exportTypes = ['JSON', 'TOML', 'YAML'];
 
-export default ({navigation, route}) => {
+export default ({ navigation, route }) => {
   if (route.params != undefined) {
     switch (route.params.action) {
       case 'import':
@@ -55,10 +55,11 @@ export default ({navigation, route}) => {
       if (response.didCancel) {
         console.log('User cancelled file picker');
       } else if (response.error) {
-          setErrorText('Error while selecting file. Only JSON, TOML, and YAML files are accepted');
-          setVisible(true);
-          return;
+        setErrorText('Error while selecting file. Only JSON, TOML, and YAML files are accepted');
+        setVisible(true);
+        return;
       } else {
+        console.log('importing...')
         var filetype = response.path
           .substr(response.path.length - 4)
           .toLowerCase();
@@ -74,7 +75,12 @@ export default ({navigation, route}) => {
             var parsedArray = [];
             switch (filetype) {
               case 'json':
-                parsedArray = JSON.parse(res);
+                var parsedJson = JSON.parse(res);
+                if (Array.isArray(parsedJson)) {
+                  parsedArray = JSON.parse(res);
+                } else {
+                  parsedArray.push(JSON.parse(res));
+                }
                 break;
               case 'yaml':
                 var x = YAML.load(res);
@@ -132,7 +138,7 @@ export default ({navigation, route}) => {
     <Layout style={styleSheet.columned_container}>
       <TopNavigation
         alignment="center"
-        style={{backgroundColor: themeContext.backgroundColor}}
+        style={{ backgroundColor: themeContext.backgroundColor }}
         title="Import / Export"
         accessoryLeft={BackAction}
       />
@@ -170,7 +176,7 @@ export default ({navigation, route}) => {
             Export as...
           </Button>
           <Select
-            style={{width: 200}}
+            style={{ width: 200 }}
             selectedIndex={selectedIndex}
             onSelect={(index) => setSelectedIndex(index)}
             value={displayValue}>
