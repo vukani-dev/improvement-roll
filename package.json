@@ -24,7 +24,7 @@
     "react-native": "0.63.4",
     "react-native-device-info": "^8.0.1",
     "react-native-exception-handler": "^2.10.10",
-    "react-native-file-picker": "^0.0.20",
+    "react-native-file-picker": "0.0.21",
     "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "~1.7.0",
     "react-native-logs": "^3.0.4",

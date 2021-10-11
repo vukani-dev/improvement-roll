@@ -1,17 +1,8 @@
 import * as React from 'react';
-import {
-  Layout,
-  Text,
-  TopNavigation,
-  TopNavigationAction,
-  Icon,
-  Button,
-  Select,
-  SelectItem,
-  IndexPath,
-  Modal,
-  Card
-} from '@ui-kitten/components';
+
+import * as Kitten from '../utility_components/ui-kitten.component.js';
+import * as logger from '../utility_components/logging.component.js';
+
 
 import Toast from 'react-native-simple-toast';
 import { ThemeContext } from '../utility_components/theme-context';
@@ -22,8 +13,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as TOML from '@iarna/toml';
 import * as YAML from 'js-yaml';
-
-const exportTypes = ['JSON', 'TOML', 'YAML'];
 
 export default ({ navigation, route }) => {
   if (route.params != undefined) {
@@ -37,106 +26,126 @@ export default ({ navigation, route }) => {
     route.params = undefined;
   }
 
-  const [selectedIndex, setSelectedIndex] = React.useState(new IndexPath(0));
-  const displayValue = exportTypes[selectedIndex.row];
-  const [visible, setVisible] = React.useState(false);
+  const importTypes = ['json', 'toml', 'yaml'];
+  const [selectedIndex, setSelectedIndex] = React.useState(new Kitten.IndexPath(0));
+  const displayValue = importTypes[selectedIndex.row];
+  const [errorModalVisible, setErrorModalVisible] = React.useState(false);
   const [errorText, setErrorText] = React.useState('');
   const [errorDetailText, setErrorDetailText] = React.useState('');
 
   const BackAction = () => (
-    <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
+    <Kitten.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
   );
-  const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+  const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
-  const openFile = () => {
+  const importFile = () => {
     FilePickerManager.showFilePicker(null, (response) => {
       if (response.didCancel) {
-        console.log('User cancelled file picker');
+        logger.logDebug('User cancelled file picker');
       } else if (response.error) {
-        setErrorText('Error while selecting file. Only JSON, TOML, and YAML files are accepted');
-        setVisible(true);
-        return;
+        logger.logFatal(`Error while selecting file ===> ${response.error}`);
+        return showError('An error occured while selecting your file. Check the logs for details')
       } else {
-        console.log('importing...')
-        var filetype = response.path
-          .substr(response.path.length - 4)
-          .toLowerCase();
 
-        if (!(exportTypes.indexOf(filetype.toUpperCase()) > -1)) {
-          setErrorText('Only JSON, TOML, and YAML files are accepted');
-          setVisible(true);
-          return;
+        var filetype = getFileType(response);
+        if (!(importTypes.indexOf(filetype) > -1)) {
+          return showError('Only JSON, TOML, and YAML files are accepted')
         }
 
-        RNFS.readFile(response.path).then((res) => {
-          try {
-            var parsedArray = [];
-            switch (filetype) {
-              case 'json':
-                var parsedJson = JSON.parse(res);
-                if (Array.isArray(parsedJson)) {
-                  parsedArray = JSON.parse(res);
-                } else {
-                  parsedArray.push(JSON.parse(res));
-                }
-                break;
-              case 'yaml':
-                var x = YAML.load(res);
-                console.log(x);
-                parsedArray.push(YAML.load(res));
-                break;
-              case 'toml':
-                parsedArray.push(TOML.parse(res));
-                break;
-            }
-            AsyncStorage.getItem('categories').then((value) => {
-              var categories = value != null ? JSON.parse(value) : [];
-
-              for (var i = 0; i < parsedArray.length; i++) {
-                categories.push(parsedArray[i]);
-              }
-
-              const jsonValue = JSON.stringify(categories);
-              AsyncStorage.setItem('categories', jsonValue);
-
-              if (parsedArray.length > 1) {
-                Toast.show(`Imported multiple categories `, 20);
-              } else {
-                Toast.show(`Imported category: ${parsedArray[0].name}`, 20);
-              }
-            });
-          } catch (err) {
-            setErrorText(
-              'Error parsing category. Ensure the file is formatted correctly.',
-            );
-            setErrorDetailText(err.message);
-            setVisible(true);
-          }
-        });
+        parseFile(response, filetype);
       }
     });
   };
 
+  const getFileType = (file) => {
+    var filetype = file.path
+      .substr(file.path.length - 4)
+      .toLowerCase();
+
+    if (filetype == '.yml') {
+      return 'yaml';
+    }
+    return filetype;
+  }
+
+  const parseFile = (file, type) => {
+    RNFS.readFile(file.path).then((res) => {
+      try {
+        var parsedArray = [];
+
+        switch (type) {
+          case 'json':
+            var parsedJson = JSON.parse(res);
+            if (Array.isArray(parsedJson)) {
+              parsedArray = JSON.parse(res);
+            } else {
+              parsedArray.push(JSON.parse(res));
+            }
+            break;
+          case 'yaml':
+            parsedArray.push(YAML.load(res));
+            break;
+          case 'toml':
+            parsedArray.push(TOML.parse(res));
+            break;
+        }
+
+        addCategories(parsedArray);
+      } catch (err) {
+        logger.logFatal(err.message);
+        return showError('Error parsing category from file. Ensure the file is formatted correctly.', err.message);
+      }
+    });
+  }
+
+  const addCategories = (categoryArray) => {
+    AsyncStorage.getItem('categories').then((value) => {
+      var categories = value != null ? JSON.parse(value) : [];
+
+      for (var i = 0; i < categoryArray.length; i++) {
+        categories.push(categoryArray[i]);
+      }
+
+      const jsonValue = JSON.stringify(categories);
+      AsyncStorage.setItem('categories', jsonValue);
+
+      if (categoryArray.length > 1) {
+        Toast.show(`Imported multiple categories `, 20);
+      } else {
+        Toast.show(`Imported category: ${categoryArray[0].name}`, 20);
+      }
+    });
+
+  }
+
   const _errorModal = () => {
     return (
-      <Modal
-        visible={visible}
+      <Kitten.Modal
+        visible={errorModalVisible}
         backdropStyle={styleSheet.modal_backdrop}
-        onBackdropPress={() => setVisible(false)}>
-        <Card disabled={true}>
-          <Text>{errorText}</Text>
-          <Text>{errorDetailText}</Text>
-          <Button onPress={() => setVisible(false)}>DISMISS</Button>
-        </Card>
-      </Modal>
+        onBackdropPress={() => setErrorModalVisible(false)}>
+        <Kitten.Card disabled={true}>
+          <Kitten.Text>{errorText}</Kitten.Text>
+          <Kitten.Text>{errorDetailText}</Kitten.Text>
+          <Kitten.Button onPress={() => setErrorModalVisible(false)}>DISMISS</Kitten.Button>
+        </Kitten.Card>
+      </Kitten.Modal>
     );
   };
 
+  const showError = (text, detailedText = null) => {
+    setErrorText(text);
+    setErrorModalVisible(true);
+
+    if (detailedText != null)
+      setErrorDetailText(detailedText)
+  }
+
   return (
-    <Layout style={styleSheet.columned_container}>
-      <TopNavigation
+    <Kitten.Layout style={styleSheet.columned_container}>
+      <Kitten.TopNavigation
         alignment="center"
         style={{ backgroundColor: themeContext.backgroundColor }}
         title="Import / Export"
@@ -145,28 +154,28 @@ export default ({ navigation, route }) => {
 
       {_errorModal()}
 
-      <Layout
+      <Kitten.Layout
         style={{
           backgroundColor: themeContext.backgroundColor,
         }}>
-        <Button
+        <Kitten.Button
           style={{
             marginTop: 100,
             marginBottom: 70,
             height: 90,
             marginHorizontal: 60,
           }}
-          onPress={openFile}>
+          onPress={importFile}>
           Import
-        </Button>
+        </Kitten.Button>
 
-        <Layout
+        <Kitten.Layout
           style={{
             flexDirection: 'row',
             justifyContent: 'space-evenly',
             backgroundColor: themeContext.backgroundColor,
           }}>
-          <Button
+          <Kitten.Button
             onPress={() =>
               navigation.navigate('Categories', {
                 action: 'export',
@@ -174,18 +183,18 @@ export default ({ navigation, route }) => {
               })
             }>
             Export as...
-          </Button>
-          <Select
+          </Kitten.Button>
+          <Kitten.Select
             style={{ width: 200 }}
             selectedIndex={selectedIndex}
             onSelect={(index) => setSelectedIndex(index)}
             value={displayValue}>
-            <SelectItem title="JSON" />
-            <SelectItem title="TOML" />
-            <SelectItem title="YAML" />
-          </Select>
-        </Layout>
-      </Layout>
-    </Layout>
+            <Kitten.SelectItem title="JSON" />
+            <Kitten.SelectItem title="TOML" />
+            <Kitten.SelectItem title="YAML" />
+          </Kitten.Select>
+        </Kitten.Layout>
+      </Kitten.Layout>
+    </Kitten.Layout>
   );
 };

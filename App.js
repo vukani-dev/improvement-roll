@@ -10,30 +10,15 @@ import {
   setJSExceptionHandler,
   setNativeExceptionHandler,
 } from 'react-native-exception-handler';
-import { logger, fileAsyncTransport } from "react-native-logs";
-import RNFS from 'react-native-fs';
 import { check, checkMultiple, PERMISSIONS, RESULTS} from 'react-native-permissions';
-
-let today = new Date();
-let date = today.getDate();
-let month = today.getMonth() + 1;
-let year = today.getFullYear();
-const config = {
-  transport: fileAsyncTransport,
-  transportOptions: {
-    FS: RNFS,
-    fileName: `imp-roll_${date}-${month}-${year}.txt`,
-    filePath: RNFS.DownloadDirectoryPath
-  },
-};
-var log = logger.createLogger(config);
+import * as logger from './utility_components/logging.component.js';
 
 
 const handleError = (e, isFatal) => {
 
   checkMultiple([PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]).then((status) => {
     if(status[PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE] == 'granted' && status[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE] == 'granted'){
-      log.error(e.message)
+      logger.logFatal(e.message);
     }
   })
 

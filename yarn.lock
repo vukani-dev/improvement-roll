@@ -7302,10 +7302,10 @@ react-native-exception-handler@^2.10.10:
   resolved "https://registry.yarnpkg.com/react-native-exception-handler/-/react-native-exception-handler-2.10.10.tgz#b6bfe2b7e6ea4a4deb1f518f48ce2ee1d4843497"
   integrity sha512-otAXGoZDl1689OoUJWN/rXxVbdoZ3xcmyF1uq/CsizdLwwyZqVGd6d+p/vbYvnF996FfEyAEBnHrdFxulTn51w==
 
-react-native-file-picker@^0.0.20:
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/react-native-file-picker/-/react-native-file-picker-0.0.20.tgz#b4b56989c048ec32fd9d97f52fb115a6e0c59572"
-  integrity sha512-sXexSVMdIMIiIe3y/AH4fIfSYDbXUbN6OzoBThUlVGvOI/Rs4i1xJzNnhnkXIgx97GRPYU4pE8Y0fd0j4+vgSQ==
+react-native-file-picker@0.0.21:
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/react-native-file-picker/-/react-native-file-picker-0.0.21.tgz#b539a7fa72a19029a2fc707029dc6a287d4a9dad"
+  integrity sha512-qsvdqYmDjjgPFNlabBXFNU+h1Yndl35aEsGlnPVV070qRYuCOaDx6VQYHLBqMequppb98Gb82zIGjvekbILMXQ==
 
 react-native-fs@^2.18.0:
   version "2.18.0"
