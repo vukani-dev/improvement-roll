@@ -9,7 +9,9 @@ import {
   SelectItem,
   IndexPath,
   Modal,
-  Card
+  Card,
+  Toggle,
+  Divider,
 } from '@ui-kitten/components';
 
 export {Layout, Text,
@@ -21,4 +23,4 @@ export {Layout, Text,
   SelectItem,
   IndexPath,
   Modal,
-  Card}
+  Card, Toggle, Divider}

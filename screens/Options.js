@@ -1,16 +1,7 @@
 import * as React from 'react';
 import {Linking} from 'react-native';
-import {
-  Layout,
-  Text,
-  Button,
-  Modal,
-  Icon,
-  Toggle,
-  TopNavigation,
-  TopNavigationAction,
-  Divider,
-} from '@ui-kitten/components';
+import * as Kitten from '../utility_components/ui-kitten.component.js';
+import * as logger from '../utility_components/logging.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {ThemeContext} from '../utility_components/theme-context';
@@ -27,17 +18,17 @@ export default ({navigation}) => {
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
   const BackAction = () => (
-    <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
+    <Kitten.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
   );
-  const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+  const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
   const CautionIcon = (props) => (
-    <Icon name="alert-triangle-outline" {...props} />
+    <Kitten.Icon name="alert-triangle-outline" {...props} />
   );
   const ImportIcon = (props) => (
-    <Icon name="arrow-downward-outline" {...props} />
+    <Kitten.Icon name="arrow-downward-outline" {...props} />
   );
-  const ExportIcon = (props) => <Icon name="arrow-upward-outline" {...props} />;
-  const OctoIcon = (props) => <Icon name="github-outline" {...props} />;
+  const ExportIcon = (props) => <Kitten.Icon name="arrow-upward-outline" {...props} />;
+  const OctoIcon = (props) => <Kitten.Icon name="github-outline" {...props} />;
 
   const makeVersionString = () => {
     return `Version ${getVersion()}`;
@@ -80,26 +71,26 @@ export default ({navigation}) => {
 
   const _renderResetModal = () => {
     return (
-      <Modal
+      <Kitten.Modal
         transparent={true}
         visible={resetModalVisible}
         backdropStyle={styleSheet.modal_backdrop}
         onBackdropPress={() => setResetModalVisible(false)}>
-        <Layout style={styleSheet.modal_container}>
-          <Layout
+        <Kitten.Layout style={styleSheet.modal_container}>
+          <Kitten.Layout
             style={{
               flex: 1,
               flexDirection: 'column',
               alignItems: 'center',
               padding: 15,
             }}>
-            <Text style={{textAlign: 'center', marginBottom: 10}}>
+            <Kitten.Text style={{textAlign: 'center', marginBottom: 10}}>
               This will clear all of your categories and re-add the "General"
               category.
-            </Text>
-            <Text>Are you sure you want to do this?</Text>
-          </Layout>
-          <Layout
+            </Kitten.Text>
+            <Kitten.Text>Are you sure you want to do this?</Kitten.Text>
+          </Kitten.Layout>
+          <Kitten.Layout
             style={{
               flex: 1,
               flexDirection: 'row',
@@ -107,23 +98,23 @@ export default ({navigation}) => {
               marginTop: 10,
               marginHorizontal: 70,
             }}>
-            <Button onPress={() => setResetModalVisible(false)}>No</Button>
-            <Button onPress={() => clearData()}>Yes</Button>
-          </Layout>
-        </Layout>
-      </Modal>
+            <Kitten.Button onPress={() => setResetModalVisible(false)}>No</Kitten.Button>
+            <Kitten.Button onPress={() => clearData()}>Yes</Kitten.Button>
+          </Kitten.Layout>
+        </Kitten.Layout>
+      </Kitten.Modal>
     );
   };
   return (
-    <Layout style={styleSheet.columned_container}>
-      <TopNavigation
+    <Kitten.Layout style={styleSheet.columned_container}>
+      <Kitten.TopNavigation
         alignment="center"
         style={{backgroundColor: themeContext.backgroundColor}}
         title={makeVersionString()}
         accessoryLeft={BackAction}
       />
 
-      <Layout
+      <Kitten.Layout
         style={{
           flex: 0.3,
           flexDirection: 'row',
@@ -132,31 +123,31 @@ export default ({navigation}) => {
           marginTop: 40,
           backgroundColor: themeContext.backgroundColor,
         }}>
-        <Layout>
-          <Button
+        <Kitten.Layout>
+          <Kitten.Button
             style={{marginBottom: 20}}
             accessoryLeft={ImportIcon}
             accessoryRight={ExportIcon}
             onPress={() => navigation.navigate('ImportExport')}>
             Import / Export
-          </Button>
-          <Button
+          </Kitten.Button>
+          <Kitten.Button
             status="warning"
             accessoryLeft={CautionIcon}
             onPress={() => setResetModalVisible(true)}>
             Reset Data
-          </Button>
-        </Layout>
+          </Kitten.Button>
+        </Kitten.Layout>
 
-        <Toggle checked={themeContext.theme == 'dark'} onChange={toggleTheme}>
+        <Kitten.Toggle checked={themeContext.theme == 'dark'} onChange={toggleTheme}>
           Dark Mode
-        </Toggle>
-      </Layout>
-      <Divider />
-      <Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
+        </Kitten.Toggle>
+      </Kitten.Layout>
+      <Kitten.Divider />
+      <Kitten.Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
         Code
-      </Text>
-      <Layout
+      </Kitten.Text>
+      <Kitten.Layout
         style={{
           flex: 0.4,
           flexDirection: 'row',
@@ -165,22 +156,22 @@ export default ({navigation}) => {
           marginTop: 40,
           backgroundColor: themeContext.backgroundColor,
         }}>
-        <Button
+        <Kitten.Button
           style={{marginBottom: 30}}
           onPress={() => openGithub()}
           accessoryRight={OctoIcon}>
           View on github for instructions and code
-        </Button>
-        <Text>ALL feedback and suggestions are welcome!</Text>
-      </Layout>
+        </Kitten.Button>
+        <Kitten.Text>ALL feedback and suggestions are welcome!</Kitten.Text>
+      </Kitten.Layout>
 
-      <Divider />
-      <Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
+      <Kitten.Divider />
+      <Kitten.Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
         Donate
-      </Text>
-      <Layout
+      </Kitten.Text>
+      <Kitten.Layout
         style={{flex: 0.6, backgroundColor: themeContext.backgroundColor}}>
-        <Layout
+        <Kitten.Layout
           style={{
             flexDirection: 'row',
             marginVertical: 20,
@@ -188,11 +179,11 @@ export default ({navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <BTCIcon width={48} height={48}></BTCIcon>
-          <Text style={{marginTop: 10}} selectable={true}>
+          <Kitten.Text style={{marginTop: 10}} selectable={true}>
             3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY
-          </Text>
-        </Layout>
-        <Layout
+          </Kitten.Text>
+        </Kitten.Layout>
+        <Kitten.Layout
           style={{
             flexDirection: 'row',
             marginVertical: 20,
@@ -200,12 +191,12 @@ export default ({navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <ETHIcon width={48} height={48}></ETHIcon>
-          <Text style={{marginTop: 10}} selectable={true}>
+          <Kitten.Text style={{marginTop: 10}} selectable={true}>
             0xd75205A0Fb016e3a0C368F964D142cD29a829BF2
-          </Text>
-        </Layout>
-      </Layout>
+          </Kitten.Text>
+        </Kitten.Layout>
+      </Kitten.Layout>
       {_renderResetModal()}
-    </Layout>
+    </Kitten.Layout>
   );
 };

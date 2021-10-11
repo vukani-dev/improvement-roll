@@ -6,7 +6,6 @@ import { Button, Icon, Text, Layout } from '@ui-kitten/components';
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { check, PERMISSIONS, RESULTS, checkMultiple } from 'react-native-permissions';
 
 export default ({ route, navigation }) => {
 
@@ -51,6 +50,7 @@ export default ({ route, navigation }) => {
   const RollIcon = (props) => <Icon name="flip-outline" {...props} />;
   const ListIcon = (props) => <Icon name="list-outline" {...props} />;
   const SettingsIcon = (props) => <Icon name="settings-2-outline" {...props} />;
+  const GlobeIcon = (props) => <Icon name="globe-outline" {...props} />;
 
   return (
     <Layout style={styleSheet.centered_container}>
@@ -67,10 +67,16 @@ export default ({ route, navigation }) => {
         Roll
       </Button>
       <Button
-        style={{ margin: 10 }}
+        style={{ marginTop: 10 }}
         accessoryLeft={ListIcon}
         onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         View Categories
+      </Button>
+      <Button
+        style={{ margin: 10, marginBottom: 35 }}
+        accessoryLeft={GlobeIcon}
+        onPress={() => navigation.navigate('Categories', { action: 'view' })}>
+        Community Categories
       </Button>
 
       <Button
