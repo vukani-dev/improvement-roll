@@ -10,17 +10,20 @@ import {
   setJSExceptionHandler,
   setNativeExceptionHandler,
 } from 'react-native-exception-handler';
-import { check, checkMultiple, PERMISSIONS, RESULTS} from 'react-native-permissions';
+import { check, checkMultiple, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import * as logger from './utility_components/logging.component.js';
 
 
 const handleError = (e, isFatal) => {
 
-  checkMultiple([PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE,PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]).then((status) => {
-    if(status[PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE] == 'granted' && status[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE] == 'granted'){
-      logger.logFatal(e.message);
-    }
-  })
+  if (global.settings.debugMode) {
+
+    checkMultiple([PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE, PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]).then((status) => {
+      if (status[PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE] == 'granted' && status[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE] == 'granted') {
+        logger.logFatal(e.message);
+      }
+    })
+  }
 
   if (isFatal) {
     Alert.alert(

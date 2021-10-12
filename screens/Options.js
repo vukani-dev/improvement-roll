@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking } from 'react-native';
+import { Linking, ActivityIndicator } from 'react-native';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import * as logger from '../utility_components/logging.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,6 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import { getVersion } from 'react-native-device-info';
+import { check, checkMultiple, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 import BTCIcon from '../pictures/bitcoin-btc-logo.svg';
 import ETHIcon from '../pictures/ethereum-eth-logo.svg';
@@ -16,6 +17,7 @@ export default ({ navigation }) => {
   const [resetModalVisible, setResetModalVisible] = React.useState(false);
   const [debugModalVisible, setDebugModalVisible] = React.useState(false);
   const [debugModeText, setDebugModeText] = React.useState(global.settings.debugMode ? 'Disable Debug Mode' : 'Enable Debug Mode');
+  const [loading, setLoading] = React.useState(false);
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
@@ -50,8 +52,32 @@ export default ({ navigation }) => {
     }
   };
 
+  const checkPermissions = (value) => {
+    if (value) {
+      check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE).then((status) => {
+        if (status != RESULTS.GRANTED) {
+          setLoading(true);
+          request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE).then((result) => {
+            if (result != RESULTS.GRANTED) {
+              Toast.show('You must grant write access to use this feature.', 5000);
+              setDebugModalVisible(false);
+              setLoading(false);
+              return;
+            }
+            setDebugging(value)
+          })
+        }
+        else {
+          setDebugging(value);
+        }
+      })
+    }
+    else {
+      setDebugging(value)
+    }
+  }
+
   const setDebugging = (value) => {
-    //get permissions
     global.settings.debugMode = value;
     AsyncStorage.setItem(
       'settings', JSON.stringify(global.settings)
@@ -59,7 +85,9 @@ export default ({ navigation }) => {
       setDebugModalVisible(false);
       setDebugModeText(value ? 'Disable Debug Mode' : 'Enable Debug Mode')
       Toast.show(`Debug mode ${value ? 'enabled.' : 'disabled.'}`);
+      setLoading(false);
     });
+
   }
 
   const toggleTheme = () => {
@@ -124,36 +152,56 @@ export default ({ navigation }) => {
 
   const _renderDebugModal = () => {
     return (
-      <Kitten.Modal
-        transparent={true}
-        visible={debugModalVisible}
-        backdropStyle={styleSheet.modal_backdrop}
-        onBackdropPress={() => setDebugModalVisible(false)}>
-        <Kitten.Layout style={styleSheet.modal_container}>
+      <>
+        {loading ? (
           <Kitten.Layout
             style={{
-              flex: 1,
               flexDirection: 'column',
+              justifyContent: 'center',
               alignItems: 'center',
-              padding: 15,
-            }}>
-            {_debugModalText(global.settings.debugMode)}
-            <Kitten.Text>Are you sure you want to do this?</Kitten.Text>
-          </Kitten.Layout>
-          <Kitten.Layout
-            style={{
               flex: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              marginTop: 10,
-              marginHorizontal: 70,
+              backgroundColor: themeContext.backgroundColor,
             }}>
-            <Kitten.Button onPress={() => setDebugModalVisible(false)}>No</Kitten.Button>
-            <Kitten.Button onPress={() => setDebugging(!global.settings.debugMode)}>Yes</Kitten.Button>
+            <ActivityIndicator
+              style={{ alignSelf: 'center' }}
+              size="large"
+              color="#800"
+              animating={loading}
+            />
           </Kitten.Layout>
-        </Kitten.Layout>
-      </Kitten.Modal>
-    );
+
+
+        ) : (<Kitten.Modal
+          transparent={true}
+          visible={debugModalVisible}
+          backdropStyle={styleSheet.modal_backdrop}
+          onBackdropPress={() => setDebugModalVisible(false)}>
+          <Kitten.Layout style={styleSheet.modal_container}>
+            <Kitten.Layout
+              style={{
+                flex: 1,
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: 15,
+              }}>
+              {_debugModalText(global.settings.debugMode)}
+              <Kitten.Text>Are you sure you want to do this?</Kitten.Text>
+            </Kitten.Layout>
+            <Kitten.Layout
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginTop: 10,
+                marginHorizontal: 70,
+              }}>
+              <Kitten.Button onPress={() => setDebugModalVisible(false)}>No</Kitten.Button>
+              <Kitten.Button onPress={() => checkPermissions(!global.settings.debugMode)}>Yes</Kitten.Button>
+            </Kitten.Layout>
+          </Kitten.Layout>
+        </Kitten.Modal>
+        )}
+      </>)
   };
 
   const _debugModalText = (debugMode) => (
@@ -193,7 +241,11 @@ export default ({ navigation }) => {
           marginBottom: 70,
           backgroundColor: themeContext.backgroundColor,
         }}>
-        <Kitten.Layout>
+        <Kitten.Layout
+          style={{
+            backgroundColor: themeContext.backgroundColor,
+          }}
+        >
           <Kitten.Button
             style={{ marginBottom: 10 }}
             accessoryLeft={ImportIcon}
@@ -216,7 +268,11 @@ export default ({ navigation }) => {
           </Kitten.Button>
         </Kitten.Layout>
 
-        <Kitten.Layout>
+        <Kitten.Layout
+          style={{
+            backgroundColor: themeContext.backgroundColor,
+          }}
+        >
 
           <Kitten.Toggle
 

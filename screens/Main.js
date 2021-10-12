@@ -51,8 +51,12 @@ export default ({ route, navigation }) => {
           global.settings = JSON.parse(val)
         });
       }
-      else{
-        AsyncStorage.setItem('settings', JSON.stringify({debugMode: false}));
+      else {
+        console.log('creating settings')
+        var newSettings = { debugMode: false };
+        AsyncStorage.setItem('settings', JSON.stringify(newSettings)).then((res) => {
+          global.settings = newSettings;
+        });
       }
     });
   }, []);
