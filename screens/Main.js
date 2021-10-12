@@ -44,6 +44,16 @@ export default ({ route, navigation }) => {
           }
         });
       }
+
+      if (value.indexOf('settings') >= 0) {
+        AsyncStorage.getItem('settings').then((val) => {
+          console.log(val)
+          global.settings = JSON.parse(val)
+        });
+      }
+      else{
+        AsyncStorage.setItem('settings', JSON.stringify({debugMode: false}));
+      }
     });
   }, []);
 

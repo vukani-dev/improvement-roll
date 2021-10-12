@@ -1,19 +1,21 @@
 import * as React from 'react';
-import {Linking} from 'react-native';
+import { Linking } from 'react-native';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import * as logger from '../utility_components/logging.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import {ThemeContext} from '../utility_components/theme-context';
+import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
-import {getVersion} from 'react-native-device-info';
+import { getVersion } from 'react-native-device-info';
 
 import BTCIcon from '../pictures/bitcoin-btc-logo.svg';
 import ETHIcon from '../pictures/ethereum-eth-logo.svg';
 import Toast from 'react-native-simple-toast';
 
-export default ({navigation}) => {
+export default ({ navigation }) => {
   const [resetModalVisible, setResetModalVisible] = React.useState(false);
+  const [debugModalVisible, setDebugModalVisible] = React.useState(false);
+  const [debugModeText, setDebugModeText] = React.useState(global.settings.debugMode ? 'Disable Debug Mode' : 'Enable Debug Mode');
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
@@ -29,6 +31,7 @@ export default ({navigation}) => {
   );
   const ExportIcon = (props) => <Kitten.Icon name="arrow-upward-outline" {...props} />;
   const OctoIcon = (props) => <Kitten.Icon name="github-outline" {...props} />;
+  const DebugIcon = (props) => <Kitten.Icon name="book-outline" {...props} />;
 
   const makeVersionString = () => {
     return `Version ${getVersion()}`;
@@ -47,6 +50,18 @@ export default ({navigation}) => {
     }
   };
 
+  const setDebugging = (value) => {
+    //get permissions
+    global.settings.debugMode = value;
+    AsyncStorage.setItem(
+      'settings', JSON.stringify(global.settings)
+    ).then(() => {
+      setDebugModalVisible(false);
+      setDebugModeText(value ? 'Disable Debug Mode' : 'Enable Debug Mode')
+      Toast.show(`Debug mode ${value ? 'enabled.' : 'disabled.'}`);
+    });
+  }
+
   const toggleTheme = () => {
     themeContext.toggleTheme();
     AsyncStorage.setItem(
@@ -54,6 +69,7 @@ export default ({navigation}) => {
       themeContext.theme == 'dark' ? 'light' : 'dark',
     );
   };
+
 
   const openGithub = () => {
     Linking.canOpenURL(
@@ -84,7 +100,7 @@ export default ({navigation}) => {
               alignItems: 'center',
               padding: 15,
             }}>
-            <Kitten.Text style={{textAlign: 'center', marginBottom: 10}}>
+            <Kitten.Text style={{ textAlign: 'center', marginBottom: 10 }}>
               This will clear all of your categories and re-add the "General"
               category.
             </Kitten.Text>
@@ -105,11 +121,64 @@ export default ({navigation}) => {
       </Kitten.Modal>
     );
   };
+
+  const _renderDebugModal = () => {
+    return (
+      <Kitten.Modal
+        transparent={true}
+        visible={debugModalVisible}
+        backdropStyle={styleSheet.modal_backdrop}
+        onBackdropPress={() => setDebugModalVisible(false)}>
+        <Kitten.Layout style={styleSheet.modal_container}>
+          <Kitten.Layout
+            style={{
+              flex: 1,
+              flexDirection: 'column',
+              alignItems: 'center',
+              padding: 15,
+            }}>
+            {_debugModalText(global.settings.debugMode)}
+            <Kitten.Text>Are you sure you want to do this?</Kitten.Text>
+          </Kitten.Layout>
+          <Kitten.Layout
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              marginTop: 10,
+              marginHorizontal: 70,
+            }}>
+            <Kitten.Button onPress={() => setDebugModalVisible(false)}>No</Kitten.Button>
+            <Kitten.Button onPress={() => setDebugging(!global.settings.debugMode)}>Yes</Kitten.Button>
+          </Kitten.Layout>
+        </Kitten.Layout>
+      </Kitten.Modal>
+    );
+  };
+
+  const _debugModalText = (debugMode) => (
+
+    <Kitten.Layout>
+
+      {debugMode ?
+        <Kitten.Text style={{ textAlign: 'center', marginBottom: 10 }}>
+          This will disable Debug Mode.
+
+
+        </Kitten.Text>
+        :
+        <Kitten.Text style={{ textAlign: 'center', marginBottom: 10 }}>
+          This will enable logging on the app.
+          Logs about crashes and warnings will be saved to the Downloads folder with the name "imp-roll-logs.txt"
+        </Kitten.Text>
+      }
+    </Kitten.Layout>
+  )
   return (
     <Kitten.Layout style={styleSheet.columned_container}>
       <Kitten.TopNavigation
         alignment="center"
-        style={{backgroundColor: themeContext.backgroundColor}}
+        style={{ backgroundColor: themeContext.backgroundColor }}
         title={makeVersionString()}
         accessoryLeft={BackAction}
       />
@@ -120,16 +189,24 @@ export default ({navigation}) => {
           flexDirection: 'row',
           flexWrap: 'wrap',
           justifyContent: 'space-evenly',
-          marginTop: 40,
+          marginTop: 30,
+          marginBottom: 70,
           backgroundColor: themeContext.backgroundColor,
         }}>
         <Kitten.Layout>
           <Kitten.Button
-            style={{marginBottom: 20}}
+            style={{ marginBottom: 10 }}
             accessoryLeft={ImportIcon}
             accessoryRight={ExportIcon}
             onPress={() => navigation.navigate('ImportExport')}>
             Import / Export
+          </Kitten.Button>
+          <Kitten.Button
+            style={{ marginBottom: 10 }}
+            status="info"
+            accessoryLeft={DebugIcon}
+            onPress={() => setDebugModalVisible(true)}>
+            {debugModeText}
           </Kitten.Button>
           <Kitten.Button
             status="warning"
@@ -139,12 +216,20 @@ export default ({navigation}) => {
           </Kitten.Button>
         </Kitten.Layout>
 
-        <Kitten.Toggle checked={themeContext.theme == 'dark'} onChange={toggleTheme}>
-          Dark Mode
-        </Kitten.Toggle>
+        <Kitten.Layout>
+
+          <Kitten.Toggle
+
+            style={{ marginBottom: 10 }}
+            checked={themeContext.theme == 'dark'} onChange={toggleTheme}>
+            Dark Mode
+          </Kitten.Toggle>
+        </Kitten.Layout>
+
+
       </Kitten.Layout>
       <Kitten.Divider />
-      <Kitten.Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
+      <Kitten.Text style={{ textAlign: 'center', marginTop: 10, fontWeight: 'bold' }}>
         Code
       </Kitten.Text>
       <Kitten.Layout
@@ -157,7 +242,7 @@ export default ({navigation}) => {
           backgroundColor: themeContext.backgroundColor,
         }}>
         <Kitten.Button
-          style={{marginBottom: 30}}
+          style={{ marginBottom: 30 }}
           onPress={() => openGithub()}
           accessoryRight={OctoIcon}>
           View on github for instructions and code
@@ -166,11 +251,11 @@ export default ({navigation}) => {
       </Kitten.Layout>
 
       <Kitten.Divider />
-      <Kitten.Text style={{textAlign: 'center', marginTop: 10, fontWeight: 'bold'}}>
+      <Kitten.Text style={{ textAlign: 'center', marginTop: 10, fontWeight: 'bold' }}>
         Donate
       </Kitten.Text>
       <Kitten.Layout
-        style={{flex: 0.6, backgroundColor: themeContext.backgroundColor}}>
+        style={{ flex: 0.6, backgroundColor: themeContext.backgroundColor }}>
         <Kitten.Layout
           style={{
             flexDirection: 'row',
@@ -179,7 +264,7 @@ export default ({navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <BTCIcon width={48} height={48}></BTCIcon>
-          <Kitten.Text style={{marginTop: 10}} selectable={true}>
+          <Kitten.Text style={{ marginTop: 10 }} selectable={true}>
             3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY
           </Kitten.Text>
         </Kitten.Layout>
@@ -191,12 +276,13 @@ export default ({navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <ETHIcon width={48} height={48}></ETHIcon>
-          <Kitten.Text style={{marginTop: 10}} selectable={true}>
+          <Kitten.Text style={{ marginTop: 10 }} selectable={true}>
             0xd75205A0Fb016e3a0C368F964D142cD29a829BF2
           </Kitten.Text>
         </Kitten.Layout>
       </Kitten.Layout>
       {_renderResetModal()}
+      {_renderDebugModal()}
     </Kitten.Layout>
   );
 };
