@@ -71,6 +71,7 @@ export default ({ navigation, route }) => {
   }
 
   const parseFile = (file, type) => {
+    logger.logDebug(`Parsing filepath :${file.path}, type: ${type}`)
     RNFS.readFile(file.path).then((res) => {
       try {
         var parsedArray = [];
@@ -110,6 +111,7 @@ export default ({ navigation, route }) => {
 
       const jsonValue = JSON.stringify(categories);
       AsyncStorage.setItem('categories', jsonValue);
+      logger.logDebug('Successfully imported category');
 
       if (categoryArray.length > 1) {
         Toast.show(`Imported multiple categories `, 20);

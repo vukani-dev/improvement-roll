@@ -17,16 +17,39 @@ var rnLogger = logger.createLogger(config);
 
 const logWarning = (log) => {
     console.log(log)
-    rnLogger.warn(log)
+    logToFile(log, 'warn')
 }
 
 const logDebug = (log) => {
     console.log(log)
-    rnLogger.debug(log)
+    logToFile(log, 'debug')
 }
 
 const logFatal = (log) => {
-    rnLogger.error(log)
+    logToFile(log, 'fatal')
+}
+
+const logToFile = (log, type) => {
+    if(!global.settings.debugMode)
+        return;
+
+    check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE).then((status) => {
+        if (status == RESULTS.GRANTED) {
+            switch (type) {
+                case 'warn':
+                    rnLogger.warn(log)
+                    break;
+                case 'debug':
+                    rnLogger.debug(log)
+                    break;
+                case 'fatal':
+                    rnLogger.error(log)
+                    break;
+                default:
+                    break;
+            }
+        }
+    })
 }
 
 export { logWarning, logDebug, logFatal }

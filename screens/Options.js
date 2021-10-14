@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import { getVersion } from 'react-native-device-info';
-import { check, checkMultiple, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
+import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 import BTCIcon from '../pictures/bitcoin-btc-logo.svg';
 import ETHIcon from '../pictures/ethereum-eth-logo.svg';
