@@ -10,7 +10,7 @@ import {
   setJSExceptionHandler,
   setNativeExceptionHandler,
 } from 'react-native-exception-handler';
-import { check, checkMultiple, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { checkMultiple, PERMISSIONS } from 'react-native-permissions';
 import * as logger from './utility_components/logging.component.js';
 
 

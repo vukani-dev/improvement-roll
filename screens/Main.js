@@ -81,17 +81,17 @@ export default ({ route, navigation }) => {
         Roll
       </Button>
       <Button
-        style={{ marginTop: 10 }}
+        style={{ marginTop: 10, marginBottom: 15 }}
         accessoryLeft={ListIcon}
         onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         View Categories
       </Button>
-      <Button
+      {/* <Button
         style={{ margin: 10, marginBottom: 35 }}
         accessoryLeft={GlobeIcon}
         onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         Community Categories
-      </Button>
+      </Button> */}
 
       <Button
         accessoryLeft={SettingsIcon}
