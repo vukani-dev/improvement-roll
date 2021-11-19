@@ -241,11 +241,6 @@ export default ({ navigation }) => {
         accessoryLeft={BackAction}
       />
 
-
-
-
-
-
       <Kitten.Layout
         style={{
           flex: 0.3,
@@ -299,7 +294,6 @@ export default ({ navigation }) => {
         <Kitten.Divider />
 
       </Kitten.Layout>
-
 
       <Kitten.Divider />
       <Kitten.Layout

@@ -1,11 +1,11 @@
 import * as React from 'react';
-import {ActivityIndicator} from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
-import {Text, Button, Icon, Layout} from '@ui-kitten/components';
+import { Text, Button, Icon, Layout } from '@ui-kitten/components';
 
-import {ThemeContext} from '../utility_components/theme-context';
+import { ThemeContext } from '../utility_components/theme-context';
 
-const RollResultScreen = ({route, navigation}) => {
+const RollResultScreen = ({ route, navigation }) => {
   const tasks = route.params.tasks;
   const [lastRolledTask, setLastRolledTask] = React.useState({});
   const [loading, setLoading] = React.useState(true);
@@ -50,7 +50,7 @@ const RollResultScreen = ({route, navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <ActivityIndicator
-            style={{alignSelf: 'center'}}
+            style={{ alignSelf: 'center' }}
             size="large"
             color="#800"
             animating={loading}
@@ -64,34 +64,45 @@ const RollResultScreen = ({route, navigation}) => {
               padding: 20,
               backgroundColor: themeContext.backgroundColor,
             }}>
-            <Text
-              category="h3"
-              style={{
-                marginBottom: 40,
-                marginTop: 50,
-                textAlign: 'center',
-                fontWeight: 'bold',
-              }}>
-              {lastRolledTask.name}
-            </Text>
-            <Text
-              category="h6"
-              style={{
-                marginBottom: 70,
-                marginTop: 50,
-                textAlign: 'center',
-                backgroundColor: themeContext.backgroundColor,
-              }}>
-              {lastRolledTask.desc}
-            </Text>
 
             <Layout
               style={{
+                flex: 0.25
+              }}
+            >
+              <Text
+                category="h3"
+                style={{
+                  fontWeight: 'bold',
+                }}>
+                {lastRolledTask.name}
+              </Text>
+            </Layout>
+
+            <Layout
+              style={{
+                flex: 0.35
+              }}
+            >
+              <Text
+                category="h6"
+                style={{
+                  textAlign: 'center',
+                  backgroundColor: themeContext.backgroundColor,
+                }}>
+                {lastRolledTask.desc}
+              </Text>
+
+            </Layout>
+            <Layout
+              style={{
+                flex:0.25, 
                 backgroundColor: themeContext.backgroundColor,
+                marginHorizontal: 80
               }}>
               <Button
                 accessoryLeft={renderRerollIcon}
-                style={{marginHorizontal: 130, height: 80}}
+                style={{ height:80}}
                 onPress={reRoll}>
                 Re-roll
               </Button>
@@ -100,11 +111,12 @@ const RollResultScreen = ({route, navigation}) => {
 
           <Layout
             style={{
+              flex: 0.1,
               padding: 30,
               backgroundColor: themeContext.backgroundColor,
             }}>
             <Button
-              style={{marginHorizontal: 80}}
+              style={{ marginHorizontal: 60 }}
               accessoryLeft={homeIcon}
               title="Home"
               onPress={navigation.popToTop}>
