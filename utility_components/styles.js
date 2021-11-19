@@ -1,4 +1,4 @@
-import {View, StyleSheet, SafeAreaView} from 'react-native';
+import { View, StyleSheet, SafeAreaView } from 'react-native';
 export default class StyleSheetFactory {
   static getSheet(themeBackgroundColor) {
     return StyleSheet.create({
@@ -37,6 +37,11 @@ export default class StyleSheetFactory {
       modal_backdrop: {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
       },
+      options_container: {
+        backgroundColor: themeBackgroundColor,
+        flex: 1,
+        flexDirection: 'row'
+      }
     });
   }
 }

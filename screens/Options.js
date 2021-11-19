@@ -223,13 +223,28 @@ export default ({ navigation }) => {
     </Kitten.Layout>
   )
   return (
-    <Kitten.Layout style={styleSheet.columned_container}>
+    <Kitten.Layout style={{
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'space-around',
+      alignItems: 'stretch',
+      alignContent: 'space-around'
+    }}>
+
       <Kitten.TopNavigation
         alignment="center"
-        style={{ backgroundColor: themeContext.backgroundColor }}
+        style={{
+          backgroundColor: themeContext.backgroundColor,
+          flex: 0.05
+        }}
         title={makeVersionString()}
         accessoryLeft={BackAction}
       />
+
+
+
+
+
 
       <Kitten.Layout
         style={{
@@ -237,8 +252,7 @@ export default ({ navigation }) => {
           flexDirection: 'row',
           flexWrap: 'wrap',
           justifyContent: 'space-evenly',
-          marginTop: 30,
-          marginBottom: 70,
+          marginBottom: 10,
           backgroundColor: themeContext.backgroundColor,
         }}>
         <Kitten.Layout
@@ -282,23 +296,26 @@ export default ({ navigation }) => {
           </Kitten.Toggle>
         </Kitten.Layout>
 
+        <Kitten.Divider />
 
       </Kitten.Layout>
+
+
       <Kitten.Divider />
-      <Kitten.Text style={{ textAlign: 'center', marginTop: 10, fontWeight: 'bold' }}>
-        Code
-      </Kitten.Text>
       <Kitten.Layout
         style={{
-          flex: 0.4,
-          flexDirection: 'row',
+          flex: 0.25,
+          flexDirection: 'column',
           flexWrap: 'wrap',
+          alignItems: 'center',
+          alignContent: 'center',
           justifyContent: 'space-evenly',
-          marginTop: 40,
           backgroundColor: themeContext.backgroundColor,
         }}>
+        <Kitten.Text style={{ fontWeight: 'bold' }}>
+          Code
+        </Kitten.Text>
         <Kitten.Button
-          style={{ marginBottom: 30 }}
           onPress={() => openGithub()}
           accessoryRight={OctoIcon}>
           View on github for instructions and code
@@ -307,35 +324,47 @@ export default ({ navigation }) => {
       </Kitten.Layout>
 
       <Kitten.Divider />
-      <Kitten.Text style={{ textAlign: 'center', marginTop: 10, fontWeight: 'bold' }}>
-        Donate
-      </Kitten.Text>
       <Kitten.Layout
-        style={{ flex: 0.6, backgroundColor: themeContext.backgroundColor }}>
+        style={{
+          flex: 0.25, backgroundColor: themeContext.backgroundColor,
+          flexDirection: 'column',
+          alignContent: 'center',
+          justifyContent: 'space-evenly',
+          alignItems: 'center'
+        }}>
+        <Kitten.Text style={{ fontWeight: 'bold' }}>
+          Donate
+        </Kitten.Text>
+
         <Kitten.Layout
           style={{
-            flexDirection: 'row',
-            marginVertical: 20,
-            justifyContent: 'space-evenly',
             backgroundColor: themeContext.backgroundColor,
-          }}>
-          <BTCIcon width={48} height={48}></BTCIcon>
-          <Kitten.Text style={{ marginTop: 10 }} selectable={true}>
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}
+        >
+
+          <BTCIcon width={48} height={20}></BTCIcon>
+          <Kitten.Text selectable={true}>
             3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY
           </Kitten.Text>
         </Kitten.Layout>
         <Kitten.Layout
           style={{
-            flexDirection: 'row',
-            marginVertical: 20,
-            justifyContent: 'space-evenly',
             backgroundColor: themeContext.backgroundColor,
-          }}>
-          <ETHIcon width={48} height={48}></ETHIcon>
-          <Kitten.Text style={{ marginTop: 10 }} selectable={true}>
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}
+        >
+          <ETHIcon width={48} height={20}></ETHIcon>
+          <Kitten.Text style={{ fontSize: 13 }} selectable={true}>
             0xd75205A0Fb016e3a0C368F964D142cD29a829BF2
           </Kitten.Text>
         </Kitten.Layout>
+      </Kitten.Layout>
+
+      <Kitten.Layout style={{flex:0.2}}>
+
       </Kitten.Layout>
       {_renderResetModal()}
       {_renderDebugModal()}
