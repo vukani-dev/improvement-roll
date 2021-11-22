@@ -38,9 +38,15 @@ export default class StyleSheetFactory {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
       },
       options_container: {
-        backgroundColor: themeBackgroundColor,
         flex: 1,
-        flexDirection: 'row'
+        flexDirection: 'column',
+        justifyContent: 'space-around',
+        alignItems: 'stretch',
+        alignContent: 'space-around'
+      },
+      top_navigation: {
+        backgroundColor: themeBackgroundColor,
+        flex: 0.05
       }
     });
   }

@@ -15,8 +15,7 @@ import * as logger from './utility_components/logging.component.js';
 
 
 const handleError = (e, isFatal) => {
-
-  if (global.settings.debugMode) {
+  if (global.settings != undefined && global.settings.debugMode) {
 
     checkMultiple([PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE, PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE]).then((status) => {
       if (status[PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE] == 'granted' && status[PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE] == 'granted') {

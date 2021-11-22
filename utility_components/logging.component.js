@@ -31,7 +31,7 @@ const logFatal = (log) => {
 }
 
 const logToFile = (log, type) => {
-    if(!global.settings.debugMode)
+    if(global.settings == undefined || !global.settings.debugMode)
         return;
 
     check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE).then((status) => {

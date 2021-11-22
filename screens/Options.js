@@ -223,20 +223,11 @@ export default ({ navigation }) => {
     </Kitten.Layout>
   )
   return (
-    <Kitten.Layout style={{
-      flex: 1,
-      flexDirection: 'column',
-      justifyContent: 'space-around',
-      alignItems: 'stretch',
-      alignContent: 'space-around'
-    }}>
+    <Kitten.Layout style={styleSheet.options_container}>
 
       <Kitten.TopNavigation
         alignment="center"
-        style={{
-          backgroundColor: themeContext.backgroundColor,
-          flex: 0.05
-        }}
+        style={styleSheet.top_navigation}
         title={makeVersionString()}
         accessoryLeft={BackAction}
       />

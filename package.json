@@ -1,6 +1,6 @@
 {
   "name": "improvement_roll",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
