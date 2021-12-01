@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {ActivityIndicator} from 'react-native';
+import { ActivityIndicator } from 'react-native';
 
-import {Jiro} from 'react-native-textinput-effects';
+import { Jiro } from 'react-native-textinput-effects';
 
-import {ThemeContext} from '../utility_components/theme-context';
+import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import {
   Divider,
@@ -24,7 +24,7 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function AddCategoryScreen({route, navigation}) {
+function AddCategoryScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [categoryName, setCategoryName] = React.useState('');
   const [categoryDesc, setCategoryDesc] = React.useState('');
@@ -35,6 +35,7 @@ function AddCategoryScreen({route, navigation}) {
   const [modalVisible, setModalVisible] = React.useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
   const [taskMode, setTaskMode] = React.useState('');
+  const [task, setTask] = React.useState({ name: 'Hello ' });
   const [taskName, setTaskName] = React.useState('');
   const [taskDesc, setTaskDesc] = React.useState('');
   const [taskTime, setTaskTime] = React.useState(0);
@@ -55,7 +56,7 @@ function AddCategoryScreen({route, navigation}) {
         />
       ) : null}
       <TopNavigationAction
-        style={{marginLeft: 20}}
+        style={{ marginLeft: 20 }}
         icon={SaveIcon}
         onPress={() => _categoryComplete()}
       />
@@ -116,54 +117,29 @@ function AddCategoryScreen({route, navigation}) {
   const BackAction = () => (
     <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
   );
-  const _openModal = (task) => {
-    if (JSON.stringify(task) == JSON.stringify({})) {
-      console.log('task is empty so its a new one');
-      setTaskTime(0);
-      setTaskName('');
-      setTaskDesc('');
-      setTaskId(0);
+  const openTaskModal = (item) => {
+    if (item == undefined) {
+      console.log('task is empty so its a new one');  
+      var newTask = { Id: tasks.length }
+      if (timeSensitive) newTask.time = 0
+      
+      setTask(newTask)
       setTaskMode('new');
     } else {
-      setTaskTime(task.time);
-      setTaskName(task.name);
-      setTaskDesc(task.desc);
-      setTaskId(task.key);
+      setTask(item)
       setTaskMode('edit');
     }
     setModalVisible(true);
   };
 
-  const _closeModal = (action) => {
-    if (action == 'close') setModalVisible(false);
-    else {
-      var highestId = 0;
-      var newTasks = [];
-      var newTask = {name: taskName, desc: taskDesc, key: taskId};
-      if (timeSensitive) newTask.time = taskTime;
-
-      for (var i = 0; i < tasks.length; i++) {
-        if (tasks[i].name == newTask.name && tasks[i].key != newTask.key) {
-          console.log('cant do that');
-          return;
-        }
-        if (tasks[i].key == newTask.key) {
-          newTasks.push(newTask);
-        } else {
-          newTasks.push(tasks[i]);
-        }
-        if (tasks[i].key > highestId) highestId = tasks[i].key;
-      }
-
-      if (taskMode == 'new') {
-        highestId++;
-        newTask.key = highestId;
-        newTasks.push(newTask);
-      }
-
-      setTasks(newTasks);
-      setModalVisible(false);
+  const saveTask = () => {
+    if (taskMode == 'new') {
+      setTasks(tasks => [...tasks, task])
     }
+    else {
+      setTasks(tasks => tasks.map(el => el.Id === task.Id ? task : el))
+    }
+    setModalVisible(false);
   };
 
   const _saveCategoryList = (categoryList, action) => {
@@ -226,14 +202,14 @@ function AddCategoryScreen({route, navigation}) {
       <ListItem
         title={task.name}
         description={task.desc}
-        style={{backgroundColor: themeContext.backgroundColor}}
+        style={{ backgroundColor: themeContext.backgroundColor }}
         accessoryRight={() => (
           <Button onPress={() => _removeTask(task)} size="tiny">
             REMOVE
           </Button>
         )}
-        onPress={() => _openModal(task)}></ListItem>
-      <Divider style={{marginHorizontal: 10}} />
+        onPress={() => openTaskModal(task)}></ListItem>
+      <Divider style={{ marginHorizontal: 10 }} />
     </>
   );
 
@@ -266,33 +242,33 @@ function AddCategoryScreen({route, navigation}) {
   const _renderModal = () => {
     return (
       <Modal
-        animationType="slide"
         transparent={true}
         visible={modalVisible}
         onBackdropPress={() => setModalVisible(false)}
         backdropStyle={styleSheet.modal_backdrop}>
         <Layout style={styleSheet.modal_container}>
+
           <Input
             placeholder="Enter a task"
-            value={taskName}
-            onChangeText={(text) => setTaskName(text)}></Input>
+            value={task.name}
+            onChangeText={(text) => setTask(task => ({ ...task, name: text }))}></Input>
 
           <Input
             placeholder="Enter a description for the task"
-            value={taskDesc}
+            value={task.desc}
             numberOfLines={4}
             multiline={true}
             returnKeyLabel="done"
             blurOnSubmit={true}
-            onChangeText={(text) => setTaskDesc(text)}></Input>
+            onChangeText={(text) => setTask(task => ({ ...task, desc: text }))}></Input>
 
           {timeSensitive ? (
-            <Layout style={{padding: 10}}>
+            <Layout style={{ padding: 10 }}>
               <Text>How long does it take to do this task?</Text>
               <RadioGroup
-                selectedIndex={taskTime}
-                onChange={(index) => setTaskTime(index)}
-                style={{marginTop: 20}}>
+                selectedIndex={task.time}
+                onChange={(index) => setTask(task => ({ ...task, time: index }))}
+                style={{ marginTop: 20 }}>
                 <Radio>{data[0].label}</Radio>
                 <Radio>{data[1].label}</Radio>
                 <Radio>{data[2].label}</Radio>
@@ -309,7 +285,7 @@ function AddCategoryScreen({route, navigation}) {
             }}>
             <Button onPress={() => setModalVisible(false)}>Cancel</Button>
             <Button
-              onPress={() => _closeModal('save')}
+              onPress={() => saveTask()}
               accessoryRight={taskMode == 'new' ? AddIcon : SaveIcon}>
               {taskMode == 'new' ? 'Add Task' : 'Save Task'}
             </Button>
@@ -328,7 +304,7 @@ function AddCategoryScreen({route, navigation}) {
       {loading ? (
         <Layout style={styleSheet.loading_container}>
           <ActivityIndicator
-            style={{alignSelf: 'center'}}
+            style={{ alignSelf: 'center' }}
             size="large"
             color="#800"
             animating={loading}
@@ -336,10 +312,10 @@ function AddCategoryScreen({route, navigation}) {
         </Layout>
       ) : (
         <Layout
-          style={{flex: 1, backgroundColor: themeContext.backgroundColor}}>
+          style={{ flex: 1, backgroundColor: themeContext.backgroundColor }}>
           <TopNavigation
             alignment="center"
-            style={{backgroundColor: themeContext.backgroundColor}}
+            style={{ backgroundColor: themeContext.backgroundColor }}
             title={
               categoryMode == 'edit'
                 ? 'Editing a Category...'
@@ -354,9 +330,9 @@ function AddCategoryScreen({route, navigation}) {
             borderColor={'#800'}
             inputPadding={16}
             value={categoryName}
-            style={{backgroundColor: themeContext.backgroundColor}}
+            style={{ backgroundColor: themeContext.backgroundColor }}
             onChangeText={(text) => setCategoryName(text)}
-            inputStyle={{color: 'white'}}
+            inputStyle={{ color: 'white' }}
           />
 
           <Input
@@ -375,11 +351,11 @@ function AddCategoryScreen({route, navigation}) {
               backgroundColor: themeContext.backgroundColor,
             }}>
             <CheckBox
-              style={{alignSelf: 'center'}}
+              style={{ alignSelf: 'center' }}
               checked={timeSensitive}
               onChange={setTimeSensitive}
             />
-            <Text style={{margin: 20}}>This category is split by time</Text>
+            <Text style={{ margin: 20 }}>This category is split by time</Text>
           </Layout>
 
           <Divider />
@@ -404,15 +380,15 @@ function AddCategoryScreen({route, navigation}) {
               status="primary"
               size="small"
               accessoryLeft={AddIcon}
-              onPress={() => _openModal({})}>
+              onPress={() => openTaskModal(undefined)}>
               Add Task
             </Button>
           </Layout>
 
           <List
-            style={{backgroundColor: themeContext.backgroundColor}}
+            style={{ backgroundColor: themeContext.backgroundColor }}
             data={tasks}
-            renderItem={({item}) => _renderEditButton(item)}></List>
+            renderItem={({ item }) => _renderEditButton(item)}></List>
           {_renderModal()}
           {_renderDeleteModal()}
         </Layout>

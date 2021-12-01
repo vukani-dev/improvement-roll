@@ -1,0 +1,1 @@
+Styling and code changes on edit category screen
