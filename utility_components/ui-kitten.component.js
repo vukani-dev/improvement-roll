@@ -12,6 +12,12 @@ import {
   Card,
   Toggle,
   Divider,
+  Input,
+  RadioGroup,
+  Radio,
+  List,
+  ListItem,
+  CheckBox
 } from '@ui-kitten/components';
 
 export {Layout, Text,
@@ -23,4 +29,13 @@ export {Layout, Text,
   SelectItem,
   IndexPath,
   Modal,
-  Card, Toggle, Divider}
+  Card, 
+  Toggle, 
+  Divider,
+  Input,
+  RadioGroup, 
+  Radio,
+  List,
+  ListItem,
+  CheckBox
+}
