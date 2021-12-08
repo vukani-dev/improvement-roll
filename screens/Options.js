@@ -348,7 +348,7 @@ export default ({ navigation }) => {
         </Kitten.Layout>
       </Kitten.Layout>
 
-      <Kitten.Layout style={{flex:0.2}}>
+      <Kitten.Layout style={{ flex: 0.2 }}>
 
       </Kitten.Layout>
       {_renderResetModal()}

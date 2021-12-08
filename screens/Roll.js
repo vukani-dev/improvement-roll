@@ -96,13 +96,13 @@ const RollResultScreen = ({ route, navigation }) => {
             </Layout>
             <Layout
               style={{
-                flex:0.25, 
+                flex: 0.25,
                 backgroundColor: themeContext.backgroundColor,
                 marginHorizontal: 80
               }}>
               <Button
                 accessoryLeft={renderRerollIcon}
-                style={{ height:80}}
+                style={{ height: 80 }}
                 onPress={reRoll}>
                 Re-roll
               </Button>

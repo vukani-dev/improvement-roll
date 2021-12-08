@@ -98,7 +98,7 @@ function AddCategoryScreen({ route, navigation }) {
   );
   const openTaskModal = (item) => {
     if (item == undefined) {
-      console.log('task is empty so its a new one');  
+      console.log('task is empty so its a new one');
       var newTask = { Id: tasks.length }
       if (timeSensitive) newTask.time = 0
 
@@ -331,7 +331,6 @@ function AddCategoryScreen({ route, navigation }) {
           <Kitten.Layout
             style={{
               flexDirection: 'row',
-              marginBottom: 10,
               marginLeft: 13,
               backgroundColor: themeContext.backgroundColor,
             }}>

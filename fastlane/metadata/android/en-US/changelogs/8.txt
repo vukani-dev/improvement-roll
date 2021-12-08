@@ -1,1 +1,2 @@
-Styling and code changes on edit category screen
+Code changes on edit category screen
+Possible fix for galaxy phones on Category inputs

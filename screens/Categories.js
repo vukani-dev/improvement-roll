@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {View} from 'react-native';
+import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Card,
@@ -13,20 +13,20 @@ import {
   TopNavigationAction,
 } from '@ui-kitten/components';
 
-import {ThemeContext} from '../utility_components/theme-context';
+import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 
 import RNFS from 'react-native-fs';
-import {PermissionsAndroid} from 'react-native';
+import { PermissionsAndroid } from 'react-native';
 import * as TOML from '@iarna/toml';
 import * as YAML from 'js-yaml';
 
-function CategoriesScreen({route, navigation}) {
+function CategoriesScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [selectedCategory, setSelectedCategory] = React.useState({});
   const [timeRanges, setTimeRanges] = React.useState([]);
   const [modalVisible, setModalVisible] = React.useState(false);
-  const {action, type} = route.params;
+  const { action, type } = route.params;
 
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
@@ -73,7 +73,7 @@ function CategoriesScreen({route, navigation}) {
     console.log(category);
     switch (action) {
       case 'view':
-        navigation.navigate('AddCategory', {categoryName: category.name});
+        navigation.navigate('AddCategory', { categoryName: category.name });
         break;
       case 'roll':
         if (category.timeSensitive) {
@@ -87,7 +87,7 @@ function CategoriesScreen({route, navigation}) {
           }
 
           if (newTimeRange.length == 1) {
-            navigation.navigate('Roll', {tasks: category.tasks});
+            navigation.navigate('Roll', { tasks: category.tasks });
             return;
           }
 
@@ -95,7 +95,7 @@ function CategoriesScreen({route, navigation}) {
           setSelectedCategory(category);
           setModalVisible(true);
         } else {
-          navigation.navigate('Roll', {tasks: category.tasks});
+          navigation.navigate('Roll', { tasks: category.tasks });
         }
         break;
       case 'export':
@@ -138,7 +138,7 @@ function CategoriesScreen({route, navigation}) {
       RNFS.writeFile(path2, data, 'utf8')
         .then((success) => {
           console.log(success);
-          navigation.navigate('ImportExport',{action:'export',path:path2});
+          navigation.navigate('ImportExport', { action: 'export', path: path2 });
           console.log('WORKED');
         })
         .catch((err) => {
@@ -149,7 +149,7 @@ function CategoriesScreen({route, navigation}) {
   };
 
   const _renderCategoryFooter = (item) => (
-    <Text category="p2" style={{margin: 5, textAlign: 'center'}}>
+    <Text category="p2" style={{ margin: 5, textAlign: 'center' }}>
       {item.description}
     </Text>
   );
@@ -159,10 +159,10 @@ function CategoriesScreen({route, navigation}) {
       <Card
         onPress={() => _categorySelected(item)}
         status="info"
-        style={{margin: 10}}
+        style={{ margin: 10 }}
         footer={() => _renderCategoryFooter(item)}>
         <Text
-          style={{alignContent: 'center', textAlign: 'center'}}
+          style={{ alignContent: 'center', textAlign: 'center' }}
           category="h6">
           {item.name}
         </Text>
@@ -178,7 +178,7 @@ function CategoriesScreen({route, navigation}) {
       }
     }
     setModalVisible(false);
-    navigation.navigate('Roll', {tasks: eligibleTasks});
+    navigation.navigate('Roll', { tasks: eligibleTasks });
   };
 
   const _renderTimeModal = () => {
@@ -193,21 +193,21 @@ function CategoriesScreen({route, navigation}) {
         visible={modalVisible}
         backdropStyle={styleSheet.modal_backdrop}>
         <Layout style={styleSheet.modal_container}>
-          <Text style={{marginBottom: 10}}>How much time do you have?</Text>
+          <Text style={{ marginBottom: 10 }}>How much time do you have?</Text>
 
           {timeRanges.map((timeRange) => (
             <Button
               status="primary"
               accessoryLeft={timeIcon}
               onPress={() => _timeSelected(timeRange.value)}
-              style={{marginTop: 15}}
+              style={{ marginTop: 15 }}
               key={timeRange.value}>
               {timeRange.label}
             </Button>
           ))}
 
           <Button
-            style={{marginTop: 20}}
+            style={{ marginTop: 20 }}
             appearance="ghost"
             accessoryLeft={cancelIcon}
             onPress={() => setModalVisible(false)}
@@ -221,7 +221,7 @@ function CategoriesScreen({route, navigation}) {
     <Layout style={styleSheet.columned_container}>
       <TopNavigation
         alignment="center"
-        style={{backgroundColor: themeContext.backgroundColor}}
+        style={{ backgroundColor: themeContext.backgroundColor }}
         title="Select a category"
         accessoryLeft={BackAction}
       />
@@ -234,11 +234,11 @@ function CategoriesScreen({route, navigation}) {
             themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE',
         }}
         data={allCategories}
-        renderItem={({item}) => _renderCategory(item)}></List>
-      <View style={{flexDirection: 'row', flex: 0.1, justifyContent: 'center'}}>
+        renderItem={({ item }) => _renderCategory(item)}></List>
+      <View style={{ flexDirection: 'row', flex: 0.1, justifyContent: 'center' }}>
         {action == 'view' ? (
           <Button
-            style={{marginBottom: 20}}
+            style={{ marginBottom: 20 }}
             hidden
             accessoryRight={AddIcon}
             onPress={() => navigation.navigate('AddCategory')}>
@@ -249,7 +249,7 @@ function CategoriesScreen({route, navigation}) {
         )}
         {action == 'export' && type == 'JSON' ? (
           <Button
-            style={{marginBottom: 20}}
+            style={{ marginBottom: 20 }}
             hidden
             accessoryRight={ExportIcon}
             accessoryLeft={ExportIcon}
