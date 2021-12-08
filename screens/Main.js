@@ -71,7 +71,7 @@ export default ({ route, navigation }) => {
       <Text style={{ marginTop: 100, fontWeight: 'bold' }} category="h1">
         Improvement
       </Text>
-      <Text style={{ marginBottom: 100, fontWeight: 'bold' }} category="h1">
+      <Text style={{ marginBottom: 70, fontWeight: 'bold' }} category="h1">
         Roll
       </Text>
 
@@ -81,17 +81,17 @@ export default ({ route, navigation }) => {
         Roll
       </Button>
       <Button
-        style={{ marginTop: 10, marginBottom: 15 }}
+        style={{ marginTop: 10  }}
         accessoryLeft={ListIcon}
         onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         View Categories
       </Button>
-      {/* <Button
+      <Button
         style={{ margin: 10, marginBottom: 35 }}
         accessoryLeft={GlobeIcon}
-        onPress={() => navigation.navigate('Categories', { action: 'view' })}>
+        onPress={() => navigation.navigate('CommunityCategories', { action: 'view' })}>
         Community Categories
-      </Button> */}
+      </Button>
 
       <Button
         accessoryLeft={SettingsIcon}
