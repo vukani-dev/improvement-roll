@@ -7,6 +7,7 @@ A randomly selected todo list
      height="80">](https://f-droid.org/packages/com.improvement_roll/)
 
 <img src="https://img.shields.io/f-droid/v/com.improvement_roll.svg" width="200">
+
 ## What??
 Inspired from "rolling" threads on 4chan. You can create category of tasks that you want to do (in no particular order). 
 Then press the button and it will randomly give you a task to do from said list.
@@ -24,7 +25,7 @@ And in the **Fitness** category you can add tasks like:
 - Do 40 Jumping Jacks 
 - *etc*
 
-Then whenever you have free time you can open the app and select the **Fitness** category and a random on of these tasks will be given to you. 
+Then whenever you have free time you can open the app and select the **Fitness** category and a random one of these tasks will be given to you. 
 Now its up to you to do them but at least you didnt have to think about what to do :wink:
 
 ### Timed Example:
@@ -38,7 +39,7 @@ You can create the same Category called **Fitness**
 During the category creation toggle the "This category is split by time" box.
 Now you can enter in tasks and select how much time it takes for you to complete them.
 
-Once you select the **Fitness** category to roll this time you will be asked how much time you have. And you will onyl be given tasks that are within that time range (If I only have 5 minutes id rather do pushups, But if I have an hour I can go for a run)
+Once you select the **Fitness** category to roll this time you will be asked how much time you have. And you will only be given tasks that are within that time range (If I only have 5 minutes id rather do pushups, But if I have an hour I can go for a run)
 
 ## Import/Export
 
@@ -53,7 +54,7 @@ Available formats:
 - **TOML**
 - **YAML**
 
-However only with **JSON** can you import multiple Categories from one file.  
+However only with **JSON** and **YAML** can you import multiple Categories from one file.  
 Examples can be found under [categories/examples](https://github.com/vukani-dev/improvement-roll/tree/main/categories/examples)  
 The `time` variable under tasks is associated with the time it takes to usually complete it. This is only necessary for Categories that are timeSensitive (denoted by `timeSensitive` bool under the Category).  
 
