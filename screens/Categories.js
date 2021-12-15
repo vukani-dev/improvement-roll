@@ -120,17 +120,17 @@ function CategoriesScreen({ route, navigation }) {
         categories.length > 1
           ? `imp_roll_categories_${Date.now()}`
           : categories[0].name;
-      var path2 = RNFS.DownloadDirectoryPath + `/${filename}.${type.toLowerCase()}`;
+      var path2 = RNFS.DownloadDirectoryPath + `/${filename}.${type}`;
       var data = '';
 
       switch (type) {
-        case 'JSON':
+        case 'json':
           data = JSON.stringify(categories);
           break;
-        case 'TOML':
+        case 'toml':
           data = TOML.stringify(categories[0]);
           break;
-        case 'YAML':
+        case 'yaml':
           data = YAML.dump(categories[0])
           break;
       }
@@ -247,7 +247,7 @@ function CategoriesScreen({ route, navigation }) {
         ) : (
           <View></View>
         )}
-        {action == 'export' && type == 'JSON' ? (
+        {action == 'export' && type == 'json' ? (
           <Button
             style={{ marginBottom: 20 }}
             hidden

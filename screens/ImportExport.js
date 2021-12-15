@@ -78,19 +78,20 @@ export default ({ navigation, route }) => {
 
         switch (type) {
           case 'json':
-            var parsedJson = JSON.parse(res);
-            if (Array.isArray(parsedJson)) {
-              parsedArray = JSON.parse(res);
-            } else {
-              parsedArray.push(JSON.parse(res));
-            }
+            var parsedFile = JSON.parse(res);
             break;
           case 'yaml':
-            parsedArray.push(YAML.load(res));
+            var parsedFile = YAML.load(res);
             break;
           case 'toml':
             parsedArray.push(TOML.parse(res));
             break;
+        }
+
+        if (Array.isArray(parsedFile)) {
+            parsedArray = parsedFile;
+        } else {
+            parsedArray.push(parsedFile);
         }
 
         addCategories(parsedArray);
