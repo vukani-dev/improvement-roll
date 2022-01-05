@@ -27,13 +27,47 @@ export default ({ route, navigation }) => {
         <Kitten.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
     );
 
-    React.useEffect(() => {
-        fetch('http://10.0.2.2:3000', {
+    const renderItemAccessory = (props) => (
+        <Kitten.Button size='tiny'>FOLLOW</Kitten.Button>
+    );
+
+    const renderItemIcon = (props) => (
+        <Kitten.Icon {...props} name='person' />
+    );
+
+    const renderItem = ({ item, index }) => (
+        <Kitten.ListItem
+            title={`${item.category.name} ${index + 1}`}
+            description={`${item.category.description} ${index + 1}`}
+            accessoryLeft={renderItemIcon}
+            accessoryRight={renderItemAccessory}
+            
+        />
+    );
+
+    const handleOnEndReached = () => {
+
+        fetch(`http://10.0.2.2:3000?page=${page+1}`, {
             method: 'GET'
         })
             .then((response) => response.json())
             .then((responseJson) => {
-                // console.log(responseJson.sharedCategories[0]);
+                console.log(responseJson.sharedCategories)
+                setCategories([...categories, ...responseJson.sharedCategories])
+                setPage(responseJson.page)
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    React.useEffect(() => {
+        fetch('http://10.0.2.2:3000?page=1', {
+            method: 'GET'
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson.sharedCategories)
                 setCategories(responseJson.sharedCategories)
                 setPage(responseJson.page)
                 setLoading(false);
@@ -63,9 +97,12 @@ export default ({ route, navigation }) => {
                     />
                 </Kitten.Layout>
             ) : (
-                <Kitten.Text>
-                    {page}
-                </Kitten.Text>
+                <Kitten.List
+                    data={categories}
+                    renderItem={renderItem}
+                    onEndReached={handleOnEndReached}
+                    onEndReachedThreshold={0.01}
+                />
             )}
 
 
