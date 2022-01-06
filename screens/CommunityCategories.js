@@ -19,8 +19,10 @@ export default ({ route, navigation }) => {
 
     const [searchString, setSearchString] = React.useState('');
     const [loading, setLoading] = React.useState(true);
+    const [fetchLoading, setFetchLoading] = React.useState(false);
     const [categories, setCategories] = React.useState([]);
     const [page, setPage] = React.useState(1);
+    const [stopFetching, setStopFetching] = React.useState(false)
 
 
     const BackAction = () => (
@@ -41,28 +43,35 @@ export default ({ route, navigation }) => {
             description={`${item.category.description} ${index + 1}`}
             accessoryLeft={renderItemIcon}
             accessoryRight={renderItemAccessory}
-            
+
         />
     );
 
     const handleOnEndReached = () => {
-
-        fetch(`http://10.0.2.2:3000?page=${page+1}`, {
-            method: 'GET'
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log(responseJson.sharedCategories)
-                setCategories([...categories, ...responseJson.sharedCategories])
-                setPage(responseJson.page)
+        if (!stopFetching) {
+            setFetchLoading(true)
+            fetch(`http://10.0.2.2:3000?page=${page + 1}`, {
+                method: 'GET'
             })
-            .catch((error) => {
-                console.error(error);
-            });
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    console.log(responseJson.sharedCategories)
+                    setCategories([...categories, ...responseJson.sharedCategories])
+                    setPage(responseJson.page)
+                    if (responseJson.page == responseJson.totalPages) {
+                        setStopFetching(true);
+                    }
+                    setFetchLoading(false)
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setFetchLoading(false)
+                });
+        }
     }
 
     React.useEffect(() => {
-        fetch('http://10.0.2.2:3000?page=1', {
+        fetch(`http://10.0.2.2:3000?page=${page}`, {
             method: 'GET'
         })
             .then((response) => response.json())
@@ -80,7 +89,7 @@ export default ({ route, navigation }) => {
 
 
     return (
-        <Kitten.Layout style={{ flex: 1, backgroundColor: themeContext.backgroundColor }}>
+        <Kitten.Layout style={{ flex: 1, backgroundColor: themeContext.backgroundColor, padding: 10 }}>
             <Kitten.TopNavigation
                 alignment="center"
                 style={{ backgroundColor: themeContext.backgroundColor }}
@@ -97,12 +106,23 @@ export default ({ route, navigation }) => {
                     />
                 </Kitten.Layout>
             ) : (
-                <Kitten.List
-                    data={categories}
-                    renderItem={renderItem}
-                    onEndReached={handleOnEndReached}
-                    onEndReachedThreshold={0.01}
-                />
+                <Kitten.Layout style={{flex:1}} >
+                    <Kitten.List
+                        data={categories}
+                        renderItem={renderItem}
+                        onEndReached={handleOnEndReached}
+                        onEndReachedThreshold={0.01}
+                        style={{paddingBottom:30}}
+                    />
+                    {fetchLoading ? (
+                        <ActivityIndicator
+                            style={{ alignSelf: 'center' }}
+                            size="large"
+                            color="#800"
+                            animating={fetchLoading}
+                        />
+                    ) : null}
+                </Kitten.Layout>
             )}
 
 
