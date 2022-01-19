@@ -42,7 +42,8 @@ export default class StyleSheetFactory {
         flexDirection: 'column',
         justifyContent: 'space-around',
         alignItems: 'stretch',
-        alignContent: 'space-around'
+        alignContent: 'space-around',
+        backgroundColor: themeBackgroundColor,
       },
       top_navigation: {
         backgroundColor: themeBackgroundColor,

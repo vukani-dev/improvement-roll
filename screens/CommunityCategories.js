@@ -50,7 +50,7 @@ export default ({ route, navigation }) => {
     const handleOnEndReached = () => {
         if (!stopFetching) {
             setFetchLoading(true)
-            fetch(`http://10.0.2.2:3000?page=${page + 1}`, {
+            fetch(`http://192.168.1.236:3000?page=${page + 1}`, {
                 method: 'GET'
             })
                 .then((response) => response.json())
@@ -71,7 +71,7 @@ export default ({ route, navigation }) => {
     }
 
     React.useEffect(() => {
-        fetch(`http://10.0.2.2:3000?page=${page}`, {
+        fetch(`http://192.168.1.236:3000?page=${page}`, {
             method: 'GET'
         })
             .then((response) => response.json())
