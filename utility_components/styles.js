@@ -34,6 +34,21 @@ export default class StyleSheetFactory {
         shadowRadius: 3.84,
         elevation: 5,
       },
+      search_modal: {
+        flex:1,
+        margin: 30,
+        marginBottom: 100,
+        borderRadius: 20,
+        padding: 25,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      },
       modal_backdrop: {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
       },
