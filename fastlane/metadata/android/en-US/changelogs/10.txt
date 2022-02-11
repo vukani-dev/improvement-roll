@@ -1,1 +1,1 @@
-Fixing strange cursor bug on category edit page.Kitten.Modal
+Fixing strange cursor bug on category edit page
