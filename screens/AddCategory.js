@@ -1,14 +1,18 @@
 import * as React from 'react';
-import { ActivityIndicator } from 'react-native';
+import {ActivityIndicator} from 'react-native';
 
-import { Jiro } from 'react-native-textinput-effects';
+import {Jiro} from 'react-native-textinput-effects';
 
-import { ThemeContext } from '../utility_components/theme-context';
+import {ThemeContext} from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-function AddCategoryScreen({ route, navigation }) {
+import Modal from "react-native-modal";
+import { View } from 'react-native';
+
+
+function AddCategoryScreen({route, navigation}) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [categoryName, setCategoryName] = React.useState('');
   const [categoryDesc, setCategoryDesc] = React.useState('');
@@ -20,9 +24,14 @@ function AddCategoryScreen({ route, navigation }) {
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
   const [taskMode, setTaskMode] = React.useState('');
   const [task, setTask] = React.useState({});
+  const [taskName, setTaskName] = React.useState('');
+  const [newTask, setNewTask] = React.useState({});
   const [tasks, setTasks] = React.useState([]);
+  const [cursor, setCursor] = React.useState({});
   const [loading, setLoading] = React.useState(true);
+  // const {ref: inputRef, updateCaret} = useCaretPosition();
 
+  const inputRef = React.useRef();
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
@@ -35,7 +44,7 @@ function AddCategoryScreen({ route, navigation }) {
         />
       ) : null}
       <Kitten.TopNavigationAction
-        style={{ marginLeft: 20 }}
+        style={{marginLeft: 20}}
         icon={SaveIcon}
         onPress={() => _categoryComplete()}
       />
@@ -70,6 +79,10 @@ function AddCategoryScreen({ route, navigation }) {
         setLoading(false);
       }
     });
+
+    return () => {
+      console.log('unmounted');
+    };
   }, []);
 
   const data = [
@@ -99,13 +112,13 @@ function AddCategoryScreen({ route, navigation }) {
   const openTaskModal = (item) => {
     if (item == undefined) {
       console.log('task is empty so its a new one');
-      var newTask = { Id: tasks.length }
-      if (timeSensitive) newTask.time = 0
+      var newTask = {Id: tasks.length};
+      if (timeSensitive) newTask.time = 0;
 
-      setTask(newTask)
+      setTask(newTask);
       setTaskMode('new');
     } else {
-      setTask(item)
+      setTask(item);
       setTaskMode('edit');
     }
     setModalVisible(true);
@@ -113,10 +126,9 @@ function AddCategoryScreen({ route, navigation }) {
 
   const saveTask = () => {
     if (taskMode == 'new') {
-      setTasks(tasks => [...tasks, task])
-    }
-    else {
-      setTasks(tasks => tasks.map(el => el.Id === task.Id ? task : el))
+      setTasks((tasks) => [...tasks, task]);
+    } else {
+      setTasks((tasks) => tasks.map((el) => (el.Id === task.Id ? task : el)));
     }
     setModalVisible(false);
   };
@@ -181,14 +193,14 @@ function AddCategoryScreen({ route, navigation }) {
       <Kitten.ListItem
         title={task.name}
         description={task.desc}
-        style={{ backgroundColor: themeContext.backgroundColor }}
+        style={{backgroundColor: themeContext.backgroundColor}}
         accessoryRight={() => (
           <Kitten.Button onPress={() => _removeTask(task)} size="tiny">
             REMOVE
           </Kitten.Button>
         )}
         onPress={() => openTaskModal(task)}></Kitten.ListItem>
-      <Kitten.Divider style={{ marginHorizontal: 10 }} />
+      <Kitten.Divider style={{marginHorizontal: 10}} />
     </>
   );
 
@@ -200,7 +212,9 @@ function AddCategoryScreen({ route, navigation }) {
         onBackdropPress={() => setDeleteModalVisible(false)}
         backdropStyle={styleSheet.modal_backdrop}>
         <Kitten.Layout style={styleSheet.modal_container}>
-          <Kitten.Text>Are you sure you want to delete this category?</Kitten.Text>
+          <Kitten.Text>
+            Are you sure you want to delete this category?
+          </Kitten.Text>
 
           <Kitten.Layout
             style={{
@@ -210,7 +224,9 @@ function AddCategoryScreen({ route, navigation }) {
               marginTop: 20,
               marginHorizontal: 70,
             }}>
-            <Kitten.Button onPress={() => setDeleteModalVisible(false)}>No</Kitten.Button>
+            <Kitten.Button onPress={() => setDeleteModalVisible(false)}>
+              No
+            </Kitten.Button>
             <Kitten.Button onPress={() => _deleteCat()}>Yes</Kitten.Button>
           </Kitten.Layout>
         </Kitten.Layout>
@@ -220,19 +236,25 @@ function AddCategoryScreen({ route, navigation }) {
 
   const _renderModal = () => {
     return (
-      <Kitten.Modal
-        transparent={true}
+      <Modal
+        transparent={false}
         visible={modalVisible}
+        // animationIn={'slideInUp'}
+        animationType={'slide'}
         onBackdropPress={() => setModalVisible(false)}
-        backdropStyle={styleSheet.modal_backdrop}>
-        <Kitten.Layout style={styleSheet.modal_container}>
+        // backdropStyle={styleSheet.modal_backdrop}
+        backgroundColor={"rgba(0,0,0,0.5)"}
+        >
 
+        <Kitten.Layout style={styleSheet.modal_container}>
           <Kitten.Input
             placeholder="Enter a task"
             value={task.name}
             secureTextEntry={true}
             keyboardType={'visible-password'}
-            onChangeText={(text) => setTask(task => ({ ...task, name: text }))}></Kitten.Input>
+            onChangeText={(text) =>
+              setTask((task) => ({...task, name: text}))
+            }></Kitten.Input>
 
           <Kitten.Input
             placeholder="Enter a description for the task"
@@ -243,15 +265,19 @@ function AddCategoryScreen({ route, navigation }) {
             secureTextEntry={true}
             keyboardType={'visible-password'}
             blurOnSubmit={true}
-            onChangeText={(text) => setTask(task => ({ ...task, desc: text }))}></Kitten.Input>
+            onChangeText={(text) =>
+              setTask((task) => ({...task, desc: text}))
+            }></Kitten.Input>
 
           {timeSensitive ? (
-            <Kitten.Layout style={{ padding: 10 }}>
+            <Kitten.Layout style={{padding: 10}}>
               <Kitten.Text>How long does it take to do this task?</Kitten.Text>
               <Kitten.RadioGroup
                 selectedIndex={task.time}
-                onChange={(index) => setTask(task => ({ ...task, time: index }))}
-                style={{ marginTop: 20 }}>
+                onChange={(index) =>
+                  setTask((task) => ({...task, time: index}))
+                }
+                style={{marginTop: 20}}>
                 <Kitten.Radio>{data[0].label}</Kitten.Radio>
                 <Kitten.Radio>{data[1].label}</Kitten.Radio>
                 <Kitten.Radio>{data[2].label}</Kitten.Radio>
@@ -266,7 +292,9 @@ function AddCategoryScreen({ route, navigation }) {
               justifyContent: 'space-evenly',
               marginTop: 10,
             }}>
-            <Kitten.Button onPress={() => setModalVisible(false)}>Cancel</Kitten.Button>
+            <Kitten.Button onPress={() => setModalVisible(false)}>
+              Cancel
+            </Kitten.Button>
             <Kitten.Button
               onPress={() => saveTask()}
               accessoryRight={taskMode == 'new' ? AddIcon : SaveIcon}>
@@ -274,11 +302,13 @@ function AddCategoryScreen({ route, navigation }) {
             </Kitten.Button>
           </Kitten.Layout>
         </Kitten.Layout>
-      </Kitten.Modal>
+      </Modal>
     );
   };
 
-  const AddIcon = (props) => <Kitten.Icon {...props} name="plus-circle-outline" />;
+  const AddIcon = (props) => (
+    <Kitten.Icon {...props} name="plus-circle-outline" />
+  );
   const SaveIcon = (props) => <Kitten.Icon {...props} name="save" />;
   const TrashIcon = (props) => <Kitten.Icon {...props} name="trash" />;
 
@@ -287,7 +317,7 @@ function AddCategoryScreen({ route, navigation }) {
       {loading ? (
         <Kitten.Layout style={styleSheet.loading_container}>
           <ActivityIndicator
-            style={{ alignSelf: 'center' }}
+            style={{alignSelf: 'center'}}
             size="large"
             color="#800"
             animating={loading}
@@ -295,10 +325,10 @@ function AddCategoryScreen({ route, navigation }) {
         </Kitten.Layout>
       ) : (
         <Kitten.Layout
-          style={{ flex: 1, backgroundColor: themeContext.backgroundColor }}>
+          style={{flex: 1, backgroundColor: themeContext.backgroundColor}}>
           <Kitten.TopNavigation
             alignment="center"
-            style={{ backgroundColor: themeContext.backgroundColor }}
+            style={{backgroundColor: themeContext.backgroundColor}}
             title={
               categoryMode == 'edit'
                 ? 'Editing a Category...'
@@ -313,9 +343,9 @@ function AddCategoryScreen({ route, navigation }) {
             borderColor={'#800'}
             inputPadding={16}
             value={categoryName}
-            style={{ backgroundColor: themeContext.backgroundColor }}
+            style={{backgroundColor: themeContext.backgroundColor}}
             onChangeText={(text) => setCategoryName(text)}
-            inputStyle={{ color: 'white' }}
+            inputStyle={{color: 'white'}}
           />
 
           <Kitten.Input
@@ -328,6 +358,7 @@ function AddCategoryScreen({ route, navigation }) {
             keyboardType={'visible-password'}
             onChangeText={(text) => setCategoryDesc(text)}
             blurOnSubmit={true}></Kitten.Input>
+
           <Kitten.Layout
             style={{
               flexDirection: 'row',
@@ -335,11 +366,13 @@ function AddCategoryScreen({ route, navigation }) {
               backgroundColor: themeContext.backgroundColor,
             }}>
             <Kitten.CheckBox
-              style={{ alignSelf: 'center' }}
+              style={{alignSelf: 'center'}}
               checked={timeSensitive}
               onChange={setTimeSensitive}
             />
-            <Kitten.Text style={{ margin: 20 }}>This category is split by time</Kitten.Text>
+            <Kitten.Text style={{margin: 20}}>
+              This category is split by time
+            </Kitten.Text>
           </Kitten.Layout>
 
           <Kitten.Divider />
@@ -370,9 +403,9 @@ function AddCategoryScreen({ route, navigation }) {
           </Kitten.Layout>
 
           <Kitten.List
-            style={{ backgroundColor: themeContext.backgroundColor }}
+            style={{backgroundColor: themeContext.backgroundColor}}
             data={tasks}
-            renderItem={({ item }) => _renderEditButton(item)}></Kitten.List>
+            renderItem={({item}) => _renderEditButton(item)}></Kitten.List>
           {_renderModal()}
           {_renderDeleteModal()}
         </Kitten.Layout>

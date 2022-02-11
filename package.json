@@ -28,6 +28,7 @@
     "react-native-fs": "^2.18.0",
     "react-native-gesture-handler": "~1.7.0",
     "react-native-logs": "^3.0.4",
+    "react-native-modal": "^13.0.0",
     "react-native-permissions": "^3.0.5",
     "react-native-reanimated": "~1.13.0",
     "react-native-safe-area-context": "3.1.4",
@@ -39,6 +40,7 @@
     "react-native-unimodules": "~0.12.0",
     "react-native-vector-icons": "^7.1.0",
     "react-native-web": "~0.13.12",
+    "react-use-caret-position": "^1.0.3",
     "stream": "^0.0.2"
   },
   "devDependencies": {
