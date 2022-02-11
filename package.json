@@ -40,7 +40,6 @@
     "react-native-unimodules": "~0.12.0",
     "react-native-vector-icons": "^7.1.0",
     "react-native-web": "~0.13.12",
-    "react-use-caret-position": "^1.0.3",
     "stream": "^0.0.2"
   },
   "devDependencies": {

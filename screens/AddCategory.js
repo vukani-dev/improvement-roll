@@ -9,7 +9,6 @@ import * as Kitten from '../utility_components/ui-kitten.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Modal from "react-native-modal";
-import { View } from 'react-native';
 
 
 function AddCategoryScreen({ route, navigation }) {
