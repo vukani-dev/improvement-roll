@@ -1,18 +1,20 @@
 import * as React from 'react';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Card,
-  List,
-  Text,
-  Button,
-  Icon,
-  Modal,
-  Layout,
-  TopNavigation,
-  TopNavigationAction,
-} from '@ui-kitten/components';
+// import {
+//   K.Card,
+//   K.List,
+//   K.Text,
+//   Button,
+//   Icon,
+//   Layout,
+//   TopNavigation,
+//   TopNavigationAction,
+// } from '@ui-kitten/components';
 
+import * as K from '../utility_components/ui-kitten.component.js';
+
+import Modal from "react-native-modal";
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 
@@ -34,29 +36,37 @@ function CategoriesScreen({ route, navigation }) {
   const data = [
     {
       label: '0 - 10 min',
-      value: 1,
+      tasks: [],
+      min: 0,
+      max: 10
     },
     {
-      label: '10 - 20 min',
-      value: 2,
+      label: '11 - 30 min',
+      tasks: [],
+      min: 11,
+      max: 20
     },
     {
-      label: '30 min - 1 hour',
-      value: 3,
+      label: '31 min - 1 hour',
+      tasks: [],
+      min: 31,
+      max: 60
     },
     {
       label: '1 hour +',
-      value: 4,
+      tasks: [],
+      min: 60,
+      max: undefined
     },
   ];
 
   const BackAction = () => (
-    <TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
+    <K.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
   );
 
-  const AddIcon = (props) => <Icon {...props} name="plus-square-outline" />;
-  const ExportIcon = (props) => <Icon {...props} name="arrow-upward-outline" />;
-  const BackIcon = (props) => <Icon {...props} name="arrow-back" />;
+  const AddIcon = (props) => <K.Icon {...props} name="plus-square-outline" />;
+  const ExportIcon = (props) => <K.Icon {...props} name="arrow-upward-outline" />;
+  const BackIcon = (props) => <K.Icon {...props} name="arrow-back" />;
   React.useEffect(() => {
     AsyncStorage.getItem('categories').then((value) => {
       var categories = value != null ? JSON.parse(value) : [];
@@ -77,12 +87,24 @@ function CategoriesScreen({ route, navigation }) {
         break;
       case 'roll':
         if (category.timeSensitive) {
+
           var newTimeRange = [];
-          var highestTimeRange = 0;
+
           for (var i = 0; i < category.tasks.length; i++) {
-            if (category.tasks[i].time > highestTimeRange) {
-              highestTimeRange = category.tasks[i].time;
-              newTimeRange.push(data[highestTimeRange - 1]);
+            if (newTimeRange.length == 4) {
+              break;
+            }
+            var minutes = category.tasks[i].minutes;
+            var task = category.tasks[i];
+
+            for (var x = 0; x < data.length; x++) {
+              if (minutes >= data[x].min && (minutes <= data[x].max || data[x].max == undefined)) {
+                data[x].tasks.push(task);
+
+                if (newTimeRange.indexOf(data[x]) == -1) {
+                  newTimeRange.push(data[x]);
+                }
+              }
             }
           }
 
@@ -105,7 +127,7 @@ function CategoriesScreen({ route, navigation }) {
   };
 
   const _export = (categories) => {
-    var granted = PermissionsAndroid.request(
+    PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
       {
         title: 'Storage Permissions',
@@ -149,84 +171,98 @@ function CategoriesScreen({ route, navigation }) {
   };
 
   const _renderCategoryFooter = (item) => (
-    <Text category="p2" style={{ margin: 5, textAlign: 'center' }}>
+    <K.Text category="p2" style={{ margin: 5, textAlign: 'center' }}>
       {item.description}
-    </Text>
+    </K.Text>
   );
 
   const _renderCategory = (item) => {
     return (
-      <Card
+      <K.Card
         onPress={() => _categorySelected(item)}
         status="info"
         style={{ margin: 10 }}
         footer={() => _renderCategoryFooter(item)}>
-        <Text
+        <K.Text
           style={{ alignContent: 'center', textAlign: 'center' }}
           category="h6">
           {item.name}
-        </Text>
-      </Card>
+        </K.Text>
+      </K.Card>
     );
   };
 
-  const _timeSelected = (time) => {
-    var eligibleTasks = [];
-    for (var i = 0; i < selectedCategory.tasks.length; i++) {
-      if (selectedCategory.tasks[i].time == time) {
-        eligibleTasks.push(selectedCategory.tasks[i]);
-      }
-    }
+  const _timeSelected = (tasks) => {
     setModalVisible(false);
-    navigation.navigate('Roll', { tasks: eligibleTasks });
+    navigation.navigate('Roll', { tasks: tasks });
   };
 
   const _renderTimeModal = () => {
-    const timeIcon = (props) => <Icon {...props} name="clock-outline" />;
-    const cancelIcon = (props) => (
-      <Icon {...props} name="close-circle-outline" />
-    );
+    const timeIcon = (props) => <K.Icon {...props} name="clock-outline" />;
     return (
       <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        backdropStyle={styleSheet.modal_backdrop}>
-        <Layout style={styleSheet.modal_container}>
-          <Text style={{ marginBottom: 10 }}>How much time do you have?</Text>
+        animationType={'slide'}
+        onBackdropPress={() => setModalVisible(false)}
+        isVisible={modalVisible}
+        avoidKeyboard={false}
+        style={{
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          left: 0,
+          right: 0,
+          position: 'absolute'
+        }}
+      >
 
+        <K.Layout style={styleSheet.modal_container}>
+          <K.Text style={{ fontSize: 20, marginBottom: 10, textAlign: 'center', fontWeight: 'bold' }}>How much time do you have?</K.Text>
+
+          <K.Text style={{ marginBottom: 7, fontWeight: 'bold' }}>Exact:</K.Text>
+
+          <K.Layout style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-start' }}>
+
+            <K.Input
+              keyboardType='number-pad'
+              style={{
+                flex: .5,
+                marginRight: 50,
+              }}
+            ></K.Input>
+            <K.Button
+            accessoryLeft={timeIcon}
+              style={{
+                flex: .5,
+              }}
+            
+            >Roll!</K.Button>
+          </K.Layout>
+
+          <K.Text style={{ marginBottom: 7, fontWeight: 'bold' }}>Quick Ranges:</K.Text>
           {timeRanges.map((timeRange) => (
-            <Button
+            <K.Button
               status="primary"
               accessoryLeft={timeIcon}
-              onPress={() => _timeSelected(timeRange.value)}
+              onPress={() => _timeSelected(timeRange.tasks)}
               style={{ marginTop: 15 }}
               key={timeRange.value}>
               {timeRange.label}
-            </Button>
+            </K.Button>
           ))}
-
-          <Button
-            style={{ marginTop: 20 }}
-            appearance="ghost"
-            accessoryLeft={cancelIcon}
-            onPress={() => setModalVisible(false)}
-          />
-        </Layout>
+        </K.Layout>
       </Modal>
     );
   };
 
   return (
-    <Layout style={styleSheet.columned_container}>
-      <TopNavigation
+    <K.Layout style={styleSheet.columned_container}>
+      <K.TopNavigation
         alignment="center"
         style={{ backgroundColor: themeContext.backgroundColor }}
         title="Select a category"
         accessoryLeft={BackAction}
       />
       {_renderTimeModal()}
-      <List
+      <K.List
         style={{
           flex: 1,
           marginBottom: 15,
@@ -234,33 +270,33 @@ function CategoriesScreen({ route, navigation }) {
             themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE',
         }}
         data={allCategories}
-        renderItem={({ item }) => _renderCategory(item)}></List>
+        renderItem={({ item }) => _renderCategory(item)}></K.List>
       <View style={{ flexDirection: 'row', flex: 0.1, justifyContent: 'center' }}>
         {action == 'view' ? (
-          <Button
+          <K.Button
             style={{ marginBottom: 20 }}
             hidden
             accessoryRight={AddIcon}
             onPress={() => navigation.navigate('AddCategory')}>
             Create a new Category
-          </Button>
+          </K.Button>
         ) : (
           <View></View>
         )}
         {action == 'export' && type == 'json' ? (
-          <Button
+          <K.Button
             style={{ marginBottom: 20 }}
             hidden
             accessoryRight={ExportIcon}
             accessoryLeft={ExportIcon}
             onPress={() => _export(allCategories)}>
             Export all
-          </Button>
+          </K.Button>
         ) : (
           <View></View>
         )}
       </View>
-    </Layout>
+    </K.Layout>
   );
 }
 

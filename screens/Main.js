@@ -52,7 +52,6 @@ export default ({ route, navigation }) => {
         });
       }
       else {
-        console.log('creating settings')
         var newSettings = { debugMode: false };
         AsyncStorage.setItem('settings', JSON.stringify(newSettings)).then((res) => {
           global.settings = newSettings;

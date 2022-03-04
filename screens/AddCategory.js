@@ -112,7 +112,7 @@ function AddCategoryScreen({ route, navigation }) {
     if (item == undefined) {
       console.log('task is empty so its a new one');
       var newTask = { Id: tasks.length };
-      if (timeSensitive) newTask.time = 0;
+      if (timeSensitive) newTask.minutes = '';
 
       setTask(newTask);
       setTaskMode('new');
@@ -271,18 +271,27 @@ function AddCategoryScreen({ route, navigation }) {
 
           {timeSensitive ? (
             <Kitten.Layout style={{ padding: 10 }}>
-              <Kitten.Text>How long does it take to do this task?</Kitten.Text>
-              <Kitten.RadioGroup
+              <Kitten.Text style={{marginBottom: 10, fontWeight:'bold'}}>About how long does it take to do this task?</Kitten.Text>
+              <Kitten.Layout style={{flexDirection:'row', justifyContent: 'center'}}>
+                <Kitten.Input
+                keyboardType='number-pad'
+                value={task.minutes == undefined? '': task.minutes.toString()}
+                onChangeText={(text) => setTask((task) => ({...task, minutes: text}))}
+                ></Kitten.Input> 
+                <Kitten.Text style={{marginTop:10}}>  minutes.</Kitten.Text>
+              </Kitten.Layout>
+              {/* <Kitten.RadioGroup
                 selectedIndex={task.time}
                 onChange={(index) =>
                   setTask((task) => ({ ...task, time: index }))
                 }
                 style={{ marginTop: 20 }}>
+                <Kitten.Radio><Kitten.Input></Kitten.Input> <Kitten.Text>  min</Kitten.Text></Kitten.Radio>
                 <Kitten.Radio>{data[0].label}</Kitten.Radio>
                 <Kitten.Radio>{data[1].label}</Kitten.Radio>
                 <Kitten.Radio>{data[2].label}</Kitten.Radio>
                 <Kitten.Radio>{data[3].label}</Kitten.Radio>
-              </Kitten.RadioGroup>
+              </Kitten.RadioGroup> */}
             </Kitten.Layout>
           ) : null}
 

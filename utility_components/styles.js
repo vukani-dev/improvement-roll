@@ -21,7 +21,7 @@ export default class StyleSheetFactory {
         backgroundColor: themeBackgroundColor,
       },
       modal_container: {
-        margin: 30,
+        margin: 20,
         marginBottom: 100,
         borderRadius: 20,
         padding: 25,
