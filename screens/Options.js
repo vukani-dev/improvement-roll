@@ -1,6 +1,7 @@
 import * as React from 'react';
 import {Linking, ActivityIndicator} from 'react-native';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
+import * as Icons from '../utility_components/icon.component.js';
 import * as logger from '../utility_components/logging.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -24,9 +25,9 @@ export default ({navigation}) => {
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
   const BackAction = () => (
-    <Kitten.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
+    <Kitten.TopNavigationAction icon={Icons.BackIcon} onPress={navigation.goBack} />
   );
-  const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
+  // const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
   const CautionIcon = (props) => (
     <Kitten.Icon name="alert-triangle-outline" {...props} />
   );
@@ -252,7 +253,7 @@ export default ({navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <Kitten.Button
-            style={{marginBottom: 10}}
+            style={{marginBottom: 40}}
             accessoryLeft={ImportIcon}
             accessoryRight={ExportIcon}
             onPress={() => navigation.navigate('ImportExport')}>
@@ -261,15 +262,9 @@ export default ({navigation}) => {
           <Kitten.Button
             style={{marginBottom: 10}}
             status="info"
-            accessoryLeft={DebugIcon}
-            onPress={() => setDebugModalVisible(true)}>
-            {debugModeText}
-          </Kitten.Button>
-          <Kitten.Button
-            status="warning"
-            accessoryLeft={CautionIcon}
-            onPress={() => setResetModalVisible(true)}>
-            Reset Data
+            accessoryLeft={Icons.SettingsIcon}
+            onPress={() => navigation.navigate('AdvSettings')}>
+            Advanced Settings
           </Kitten.Button>
         </Kitten.Layout>
 

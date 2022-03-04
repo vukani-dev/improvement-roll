@@ -25,8 +25,8 @@ import * as YAML from 'js-yaml';
 
 function CategoriesScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
-  const [selectedCategory, setSelectedCategory] = React.useState({});
   const [timeRanges, setTimeRanges] = React.useState([]);
+  const [minutes, setMinutes] = React.useState( );
   const [modalVisible, setModalVisible] = React.useState(false);
   const { action, type } = route.params;
 
