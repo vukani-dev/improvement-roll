@@ -253,7 +253,7 @@ export default ({navigation}) => {
             backgroundColor: themeContext.backgroundColor,
           }}>
           <Kitten.Button
-            style={{marginBottom: 40}}
+            style={{marginBottom: 20}}
             accessoryLeft={ImportIcon}
             accessoryRight={ExportIcon}
             onPress={() => navigation.navigate('ImportExport')}>
@@ -348,8 +348,6 @@ export default ({navigation}) => {
           flex: 0.2,
           backgroundColor: themeContext.backgroundColor,
         }}></Kitten.Layout>
-      {_renderResetModal()}
-      {_renderDebugModal()}
     </Kitten.Layout>
   );
 };

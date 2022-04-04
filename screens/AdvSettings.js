@@ -16,11 +16,16 @@ import ETHIcon from '../pictures/ethereum-eth-logo.svg';
 import Toast from 'react-native-simple-toast';
 export default ({ navigation }) => {
 
+    const [timeRangeModalVisible, setTimeRangeModalVisible] = React.useState(false);
     const [resetModalVisible, setResetModalVisible] = React.useState(false);
     const [debugModalVisible, setDebugModalVisible] = React.useState(false);
     const [debugModeText, setDebugModeText] = React.useState(
         global.settings.debugMode ? 'Disable Debug Mode' : 'Enable Debug Mode',
     );
+    const [timeRange, setTimeRange] = React.useState(
+        global.settings.timeRange ? global.settings.timeRange : 2,
+    );
+
     const [loading, setLoading] = React.useState(false);
     const themeContext = React.useContext(ThemeContext);
     const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
@@ -70,11 +75,11 @@ export default ({ navigation }) => {
     const _renderResetModal = () => {
         return (
             <K.Modal
+                animationType={'slide'}
                 transparent={true}
-                visible={resetModalVisible}
-                backdropStyle={styleSheet.modal_backdrop}
+                isVisible={resetModalVisible}
                 onBackdropPress={() => setResetModalVisible(false)}>
-                <K.Layout style={styleSheet.modal_container}>
+                <K.Layout >
                     <K.Layout
                         style={{
                             flex: 1,
@@ -180,31 +185,107 @@ export default ({ navigation }) => {
             )}
         </K.Layout>
     );
+
+
+    const saveTimeRange = (timeRange) => {
+        global.settings.timeRange = timeRange
+        AsyncStorage.setItem('settings', JSON.stringify(global.settings)).then(
+            () => {
+                setTimeRangeModalVisible(false);
+                Toast.show(`Time range has been set to ${timeRange} minutes.`);
+            },
+        );
+    }
+    const _renderTimeRangeModal = () => {
+        return (
+            <K.Modal
+                transparent={true}
+                isVisible={timeRangeModalVisible}
+                onBackdropPress={() => setTimeRangeModalVisible(false)}
+                style={{
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    left: 0,
+                    right: 0,
+                    position: 'absolute'
+                }}
+            >
+
+                <K.Layout style={styleSheet.modal_container}>
+                    <K.Layout
+                        style={{
+                            flex: 1,
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            padding: 15,
+                        }}>
+
+                        <K.Text
+                            style={{ marginBottom: 10 }}
+
+                        >Time range for exact rolling</K.Text>
+
+                        <K.Input style={{ marginHorizontal: 100 }}
+                            value={timeRange.toString()}
+                            keyboardType='number-pad'
+                            onChangeText={(text) => setTimeRange(text)}
+                        ></K.Input>
+                    </K.Layout>
+                    <K.Button
+                        onPress={() => saveTimeRange(timeRange)}>
+                        Save
+                    </K.Button>
+                </K.Layout>
+            </K.Modal>
+        );
+    };
     return (
-        <K.Layout>
+        <K.Layout
+            style={{
+                backgroundColor: themeContext.backgroundColor,
+                flex: 1
+            }}>
             <K.TopNavigation
                 alignment="center"
-                style={styleSheet.top_navigation}
+                style={styleSheet.top_navigation
+                }
                 title={'Advanced Settings'}
                 accessoryLeft={BackAction}
             />
 
-            <K.Button
-                style={{ marginBottom: 10 }}
-                status="info"
-                accessoryLeft={Icons.DebugIcon}
-                onPress={() => setDebugModalVisible(true)}>
-                {debugModeText}
-            </K.Button>
-            <K.Button
-                status="warning"
-                accessoryLeft={Icons.CautionIcon}
-                onPress={() => setResetModalVisible(true)}>
-                Reset Data
-            </K.Button>
+            <K.Layout
+                style={{
+                    backgroundColor: themeContext.backgroundColor,
+                    marginHorizontal: 50
+
+                }}
+            >
+                <K.Button
+                    style={{ marginBottom: 10 }}
+                    accessoryLeft={Icons.RollIcon}
+                    onPress={() => setTimeRangeModalVisible(true)}>
+                    Time range is set to {timeRange} minutes
+                </K.Button>
+
+                <K.Button
+                    style={{ marginBottom: 10 }}
+                    status="info"
+                    accessoryLeft={Icons.DebugIcon}
+                    onPress={() => setDebugModalVisible(true)}>
+                    {debugModeText}
+                </K.Button>
+                <K.Button
+                    status="warning"
+                    accessoryLeft={Icons.CautionIcon}
+                    onPress={() => setResetModalVisible(true)}>
+                    Reset Data
+                </K.Button>
+
+            </K.Layout>
 
             {_renderResetModal()}
             {_renderDebugModal()}
+            {_renderTimeRangeModal()}
         </K.Layout>
     )
 

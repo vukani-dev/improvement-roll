@@ -114,7 +114,7 @@ function CategoriesScreen({ route, navigation }) {
           }
 
           setTimeRanges(newTimeRange);
-          setSelectedCategory(category);
+          // setSelectedCategory(category);
           setModalVisible(true);
         } else {
           navigation.navigate('Roll', { tasks: category.tasks });
