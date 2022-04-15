@@ -1,18 +1,9 @@
 import * as React from 'react';
 import { View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-// import {
-//   K.Card,
-//   K.List,
-//   K.Text,
-//   Button,
-//   Icon,
-//   Layout,
-//   TopNavigation,
-//   TopNavigationAction,
-// } from '@ui-kitten/components';
 
 import * as K from '../utility_components/ui-kitten.component.js';
+import Toast from 'react-native-simple-toast';
 
 import Modal from "react-native-modal";
 import { ThemeContext } from '../utility_components/theme-context';
@@ -26,8 +17,9 @@ import * as YAML from 'js-yaml';
 function CategoriesScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [timeRanges, setTimeRanges] = React.useState([]);
-  const [minutes, setMinutes] = React.useState( );
+  const [minutes, setMinutes] = React.useState();
   const [modalVisible, setModalVisible] = React.useState(false);
+  const [selectedCategory, setSelectedCategory] = React.useState({})
   const { action, type } = route.params;
 
   const themeContext = React.useContext(ThemeContext);
@@ -114,7 +106,7 @@ function CategoriesScreen({ route, navigation }) {
           }
 
           setTimeRanges(newTimeRange);
-          // setSelectedCategory(category);
+          setSelectedCategory(category);
           setModalVisible(true);
         } else {
           navigation.navigate('Roll', { tasks: category.tasks });
@@ -197,6 +189,23 @@ function CategoriesScreen({ route, navigation }) {
     navigation.navigate('Roll', { tasks: tasks });
   };
 
+  const _exactRoll = () => {
+    var tasks = selectedCategory.tasks
+    var rollTasks = []
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].minutes >= minutes - global.settings.timeRange && tasks[i].minutes <= minutes) {
+        rollTasks.push(tasks[i])
+      }
+    }
+
+    if(rollTasks.length == 0){
+      Toast.show(`No taks found within ${global.settings.timeRange} minutes of ${minutes}`)
+      return;
+    }
+    setModalVisible(false)
+    navigation.navigate('Roll', { tasks: rollTasks });
+  };
+
   const _renderTimeModal = () => {
     const timeIcon = (props) => <K.Icon {...props} name="clock-outline" />;
     return (
@@ -222,6 +231,8 @@ function CategoriesScreen({ route, navigation }) {
           <K.Layout style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-start' }}>
 
             <K.Input
+              value={minutes}
+              onChangeText={(min) => setMinutes(min)}
               keyboardType='number-pad'
               style={{
                 flex: .5,
@@ -229,11 +240,12 @@ function CategoriesScreen({ route, navigation }) {
               }}
             ></K.Input>
             <K.Button
-            accessoryLeft={timeIcon}
+              onPress={() => _exactRoll()}
+              accessoryLeft={timeIcon}
               style={{
                 flex: .5,
               }}
-            
+
             >Roll!</K.Button>
           </K.Layout>
 

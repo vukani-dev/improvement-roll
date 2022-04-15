@@ -67,12 +67,14 @@ const RollResultScreen = ({ route, navigation }) => {
 
             <Layout
               style={{
+                backgroundColor: themeContext.backgroundColor,
                 flex: 0.25
               }}
             >
               <Text
                 category="h3"
                 style={{
+                  backgroundColor: themeContext.backgroundColor,
                   fontWeight: 'bold',
                 }}>
                 {lastRolledTask.name}
@@ -81,6 +83,7 @@ const RollResultScreen = ({ route, navigation }) => {
 
             <Layout
               style={{
+                backgroundColor: themeContext.backgroundColor,
                 flex: 0.35
               }}
             >
