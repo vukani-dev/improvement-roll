@@ -127,7 +127,7 @@ function AddCategoryScreen({ route, navigation }) {
     if (taskMode == 'new') {
       setTasks((tasks) => [...tasks, task]);
     } else {
-      setTasks((tasks) => tasks.map((el) => (el.Id === task.Id ? task : el)));
+      setTasks((tasks) => tasks.map((el) => (el.key === task.key ? task : el)));
     }
     setModalVisible(false);
   };
