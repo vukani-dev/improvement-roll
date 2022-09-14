@@ -11,6 +11,7 @@ import * as Kitten from '../utility_components/ui-kitten.component.js';
 const SearchIcon = (props) => <Kitten.Icon {...props} name="search-outline" />;
 const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
 const filterTypes = ['name', 'author', 'tag'];
+const searchTypes = ['search', 'author', 'tags'];
 
 export default ({ route, navigation }) => {
     const themeContext = React.useContext(ThemeContext);
@@ -18,6 +19,7 @@ export default ({ route, navigation }) => {
 
     const [searchString, setSearchString] = React.useState('');
     const [loading, setLoading] = React.useState(true);
+    const [filterToggle, setFilterToggle] = React.useState(false);
     const [fetchLoading, setFetchLoading] = React.useState(false);
     const [categories, setCategories] = React.useState([]);
     const [page, setPage] = React.useState(1);
@@ -28,6 +30,7 @@ export default ({ route, navigation }) => {
         new Kitten.IndexPath(0),
     );
     const displayValue = filterTypes[selectedIndex.row];
+    const searchValue = searchTypes[selectedIndex.row];
 
     const BackAction = () => (
         <Kitten.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
@@ -36,7 +39,7 @@ export default ({ route, navigation }) => {
     const SearchAction = () => (
         <Kitten.TopNavigationAction
             icon={SearchIcon}
-            onPress={() => setSearchModalVisible(true)}
+            onPress={() => setFilterToggle(!filterToggle)}
         />
     );
 
@@ -60,9 +63,14 @@ export default ({ route, navigation }) => {
             <Kitten.Text
                 style={{ margin: 5 }}
             >
-                By {item.author}
+                By: {item.author}         
             </Kitten.Text>
+            <Kitten.Text
+                style={{ margin: 5 }}
+            >
+                Tags: {item.tags.join(', ')}
             {/* <Kitten.Button onPress={() => importCategory(item)} size="tiny">IMPORT</Kitten.Button> */}
+            </Kitten.Text>
         </View>
     );
     const renderItem = (item) => (
@@ -81,12 +89,18 @@ export default ({ route, navigation }) => {
 
     const renderSearchModal = () => {
         return (
+
             <Kitten.Modal
-                transparent={true}
-                visible={searchModalVisible}
-                backdropStyle={styleSheet.modal_backdrop}
-                onBackdropPress={() => setSearchModalVisible(false)}>
-                {/* <Kitten.Layout style={styleSheet.search_modal}> */}
+                isVisible={searchModalVisible}
+                animationType={'slide'}
+                onBackdropPress={() => setSearchModalVisible(false)}
+                avoidKeyboard={false}
+                style={{
+                    justifyContent: 'center',
+                    margin: 30
+                }}
+            >
+
                 <Kitten.Layout
                     style={{
                         flex: 1,
@@ -111,16 +125,7 @@ export default ({ route, navigation }) => {
                             flexDirection: 'row',
                             marginBottom: 10,
                         }}>
-                        <Kitten.Text>Filter By</Kitten.Text>
-                        <Kitten.Select
-                            style={{ width: 170 }}
-                            selectedIndex={selectedIndex}
-                            onSelect={(index) => setSelectedIndex(index)}
-                            value={displayValue}>
-                            <Kitten.SelectItem title="Name" />
-                            <Kitten.SelectItem title="Author" />
-                            <Kitten.SelectItem title="Tag" />
-                        </Kitten.Select>
+                        <Kitten.Text style={{ marginTop: 10 }}>Filter By</Kitten.Text>
                     </Kitten.Layout>
 
 
@@ -150,6 +155,7 @@ export default ({ route, navigation }) => {
                         <Kitten.Button>Apply Filter</Kitten.Button>
                     </Kitten.Layout>
                 </Kitten.Layout>
+
             </Kitten.Modal>
         );
     };
@@ -157,12 +163,19 @@ export default ({ route, navigation }) => {
     const handleOnEndReached = () => {
         if (!stopFetching) {
             setFetchLoading(true);
-            fetch(`http://192.168.1.118:3000?page=${page + 1}`
-                //   fetch(`http://192.168.1.236:3000?page=${page + 1}`
+            var url = `https://starfish-app-imisr.ondigitalocean.app/?page=${page + 1}`
+            if(searchString != ''){
+                url = url + `&${searchValue}=${searchString}`
+            }
+            fetch(url
                 , { method: 'GET', })
                 .then((response) => response.json())
                 .then((responseJson) => {
                     console.log(responseJson.sharedCategories);
+                    if(responseJson.sharedCategories == null){
+                        setFetchLoading(false)
+                        return;
+                    }
                     setCategories([...categories, ...responseJson.sharedCategories]);
                     setPage(responseJson.page);
                     if (responseJson.page == responseJson.totalPages) {
@@ -177,8 +190,35 @@ export default ({ route, navigation }) => {
         }
     };
 
+    const setSelectedFilter = (selectedIndex) => {
+        console.log(selectedIndex.row)
+        setSelectedIndex(selectedIndex)
+        console.log(searchString)
+    }
+
+    const filter = (text) => {
+        console.log(text)
+        setSearchString(text)
+        console.log(searchValue)
+        // maybe add some waiting here before searching?
+        fetch(`https://starfish-app-imisr.ondigitalocean.app/?page=1&${searchValue}=${text}`
+            // fetch(`http://192.168.1.236:3000?page=${page}`
+            , { method: 'GET', })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log(responseJson.sharedCategories);
+                setCategories(responseJson.sharedCategories);
+                setPage(responseJson.page);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                setLoading(false);
+            });
+    }
+
     React.useEffect(() => {
-        fetch(`http://192.168.1.118:3000?page=${page}`
+        fetch(`https://starfish-app-imisr.ondigitalocean.app/?page=${page}`
             // fetch(`http://192.168.1.236:3000?page=${page}`
             , { method: 'GET', })
             .then((response) => response.json())
@@ -208,6 +248,28 @@ export default ({ route, navigation }) => {
                 accessoryLeft={BackAction}
                 accessoryRight={SearchAction}
             />
+            {filterToggle ? (
+
+                <Kitten.Layout
+                    style={{ flexDirection: 'row' }}
+                >
+                    <Kitten.Input style={{ marginLeft: 10, flex: 1, marginRight: 10 }}
+                    onChangeText={(text) => filter(text)}
+                    >
+
+                    </Kitten.Input>
+
+                    <Kitten.Select
+                        style={{ width: 170 }}
+                        selectedIndex={selectedIndex}
+                        onSelect={(index) => setSelectedFilter(index)}
+                        value={displayValue}>
+                        <Kitten.SelectItem title="Name" />
+                        <Kitten.SelectItem title="Author" />
+                        <Kitten.SelectItem title="Tag" />
+                    </Kitten.Select>
+                </Kitten.Layout>
+            ) : <></>}
             {loading ? (
                 <Kitten.Layout style={styleSheet.loading_container}>
                     <ActivityIndicator
@@ -218,8 +280,10 @@ export default ({ route, navigation }) => {
                     />
                 </Kitten.Layout>
             ) : (
-                <Kitten.Layout style={{ flex: 1,backgroundColor:
-                                themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE' }}>
+                <Kitten.Layout style={{
+                    flex: 1, backgroundColor:
+                        themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE'
+                }}>
                     <Kitten.List
                         data={categories}
                         renderItem={({ item }) => renderItem(item)}
@@ -227,15 +291,17 @@ export default ({ route, navigation }) => {
                         onEndReached={handleOnEndReached}
                         onEndReachedThreshold={0.01}
                         style={{
-                            flex:1,
+                            flex: 1,
                             paddingBottom: 30, backgroundColor:
                                 themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE',
                         }}
                     />
                     {fetchLoading ? (
                         <ActivityIndicator
-                            style={{ alignSelf: 'center', backgroundColor:
-                                themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE'  }}
+                            style={{
+                                alignSelf: 'center', backgroundColor:
+                                    themeContext.theme === 'dark' ? '#1A2138' : '#FFFFEE'
+                            }}
                             size="large"
                             color="#800"
                             animating={fetchLoading}
