@@ -43,9 +43,10 @@ export default ({ route, navigation }) => {
         />
     );
 
-    const categorySelected = (category) => (
+    const categorySelected = (category) => {
         console.log(category.category)
-    );
+        navigation.navigate('AddCategory', { category: category.category, mode: 'import' })
+    };
 
     const renderItemHeader = (item) => (
         <View >

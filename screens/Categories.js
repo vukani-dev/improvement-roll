@@ -62,20 +62,16 @@ function CategoriesScreen({ route, navigation }) {
   React.useEffect(() => {
     AsyncStorage.getItem('categories').then((value) => {
       var categories = value != null ? JSON.parse(value) : [];
-
-      // lookup better way to do this
-      for (var i = 0; i < categories.length; i++) {
-        categories[i].key = i;
-      }
+      categories.sort((a,b) =>  new Date(b.key) - new Date(a.key));
       setAllCategories(categories);
     });
   }, []);
 
   const _categorySelected = (category) => {
-    console.log(category);
     switch (action) {
       case 'view':
-        navigation.navigate('AddCategory', { categoryName: category.name });
+        console.log(category)
+        navigation.navigate('AddCategory', { category: category, mode: 'edit' });
         break;
       case 'roll':
         if (category.timeSensitive) {

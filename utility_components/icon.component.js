@@ -21,5 +21,14 @@ const ListIcon = (props) => <K.Icon name="list-outline" {...props} />;
 const SettingsIcon = (props) => <K.Icon name="settings-2-outline" {...props} />;
 const GlobeIcon = (props) => <K.Icon name="globe-outline" {...props} />;
 
-export { BackIcon, CautionIcon, ImportIcon, ExportIcon, 
-    OctoIcon, DebugIcon , RollIcon, ListIcon, SettingsIcon, GlobeIcon }
+const SaveIcon = (props) => <K.Icon {...props} name="save" />;
+const TrashIcon = (props) => <K.Icon {...props} name="trash" />;
+const AddIcon = (props) => (
+    <K.Icon {...props} name="plus-circle-outline" />
+);
+
+export {
+    BackIcon, CautionIcon, ImportIcon, ExportIcon,
+    OctoIcon, DebugIcon, RollIcon, ListIcon, SettingsIcon, GlobeIcon,
+    SaveIcon, TrashIcon, AddIcon
+}

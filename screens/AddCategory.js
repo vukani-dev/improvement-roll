@@ -6,6 +6,7 @@ import { Jiro } from 'react-native-textinput-effects';
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
+import * as Icons from '../utility_components/icon.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Modal from "react-native-modal";
@@ -17,6 +18,7 @@ function AddCategoryScreen({ route, navigation }) {
   const [categoryDesc, setCategoryDesc] = React.useState('');
 
   const [categoryMode, setCategoryMode] = React.useState('');
+  const [title, setTitle] = React.useState('');
 
   const [timeSensitive, setTimeSensitive] = React.useState(true);
   const [modalVisible, setModalVisible] = React.useState(false);
@@ -34,17 +36,19 @@ function AddCategoryScreen({ route, navigation }) {
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
+
+
   const renderRightActions = () => (
     <React.Fragment>
       {categoryMode == 'edit' ? (
         <Kitten.TopNavigationAction
-          icon={TrashIcon}
+          icon={Icons.TrashIcon}
           onPress={() => _removeCategory()}
         />
       ) : null}
       <Kitten.TopNavigationAction
         style={{ marginLeft: 20 }}
-        icon={SaveIcon}
+        icon={categoryMode == 'import'? Icons.ImportIcon: Icons.SaveIcon}
         onPress={() => _categoryComplete()}
       />
     </React.Fragment>
@@ -56,19 +60,26 @@ function AddCategoryScreen({ route, navigation }) {
 
       setAllCategories(categories);
       setCategoryMode('new');
+      setTitle('Creating a Category...')
 
       if (route.params != undefined && categories.length > 0) {
-        for (var i = 0; i < categories.length; i++) {
-          if (categories[i].name == route.params.categoryName) {
-            for (var x = 0; x < categories[i].tasks.length; x++) {
-              categories[i].tasks[x].key = x;
-            }
-            setTasks(categories[i].tasks);
-            setCategoryMode('edit');
-            setCategoryName(categories[i].name);
-            setTimeSensitive(categories[i].timeSensitive);
-            setCategoryDesc(categories[i].description);
-            break;
+        var category = route.params.category;
+        for (var i = 0; i < category.tasks.length; i++) {
+          category.tasks[i].key = i;
+        }
+        setTasks(category.tasks);
+        setCategoryName(category.name);
+        setTimeSensitive(category.timeSensitive);
+        setCategoryDesc(category.description);
+
+        if (route.params.mode != undefined) {
+          setCategoryMode(route.params.mode);
+          if (route.params.mode == 'edit') {
+
+            setTitle('Editing a Category...')
+          }
+          if(route.params.mode == 'import'){
+            setTitle('Importing a Category...')
           }
         }
         setTimeout(() => {
@@ -168,7 +179,21 @@ function AddCategoryScreen({ route, navigation }) {
     var newCategoryList = _filterCategoryList(categoryName);
     newCategoryList.push(category);
 
-    _saveCategoryList(newCategoryList, 'saved');
+    var action = ''
+
+    switch(categoryMode){
+      case 'new':
+        action = 'created'
+        break;
+      case 'edit':
+        action = 'saved'
+        break;
+      case 'import':
+        action = 'imported'
+        break;
+    }
+
+    _saveCategoryList(newCategoryList, action);
   };
 
   const _removeTask = (task) => {
@@ -221,7 +246,7 @@ function AddCategoryScreen({ route, navigation }) {
               justifyContent: 'space-between',
               marginTop: 20,
             }}
-            >
+          >
             <Kitten.Button onPress={() => setDeleteModalVisible(false)}>
               No
             </Kitten.Button>
@@ -271,14 +296,14 @@ function AddCategoryScreen({ route, navigation }) {
 
           {timeSensitive ? (
             <Kitten.Layout style={{ padding: 10 }}>
-              <Kitten.Text style={{marginBottom: 10, fontWeight:'bold'}}>About how long does it take to do this task?</Kitten.Text>
-              <Kitten.Layout style={{flexDirection:'row', justifyContent: 'center'}}>
+              <Kitten.Text style={{ marginBottom: 10, fontWeight: 'bold' }}>About how long does it take to do this task?</Kitten.Text>
+              <Kitten.Layout style={{ flexDirection: 'row', justifyContent: 'center' }}>
                 <Kitten.Input
-                keyboardType='number-pad'
-                value={task.minutes == undefined? '': task.minutes.toString()}
-                onChangeText={(text) => setTask((task) => ({...task, minutes: text}))}
-                ></Kitten.Input> 
-                <Kitten.Text style={{marginTop:10}}>  minutes.</Kitten.Text>
+                  keyboardType='number-pad'
+                  value={task.minutes == undefined ? '' : task.minutes.toString()}
+                  onChangeText={(text) => setTask((task) => ({ ...task, minutes: text }))}
+                ></Kitten.Input>
+                <Kitten.Text style={{ marginTop: 10 }}>  minutes.</Kitten.Text>
               </Kitten.Layout>
               {/* <Kitten.RadioGroup
                 selectedIndex={task.time}
@@ -306,7 +331,7 @@ function AddCategoryScreen({ route, navigation }) {
             </Kitten.Button>
             <Kitten.Button
               onPress={() => saveTask()}
-              accessoryRight={taskMode == 'new' ? AddIcon : SaveIcon}>
+              accessoryRight={taskMode == 'new' ? Icons.AddIcon : Icons.SaveIcon}>
               {taskMode == 'new' ? 'Add Task' : 'Save Task'}
             </Kitten.Button>
           </Kitten.Layout>
@@ -315,11 +340,6 @@ function AddCategoryScreen({ route, navigation }) {
     );
   };
 
-  const AddIcon = (props) => (
-    <Kitten.Icon {...props} name="plus-circle-outline" />
-  );
-  const SaveIcon = (props) => <Kitten.Icon {...props} name="save" />;
-  const TrashIcon = (props) => <Kitten.Icon {...props} name="trash" />;
 
   return (
     <>
@@ -339,11 +359,7 @@ function AddCategoryScreen({ route, navigation }) {
           <Kitten.TopNavigation
             alignment="center"
             style={{ backgroundColor: themeContext.backgroundColor }}
-            title={
-              categoryMode == 'edit'
-                ? 'Editing a Category...'
-                : 'Creating a Category...'
-            }
+            title={title}
             accessoryLeft={BackAction}
             accessoryRight={renderRightActions}
           />
@@ -406,7 +422,7 @@ function AddCategoryScreen({ route, navigation }) {
             <Kitten.Button
               status="primary"
               size="small"
-              accessoryLeft={AddIcon}
+              accessoryLeft={Icons.AddIcon}
               onPress={() => openTaskModal(undefined)}>
               Add Task
             </Kitten.Button>
