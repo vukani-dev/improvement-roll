@@ -48,47 +48,46 @@ function AddCategoryScreen({ route, navigation }) {
       ) : null}
       <Kitten.TopNavigationAction
         style={{ marginLeft: 20 }}
-        icon={categoryMode == 'import'? Icons.ImportIcon: Icons.SaveIcon}
+        icon={categoryMode == 'import' ? Icons.ImportIcon : Icons.SaveIcon}
         onPress={() => _categoryComplete()}
       />
     </React.Fragment>
   );
   React.useEffect(() => {
+
     AsyncStorage.getItem('categories').then((value) => {
-      setLoading(true);
       var categories = value != null ? JSON.parse(value) : [];
+      setAllCategories(categories)
+    })
+    setLoading(true);
+    setCategoryMode('new');
+    setTitle('Creating a Category...')
 
-      setAllCategories(categories);
-      setCategoryMode('new');
-      setTitle('Creating a Category...')
-
-      if (route.params != undefined && categories.length > 0) {
-        var category = route.params.category;
-        for (var i = 0; i < category.tasks.length; i++) {
-          category.tasks[i].key = i;
-        }
-        setTasks(category.tasks);
-        setCategoryName(category.name);
-        setTimeSensitive(category.timeSensitive);
-        setCategoryDesc(category.description);
-
-        if (route.params.mode != undefined) {
-          setCategoryMode(route.params.mode);
-          if (route.params.mode == 'edit') {
-
-            setTitle('Editing a Category...')
-          }
-          if(route.params.mode == 'import'){
-            setTitle('Importing a Category...')
-          }
-        }
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      } else {
-        setLoading(false);
+    if (route.params != undefined) {
+      var category = route.params.category;
+      for (var i = 0; i < category.tasks.length; i++) {
+        category.tasks[i].key = i;
       }
-    });
+      setTasks(category.tasks);
+      setCategoryName(category.name);
+      setTimeSensitive(category.timeSensitive);
+      setCategoryDesc(category.description);
+
+      if (route.params.mode != undefined) {
+        setCategoryMode(route.params.mode);
+        if (route.params.mode == 'edit') {
+          setTitle('Editing a Category...')
+        }
+        if (route.params.mode == 'import') {
+          setTitle('Importing a Category...')
+        }
+      }
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    } else {
+      setLoading(false);
+    }
 
     return () => {
       console.log('unmounted');
@@ -121,7 +120,6 @@ function AddCategoryScreen({ route, navigation }) {
   );
   const openTaskModal = (item) => {
     if (item == undefined) {
-      console.log('task is empty so its a new one');
       var newTask = { Id: tasks.length };
       if (timeSensitive) newTask.minutes = '';
 
@@ -161,11 +159,30 @@ function AddCategoryScreen({ route, navigation }) {
   const _filterCategoryList = (name) => {
     var newCategoryList = [];
     for (var i = 0; i < allCategories.length; i++) {
-      if (allCategories[i].name == name) continue;
+      if (allCategories[i].name == name) {
+
+
+      }
       newCategoryList.push(allCategories[i]);
     }
     return newCategoryList;
   };
+
+  const getUniqueName = (name) => {
+    var newName = `${name}`
+    // sort categories alphebetically
+    allCategories.sort(function (a, b) {
+      return a.name.localeCompare(b.name);
+    });
+    var instance = 1;
+    for (var i = 0; i < allCategories.length; i++) {
+      if (allCategories[i].name == newName) {
+        newName += `_${instance.toString()}`;
+        instance++;
+      }
+    }
+    return newName;
+  }
 
   const _categoryComplete = async () => {
     var category = {
@@ -176,12 +193,17 @@ function AddCategoryScreen({ route, navigation }) {
       key: Date.now(),
     };
 
-    var newCategoryList = _filterCategoryList(categoryName);
+    if (categoryMode != 'edit') {
+      category.name = getUniqueName(categoryName);
+    }
+
+    var newCategoryList = allCategories.filter(obj => obj.name != category.name)
+    console.log(newCategoryList.length)
     newCategoryList.push(category);
 
     var action = ''
 
-    switch(categoryMode){
+    switch (categoryMode) {
       case 'new':
         action = 'created'
         break;

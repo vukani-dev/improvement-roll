@@ -33,6 +33,19 @@ export default ({ navigation }) => {
     const BackAction = () => (
         <K.TopNavigationAction icon={Icons.BackIcon} onPress={navigation.goBack} />
     );
+    const clearData = () => {
+        try {
+            console.log('made it')
+            AsyncStorage.removeItem('categories').then((val) => {
+                navigation.navigate('Main', {
+                    categoryName: '',
+                    action: 'reset',
+                });
+            });
+        } catch (e) {
+            Toast.show('Error reseting categores. Please try again.');
+        }
+    };
     const checkPermissions = (value) => {
         if (value) {
             check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE).then((status) => {
@@ -75,11 +88,17 @@ export default ({ navigation }) => {
     const _renderResetModal = () => {
         return (
             <K.Modal
-                animationType={'slide'}
-                transparent={true}
                 isVisible={resetModalVisible}
+                transparent={true}
+                style={{
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    left: 0,
+                    right: 0,
+                    position: 'absolute'
+                }}
                 onBackdropPress={() => setResetModalVisible(false)}>
-                <K.Layout >
+                <K.Layout style={styleSheet.modal_container}>
                     <K.Layout
                         style={{
                             flex: 1,
