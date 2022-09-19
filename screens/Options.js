@@ -44,18 +44,6 @@ export default ({navigation}) => {
     return `Version ${getVersion()}`;
   };
 
-  const clearData = () => {
-    try {
-      AsyncStorage.removeItem('categories').then((val) => {
-        navigation.navigate('Main', {
-          categoryName: '',
-          action: 'reset',
-        });
-      });
-    } catch (e) {
-      Toast.show('Error reseting categores. Please try again.');
-    }
-  };
 
   const checkPermissions = (value) => {
     if (value) {
