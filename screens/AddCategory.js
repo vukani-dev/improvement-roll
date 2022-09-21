@@ -8,6 +8,7 @@ import StyleSheetFactory from '../utility_components/styles.js';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import * as Icons from '../utility_components/icon.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-simple-toast';
 
 import Modal from "react-native-modal";
 
@@ -15,6 +16,7 @@ import Modal from "react-native-modal";
 function AddCategoryScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [categoryName, setCategoryName] = React.useState('');
+  const [originalCategoryName, setOriginalCategoryName] = React.useState('');
   const [categoryDesc, setCategoryDesc] = React.useState('');
 
   const [categoryMode, setCategoryMode] = React.useState('');
@@ -25,14 +27,9 @@ function AddCategoryScreen({ route, navigation }) {
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
   const [taskMode, setTaskMode] = React.useState('');
   const [task, setTask] = React.useState({});
-  const [taskName, setTaskName] = React.useState('');
-  const [newTask, setNewTask] = React.useState({});
   const [tasks, setTasks] = React.useState([]);
-  const [cursor, setCursor] = React.useState({});
   const [loading, setLoading] = React.useState(true);
-  // const {ref: inputRef, updateCaret} = useCaretPosition();
 
-  const inputRef = React.useRef();
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
@@ -70,6 +67,7 @@ function AddCategoryScreen({ route, navigation }) {
       }
       setTasks(category.tasks);
       setCategoryName(category.name);
+      setOriginalCategoryName(category.name);
       setTimeSensitive(category.timeSensitive);
       setCategoryDesc(category.description);
 
@@ -141,12 +139,12 @@ function AddCategoryScreen({ route, navigation }) {
     setModalVisible(false);
   };
 
-  const _saveCategoryList = (categoryList, action) => {
+  const _saveCategoryList = (categoryList, action, catName) => {
     try {
       const jsonValue = JSON.stringify(categoryList);
       AsyncStorage.setItem('categories', jsonValue).then((value) => {
         navigation.navigate('Main', {
-          categoryName: categoryName,
+          categoryName: catName,
           action: action,
         });
       });
@@ -154,18 +152,6 @@ function AddCategoryScreen({ route, navigation }) {
       console.log(e);
       console.log('something happend');
     }
-  };
-
-  const _filterCategoryList = (name) => {
-    var newCategoryList = [];
-    for (var i = 0; i < allCategories.length; i++) {
-      if (allCategories[i].name == name) {
-
-
-      }
-      newCategoryList.push(allCategories[i]);
-    }
-    return newCategoryList;
   };
 
   const getUniqueName = (name) => {
@@ -177,6 +163,9 @@ function AddCategoryScreen({ route, navigation }) {
     var instance = 1;
     for (var i = 0; i < allCategories.length; i++) {
       if (allCategories[i].name == newName) {
+        if (instance > 1) {
+          newName = newName.substring(0, newName.lastIndexOf('_'));
+        }
         newName += `_${instance.toString()}`;
         instance++;
       }
@@ -196,13 +185,19 @@ function AddCategoryScreen({ route, navigation }) {
     if (categoryMode != 'edit') {
       category.name = getUniqueName(categoryName);
     }
+    else {
+      for (var i = 0; i < allCategories.length; i++) {
+        if (allCategories[i].name == category.name) {
+          Toast.show(`The category name '${category.name}' already exists!`, 3)
+          return;
+        }
+      }
+    }
 
-    var newCategoryList = allCategories.filter(obj => obj.name != category.name)
-    console.log(newCategoryList.length)
+    var newCategoryList = allCategories.filter(obj => obj.name != category.name && obj.name != originalCategoryName)
     newCategoryList.push(category);
 
     var action = ''
-
     switch (categoryMode) {
       case 'new':
         action = 'created'
@@ -215,7 +210,7 @@ function AddCategoryScreen({ route, navigation }) {
         break;
     }
 
-    _saveCategoryList(newCategoryList, action);
+    _saveCategoryList(newCategoryList, action, category.name);
   };
 
   const _removeTask = (task) => {
@@ -231,7 +226,7 @@ function AddCategoryScreen({ route, navigation }) {
 
   const _deleteCat = () => {
     setDeleteModalVisible(false);
-    _saveCategoryList(_filterCategoryList(categoryName), 'removed');
+    _saveCategoryList(allCategories.filter(obj => obj.name != categoryName), 'removed', categoryName);
   };
 
   const _renderEditButton = (task) => (
@@ -327,18 +322,6 @@ function AddCategoryScreen({ route, navigation }) {
                 ></Kitten.Input>
                 <Kitten.Text style={{ marginTop: 10 }}>  minutes.</Kitten.Text>
               </Kitten.Layout>
-              {/* <Kitten.RadioGroup
-                selectedIndex={task.time}
-                onChange={(index) =>
-                  setTask((task) => ({ ...task, time: index }))
-                }
-                style={{ marginTop: 20 }}>
-                <Kitten.Radio><Kitten.Input></Kitten.Input> <Kitten.Text>  min</Kitten.Text></Kitten.Radio>
-                <Kitten.Radio>{data[0].label}</Kitten.Radio>
-                <Kitten.Radio>{data[1].label}</Kitten.Radio>
-                <Kitten.Radio>{data[2].label}</Kitten.Radio>
-                <Kitten.Radio>{data[3].label}</Kitten.Radio>
-              </Kitten.RadioGroup> */}
             </Kitten.Layout>
           ) : null}
 
