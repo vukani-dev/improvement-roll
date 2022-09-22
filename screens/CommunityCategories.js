@@ -5,13 +5,14 @@ import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
+import * as logger from '../utility_components/logging.component.js';
 
 const SearchIcon = (props) => <Kitten.Icon {...props} name="search-outline" />;
 const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
 const filterTypes = ['name', 'author', 'tag'];
 const searchTypes = ['search', 'author', 'tags'];
+const shareServiceURL = "https://starfish-app-imisr.ondigitalocean.app/";
 
 export default ({ route, navigation }) => {
     const themeContext = React.useContext(ThemeContext);
@@ -64,13 +65,13 @@ export default ({ route, navigation }) => {
             <Kitten.Text
                 style={{ margin: 5 }}
             >
-                By: {item.author}         
+                By: {item.author}
             </Kitten.Text>
             <Kitten.Text
                 style={{ margin: 5 }}
             >
                 Tags: {item.tags.join(', ')}
-            {/* <Kitten.Button onPress={() => importCategory(item)} size="tiny">IMPORT</Kitten.Button> */}
+                {/* <Kitten.Button onPress={() => importCategory(item)} size="tiny">IMPORT</Kitten.Button> */}
             </Kitten.Text>
         </View>
     );
@@ -90,7 +91,6 @@ export default ({ route, navigation }) => {
 
     const renderSearchModal = () => {
         return (
-
             <Kitten.Modal
                 isVisible={searchModalVisible}
                 animationType={'slide'}
@@ -101,7 +101,6 @@ export default ({ route, navigation }) => {
                     margin: 30
                 }}
             >
-
                 <Kitten.Layout
                     style={{
                         flex: 1,
@@ -161,19 +160,26 @@ export default ({ route, navigation }) => {
         );
     };
 
+    const handleServiceError = (error) => {
+        logger.logFatal(`Failure to Retrieve community categories: ${error}`);
+        setFetchLoading(false);
+        setLoading(false);
+        Toast.show("Community categories are unreachable, please try again later", 5);
+    }
+
     const handleOnEndReached = () => {
         if (!stopFetching) {
             setFetchLoading(true);
-            var url = `https://starfish-app-imisr.ondigitalocean.app/?page=${page + 1}`
-            if(searchString != ''){
+            var url = `${shareServiceURL}?page=${page + 1}`
+            if (searchString != '') {
                 url = url + `&${searchValue}=${searchString}`
             }
+            console.log(url)
             fetch(url
                 , { method: 'GET', })
                 .then((response) => response.json())
                 .then((responseJson) => {
-                    console.log(responseJson.sharedCategories);
-                    if(responseJson.sharedCategories == null){
+                    if (responseJson.sharedCategories == null) {
                         setFetchLoading(false)
                         return;
                     }
@@ -185,42 +191,31 @@ export default ({ route, navigation }) => {
                     setFetchLoading(false);
                 })
                 .catch((error) => {
-                    console.error(error);
-                    setFetchLoading(false);
+                    handleServiceError(error)
                 });
         }
     };
-
-    const setSelectedFilter = (selectedIndex) => {
-        console.log(selectedIndex.row)
-        setSelectedIndex(selectedIndex)
-        console.log(searchString)
-    }
 
     const filter = (text) => {
         console.log(text)
         setSearchString(text)
         console.log(searchValue)
         // maybe add some waiting here before searching?
-        fetch(`https://starfish-app-imisr.ondigitalocean.app/?page=1&${searchValue}=${text}`
-            // fetch(`http://192.168.1.236:3000?page=${page}`
+        fetch(`${shareServiceURL}?page=1&${searchValue}=${text}`
             , { method: 'GET', })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson.sharedCategories);
                 setCategories(responseJson.sharedCategories);
                 setPage(responseJson.page);
                 setLoading(false);
             })
             .catch((error) => {
-                console.error(error);
-                setLoading(false);
+                handleServiceError(error)
             });
     }
 
     React.useEffect(() => {
-        fetch(`https://starfish-app-imisr.ondigitalocean.app/?page=${page}`
-            // fetch(`http://192.168.1.236:3000?page=${page}`
+        fetch(`${shareServiceURL}?page=${page}`
             , { method: 'GET', })
             .then((response) => response.json())
             .then((responseJson) => {
@@ -230,8 +225,7 @@ export default ({ route, navigation }) => {
                 setLoading(false);
             })
             .catch((error) => {
-                console.error(error);
-                setLoading(false);
+                handleServiceError(error)
             });
     }, []);
 
@@ -255,7 +249,7 @@ export default ({ route, navigation }) => {
                     style={{ flexDirection: 'row' }}
                 >
                     <Kitten.Input style={{ marginLeft: 10, flex: 1, marginRight: 10 }}
-                    onChangeText={(text) => filter(text)}
+                        onChangeText={(text) => filter(text)}
                     >
 
                     </Kitten.Input>
@@ -263,7 +257,7 @@ export default ({ route, navigation }) => {
                     <Kitten.Select
                         style={{ width: 170 }}
                         selectedIndex={selectedIndex}
-                        onSelect={(index) => setSelectedFilter(index)}
+                        onSelect={(index) => setSelectedIndex(index)}
                         value={displayValue}>
                         <Kitten.SelectItem title="Name" />
                         <Kitten.SelectItem title="Author" />
@@ -290,7 +284,7 @@ export default ({ route, navigation }) => {
                         renderItem={({ item }) => renderItem(item)}
 
                         onEndReached={handleOnEndReached}
-                        onEndReachedThreshold={0.01}
+                        onEndReachedThreshold={0.009}
                         style={{
                             flex: 1,
                             paddingBottom: 30, backgroundColor:

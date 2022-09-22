@@ -35,7 +35,6 @@ export default ({ navigation }) => {
     );
     const clearData = () => {
         try {
-            console.log('made it')
             AsyncStorage.removeItem('categories').then((val) => {
                 navigation.navigate('Main', {
                     categoryName: '',
@@ -152,8 +151,14 @@ export default ({ navigation }) => {
                 ) : (
                     <K.Modal
                         transparent={true}
-                        visible={debugModalVisible}
-                        backdropStyle={styleSheet.modal_backdrop}
+                        isVisible={debugModalVisible}
+                        style={{
+                            marginLeft: 'auto',
+                            marginRight: 'auto',
+                            left: 0,
+                            right: 0,
+                            position: 'absolute'
+                        }}
                         onBackdropPress={() => setDebugModalVisible(false)}>
                         <K.Layout style={styleSheet.modal_container}>
                             <K.Layout
