@@ -6,7 +6,9 @@ import { Jiro } from 'react-native-textinput-effects';
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
+import * as Icons from '../utility_components/icon.component.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-simple-toast';
 
 import Modal from "react-native-modal";
 
@@ -14,70 +16,76 @@ import Modal from "react-native-modal";
 function AddCategoryScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [categoryName, setCategoryName] = React.useState('');
+  const [originalCategoryName, setOriginalCategoryName] = React.useState('');
   const [categoryDesc, setCategoryDesc] = React.useState('');
 
   const [categoryMode, setCategoryMode] = React.useState('');
+  const [title, setTitle] = React.useState('');
 
   const [timeSensitive, setTimeSensitive] = React.useState(true);
   const [modalVisible, setModalVisible] = React.useState(false);
   const [deleteModalVisible, setDeleteModalVisible] = React.useState(false);
   const [taskMode, setTaskMode] = React.useState('');
   const [task, setTask] = React.useState({});
-  const [taskName, setTaskName] = React.useState('');
-  const [newTask, setNewTask] = React.useState({});
   const [tasks, setTasks] = React.useState([]);
-  const [cursor, setCursor] = React.useState({});
   const [loading, setLoading] = React.useState(true);
-  // const {ref: inputRef, updateCaret} = useCaretPosition();
 
-  const inputRef = React.useRef();
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
+
+
 
   const renderRightActions = () => (
     <React.Fragment>
       {categoryMode == 'edit' ? (
         <Kitten.TopNavigationAction
-          icon={TrashIcon}
+          icon={Icons.TrashIcon}
           onPress={() => _removeCategory()}
         />
       ) : null}
       <Kitten.TopNavigationAction
         style={{ marginLeft: 20 }}
-        icon={SaveIcon}
+        icon={categoryMode == 'import' ? Icons.ImportIcon : Icons.SaveIcon}
         onPress={() => _categoryComplete()}
       />
     </React.Fragment>
   );
   React.useEffect(() => {
+
     AsyncStorage.getItem('categories').then((value) => {
-      setLoading(true);
       var categories = value != null ? JSON.parse(value) : [];
+      setAllCategories(categories)
+    })
+    setLoading(true);
+    setCategoryMode('new');
+    setTitle('Creating a Category...')
 
-      setAllCategories(categories);
-      setCategoryMode('new');
-
-      if (route.params != undefined && categories.length > 0) {
-        for (var i = 0; i < categories.length; i++) {
-          if (categories[i].name == route.params.categoryName) {
-            for (var x = 0; x < categories[i].tasks.length; x++) {
-              categories[i].tasks[x].key = x;
-            }
-            setTasks(categories[i].tasks);
-            setCategoryMode('edit');
-            setCategoryName(categories[i].name);
-            setTimeSensitive(categories[i].timeSensitive);
-            setCategoryDesc(categories[i].description);
-            break;
-          }
-        }
-        setTimeout(() => {
-          setLoading(false);
-        }, 500);
-      } else {
-        setLoading(false);
+    if (route.params != undefined) {
+      var category = route.params.category;
+      for (var i = 0; i < category.tasks.length; i++) {
+        category.tasks[i].key = i;
       }
-    });
+      setTasks(category.tasks);
+      setCategoryName(category.name);
+      setOriginalCategoryName(category.name);
+      setTimeSensitive(category.timeSensitive);
+      setCategoryDesc(category.description);
+
+      if (route.params.mode != undefined) {
+        setCategoryMode(route.params.mode);
+        if (route.params.mode == 'edit') {
+          setTitle('Editing a Category...')
+        }
+        if (route.params.mode == 'import') {
+          setTitle('Importing a Category...')
+        }
+      }
+      setTimeout(() => {
+        setLoading(false);
+      }, 500);
+    } else {
+      setLoading(false);
+    }
 
     return () => {
       console.log('unmounted');
@@ -110,9 +118,8 @@ function AddCategoryScreen({ route, navigation }) {
   );
   const openTaskModal = (item) => {
     if (item == undefined) {
-      console.log('task is empty so its a new one');
       var newTask = { Id: tasks.length };
-      if (timeSensitive) newTask.time = 0;
+      if (timeSensitive) newTask.minutes = '';
 
       setTask(newTask);
       setTaskMode('new');
@@ -127,17 +134,17 @@ function AddCategoryScreen({ route, navigation }) {
     if (taskMode == 'new') {
       setTasks((tasks) => [...tasks, task]);
     } else {
-      setTasks((tasks) => tasks.map((el) => (el.Id === task.Id ? task : el)));
+      setTasks((tasks) => tasks.map((el) => (el.key === task.key ? task : el)));
     }
     setModalVisible(false);
   };
 
-  const _saveCategoryList = (categoryList, action) => {
+  const _saveCategoryList = (categoryList, action, catName) => {
     try {
       const jsonValue = JSON.stringify(categoryList);
       AsyncStorage.setItem('categories', jsonValue).then((value) => {
         navigation.navigate('Main', {
-          categoryName: categoryName,
+          categoryName: catName,
           action: action,
         });
       });
@@ -147,14 +154,24 @@ function AddCategoryScreen({ route, navigation }) {
     }
   };
 
-  const _filterCategoryList = (name) => {
-    var newCategoryList = [];
+  const getUniqueName = (name) => {
+    var newName = `${name}`
+    // sort categories alphebetically
+    allCategories.sort(function (a, b) {
+      return a.name.localeCompare(b.name);
+    });
+    var instance = 1;
     for (var i = 0; i < allCategories.length; i++) {
-      if (allCategories[i].name == name) continue;
-      newCategoryList.push(allCategories[i]);
+      if (allCategories[i].name == newName) {
+        if (instance > 1) {
+          newName = newName.substring(0, newName.lastIndexOf('_'));
+        }
+        newName += `_${instance.toString()}`;
+        instance++;
+      }
     }
-    return newCategoryList;
-  };
+    return newName;
+  }
 
   const _categoryComplete = async () => {
     var category = {
@@ -165,10 +182,35 @@ function AddCategoryScreen({ route, navigation }) {
       key: Date.now(),
     };
 
-    var newCategoryList = _filterCategoryList(categoryName);
+    if (categoryMode != 'edit') {
+      category.name = getUniqueName(categoryName);
+    }
+    else {
+      for (var i = 0; i < allCategories.length; i++) {
+        if (allCategories[i].name == category.name) {
+          Toast.show(`The category name '${category.name}' already exists!`, 3)
+          return;
+        }
+      }
+    }
+
+    var newCategoryList = allCategories.filter(obj => obj.name != category.name && obj.name != originalCategoryName)
     newCategoryList.push(category);
 
-    _saveCategoryList(newCategoryList, 'saved');
+    var action = ''
+    switch (categoryMode) {
+      case 'new':
+        action = 'created'
+        break;
+      case 'edit':
+        action = 'saved'
+        break;
+      case 'import':
+        action = 'imported'
+        break;
+    }
+
+    _saveCategoryList(newCategoryList, action, category.name);
   };
 
   const _removeTask = (task) => {
@@ -184,7 +226,7 @@ function AddCategoryScreen({ route, navigation }) {
 
   const _deleteCat = () => {
     setDeleteModalVisible(false);
-    _saveCategoryList(_filterCategoryList(categoryName), 'removed');
+    _saveCategoryList(allCategories.filter(obj => obj.name != categoryName), 'removed', categoryName);
   };
 
   const _renderEditButton = (task) => (
@@ -221,7 +263,7 @@ function AddCategoryScreen({ route, navigation }) {
               justifyContent: 'space-between',
               marginTop: 20,
             }}
-            >
+          >
             <Kitten.Button onPress={() => setDeleteModalVisible(false)}>
               No
             </Kitten.Button>
@@ -271,18 +313,15 @@ function AddCategoryScreen({ route, navigation }) {
 
           {timeSensitive ? (
             <Kitten.Layout style={{ padding: 10 }}>
-              <Kitten.Text>How long does it take to do this task?</Kitten.Text>
-              <Kitten.RadioGroup
-                selectedIndex={task.time}
-                onChange={(index) =>
-                  setTask((task) => ({ ...task, time: index }))
-                }
-                style={{ marginTop: 20 }}>
-                <Kitten.Radio>{data[0].label}</Kitten.Radio>
-                <Kitten.Radio>{data[1].label}</Kitten.Radio>
-                <Kitten.Radio>{data[2].label}</Kitten.Radio>
-                <Kitten.Radio>{data[3].label}</Kitten.Radio>
-              </Kitten.RadioGroup>
+              <Kitten.Text style={{ marginBottom: 10, fontWeight: 'bold' }}>About how long does it take to do this task?</Kitten.Text>
+              <Kitten.Layout style={{ flexDirection: 'row', justifyContent: 'center' }}>
+                <Kitten.Input
+                  keyboardType='number-pad'
+                  value={task.minutes == undefined ? '' : task.minutes.toString()}
+                  onChangeText={(text) => setTask((task) => ({ ...task, minutes: text }))}
+                ></Kitten.Input>
+                <Kitten.Text style={{ marginTop: 10 }}>  minutes.</Kitten.Text>
+              </Kitten.Layout>
             </Kitten.Layout>
           ) : null}
 
@@ -297,7 +336,7 @@ function AddCategoryScreen({ route, navigation }) {
             </Kitten.Button>
             <Kitten.Button
               onPress={() => saveTask()}
-              accessoryRight={taskMode == 'new' ? AddIcon : SaveIcon}>
+              accessoryRight={taskMode == 'new' ? Icons.AddIcon : Icons.SaveIcon}>
               {taskMode == 'new' ? 'Add Task' : 'Save Task'}
             </Kitten.Button>
           </Kitten.Layout>
@@ -306,11 +345,6 @@ function AddCategoryScreen({ route, navigation }) {
     );
   };
 
-  const AddIcon = (props) => (
-    <Kitten.Icon {...props} name="plus-circle-outline" />
-  );
-  const SaveIcon = (props) => <Kitten.Icon {...props} name="save" />;
-  const TrashIcon = (props) => <Kitten.Icon {...props} name="trash" />;
 
   return (
     <>
@@ -330,11 +364,7 @@ function AddCategoryScreen({ route, navigation }) {
           <Kitten.TopNavigation
             alignment="center"
             style={{ backgroundColor: themeContext.backgroundColor }}
-            title={
-              categoryMode == 'edit'
-                ? 'Editing a Category...'
-                : 'Creating a Category...'
-            }
+            title={title}
             accessoryLeft={BackAction}
             accessoryRight={renderRightActions}
           />
@@ -397,7 +427,7 @@ function AddCategoryScreen({ route, navigation }) {
             <Kitten.Button
               status="primary"
               size="small"
-              accessoryLeft={AddIcon}
+              accessoryLeft={Icons.AddIcon}
               onPress={() => openTaskModal(undefined)}>
               Add Task
             </Kitten.Button>

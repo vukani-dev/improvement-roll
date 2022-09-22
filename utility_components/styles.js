@@ -21,6 +21,21 @@ export default class StyleSheetFactory {
         backgroundColor: themeBackgroundColor,
       },
       modal_container: {
+        margin: 20,
+        marginBottom: 100,
+        borderRadius: 20,
+        padding: 25,
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+      },
+      search_modal: {
+        flex:1,
         margin: 30,
         marginBottom: 100,
         borderRadius: 20,
@@ -42,7 +57,8 @@ export default class StyleSheetFactory {
         flexDirection: 'column',
         justifyContent: 'space-around',
         alignItems: 'stretch',
-        alignContent: 'space-around'
+        alignContent: 'space-around',
+        backgroundColor: themeBackgroundColor,
       },
       top_navigation: {
         backgroundColor: themeBackgroundColor,

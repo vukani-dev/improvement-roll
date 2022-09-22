@@ -8,7 +8,6 @@ import {
   Select,
   SelectItem,
   IndexPath,
-  Modal,
   Card,
   Toggle,
   Divider,
@@ -20,6 +19,7 @@ import {
   CheckBox
 } from '@ui-kitten/components';
 
+import Modal from "react-native-modal";
 export {Layout, Text,
   TopNavigation,
   TopNavigationAction,

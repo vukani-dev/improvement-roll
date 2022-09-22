@@ -12,6 +12,7 @@ import RollResultScreen from '../screens/Roll';
 import AddCategoryScreen from '../screens/AddCategory';
 import ImportExportScreen from '../screens/ImportExport';
 import CommunityCategories from '../screens/CommunityCategories';
+import AdvancedSettings from '../screens/AdvSettings';
 
 const {Navigator, Screen} = createStackNavigator();
 
@@ -27,6 +28,7 @@ const HomeNavigator = () => (
     <Screen name="Roll" component={RollResultScreen} />
     <Screen name="ImportExport" component={ImportExportScreen} />
     <Screen name="CommunityCategories" component={CommunityCategories} />
+    <Screen name="AdvSettings" component={AdvancedSettings} />
   </Navigator>
 );
 

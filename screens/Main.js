@@ -52,7 +52,6 @@ export default ({ route, navigation }) => {
         });
       }
       else {
-        console.log('creating settings')
         var newSettings = { debugMode: false };
         AsyncStorage.setItem('settings', JSON.stringify(newSettings)).then((res) => {
           global.settings = newSettings;
@@ -86,12 +85,12 @@ export default ({ route, navigation }) => {
         onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         View Categories
       </Button>
-      {/* <Button
+      <Button
         style={{ margin: 10, marginBottom: 35 }}
         accessoryLeft={GlobeIcon}
         onPress={() => navigation.navigate('CommunityCategories', { action: 'view' })}>
         Community Categories
-      </Button> */}
+      </Button>
 
       <Button
         accessoryLeft={SettingsIcon}
