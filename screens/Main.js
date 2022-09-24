@@ -28,8 +28,6 @@ export default ({ route, navigation }) => {
     route.params = undefined;
   }
 
-  // on load check if there are categories. If not ass the general category.
-  // check the theme and change it based on saved setting
   React.useEffect(() => {
 
     AsyncStorage.getAllKeys().then((value) => {
@@ -80,7 +78,7 @@ export default ({ route, navigation }) => {
         Roll
       </Button>
       <Button
-        style={{ marginTop: 10, marginBottom:10  }}
+        style={{ marginTop: 10  }}
         accessoryLeft={ListIcon}
         onPress={() => navigation.navigate('Categories', { action: 'view' })}>
         View Categories

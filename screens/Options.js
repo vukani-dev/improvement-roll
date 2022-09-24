@@ -11,7 +11,7 @@ import {getVersion} from 'react-native-device-info';
 import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
 
 import BTCIcon from '../pictures/bitcoin-btc-logo.svg';
-import ETHIcon from '../pictures/ethereum-eth-logo.svg';
+import XMRIcon from '../pictures/monero-xmr-logo.svg';
 import Toast from 'react-native-simple-toast';
 
 export default ({navigation}) => {
@@ -27,10 +27,6 @@ export default ({navigation}) => {
   const BackAction = () => (
     <Kitten.TopNavigationAction icon={Icons.BackIcon} onPress={navigation.goBack} />
   );
-  // const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
-  const CautionIcon = (props) => (
-    <Kitten.Icon name="alert-triangle-outline" {...props} />
-  );
   const ImportIcon = (props) => (
     <Kitten.Icon name="arrow-downward-outline" {...props} />
   );
@@ -38,7 +34,6 @@ export default ({navigation}) => {
     <Kitten.Icon name="arrow-upward-outline" {...props} />
   );
   const OctoIcon = (props) => <Kitten.Icon name="github-outline" {...props} />;
-  const DebugIcon = (props) => <Kitten.Icon name="book-outline" {...props} />;
 
   const makeVersionString = () => {
     return `Version ${getVersion()}`;
@@ -305,7 +300,7 @@ export default ({navigation}) => {
           justifyContent: 'space-evenly',
           alignItems: 'center',
         }}>
-        <Kitten.Text style={{fontWeight: 'bold'}}>Donate</Kitten.Text>
+        <Kitten.Text style={{fontWeight: 'bold', marginBottom: 10}}>Donate</Kitten.Text>
 
         <Kitten.Layout
           style={{
@@ -314,6 +309,14 @@ export default ({navigation}) => {
             justifyContent: 'space-evenly',
           }}>
           <BTCIcon width={48} height={20}></BTCIcon>
+        </Kitten.Layout>
+        <Kitten.Layout
+          style={{
+            backgroundColor: themeContext.backgroundColor,
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+            marginBottom: 15
+          }}>
           <Kitten.Text selectable={true}>
             3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY
           </Kitten.Text>
@@ -324,9 +327,16 @@ export default ({navigation}) => {
             flexDirection: 'row',
             justifyContent: 'space-evenly',
           }}>
-          <ETHIcon width={48} height={20}></ETHIcon>
-          <Kitten.Text style={{fontSize: 13}} selectable={true}>
-            0xd75205A0Fb016e3a0C368F964D142cD29a829BF2
+          <XMRIcon width={48} height={20}></XMRIcon>
+        </Kitten.Layout>
+        <Kitten.Layout
+          style={{
+            backgroundColor: themeContext.backgroundColor,
+            flexDirection: 'row',
+            justifyContent: 'space-evenly',
+          }}>
+          <Kitten.Text style={{fontSize: 13, textAlign: 'center', marginHorizontal: 10}} selectable={true}>
+           867iNA9Tgr26KKDWyoK5qeLvk7HRNGHBBZ7kqJUDysygFb1A8L2M5925viKJh31YYSKRNyWzbXpCeXyisTRvBpKAK4Q9BWU 
           </Kitten.Text>
         </Kitten.Layout>
       </Kitten.Layout>
