@@ -5,31 +5,31 @@
   tasks:
   - name: task1
     desc: desc for task1
-    time: 1
+    minutes: 1
   - name: task2
     desc: desc for task2
-    time: 1
+    minutes: 1
   - name: task3
     desc: desc for task3
-    time: 1
+    minutes: 1
   - name: task4
     desc: desc for task4
-    time: 2
+    minutes: 2
   - name: task5
     desc: desc for task5
-    time: 2
+    minutes: 2
   - name: task6
     desc: desc for task6
-    time: 2
+    minutes: 2
   - name: task7
     desc: desc for task7
-    time: 3
+    minutes: 3
   - name: task8
     desc: desc for task8
-    time: 3
+    minutes: 3
   - name: task9
     desc: desc for task9
-    time: 3
+    minutes: 3
 
 
 - name: TestCat2

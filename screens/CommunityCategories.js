@@ -26,6 +26,8 @@ export default ({ route, navigation }) => {
     const [page, setPage] = React.useState(1);
     const [stopFetching, setStopFetching] = React.useState(false);
 
+    const [timer, setTimer] = React.useState(null)
+
     const [searchModalVisible, setSearchModalVisible] = React.useState(false);
     const [selectedIndex, setSelectedIndex] = React.useState(
         new Kitten.IndexPath(0),
@@ -174,7 +176,6 @@ export default ({ route, navigation }) => {
             if (searchString != '') {
                 url = url + `&${searchValue}=${searchString}`
             }
-            console.log(url)
             fetch(url
                 , { method: 'GET', })
                 .then((response) => response.json())
@@ -197,21 +198,26 @@ export default ({ route, navigation }) => {
     };
 
     const filter = (text) => {
-        console.log(text)
         setSearchString(text)
-        console.log(searchValue)
-        // maybe add some waiting here before searching?
-        fetch(`${shareServiceURL}?page=1&${searchValue}=${text}`
-            , { method: 'GET', })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                setCategories(responseJson.sharedCategories);
-                setPage(responseJson.page);
-                setLoading(false);
-            })
-            .catch((error) => {
-                handleServiceError(error)
-            });
+
+        clearTimeout(timer)
+        const newTimer = setTimeout(() => {
+            console.log(`Filtering categories. Searching for ${searchValue} with the string ${text}`)
+
+            fetch(`${shareServiceURL}?page=1&${searchValue}=${text}`
+                , { method: 'GET', })
+                .then((response) => response.json())
+                .then((responseJson) => {
+                    setCategories(responseJson.sharedCategories);
+                    setPage(responseJson.page);
+                    setLoading(false);
+                })
+                .catch((error) => {
+                    handleServiceError(error)
+                });
+        }, 400)
+
+        setTimer(newTimer)
     }
 
     React.useEffect(() => {
@@ -219,7 +225,6 @@ export default ({ route, navigation }) => {
             , { method: 'GET', })
             .then((response) => response.json())
             .then((responseJson) => {
-                console.log(responseJson.sharedCategories);
                 setCategories(responseJson.sharedCategories);
                 setPage(responseJson.page);
                 setLoading(false);

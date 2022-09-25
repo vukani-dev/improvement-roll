@@ -7,17 +7,17 @@
             {
                 "name": "task1",
                 "desc": "task desc 1",
-                "time": 1
+                "minutes": 1
             },
             {
                 "name": "task2",
                 "desc": "task desc 2",
-                "time": 2
+                "minutes": 2
             },
             {
                 "name": "task3",
                 "desc": "task desc 3", 
-                "time": 3
+                "minutes": 3
             }
         ]
     },

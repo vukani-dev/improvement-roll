@@ -17,12 +17,10 @@ const config = {
 var rnLogger = logger.createLogger(config);
 
 const logWarning = (log) => {
-    console.log(log)
     logToFile(log, 'warn')
 }
 
 const logDebug = (log) => {
-    console.log(log)
     logToFile(log, 'debug')
 }
 

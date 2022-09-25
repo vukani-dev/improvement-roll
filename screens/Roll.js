@@ -32,7 +32,7 @@ const RollResultScreen = ({ route, navigation }) => {
         setLastRolledTask(rollAndPickTask(filteredTasks));
         setLoading(false);
       }
-    }, 3000);
+    }, 1000);
   };
 
   const renderRerollIcon = (props) => <Icon {...props} name="flip-2-outline" />;

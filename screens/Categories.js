@@ -25,7 +25,7 @@ function CategoriesScreen({ route, navigation }) {
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
-  const data = [
+  const quickTimeRanges = [
     {
       label: '0 - 10 min',
       tasks: [],
@@ -62,7 +62,7 @@ function CategoriesScreen({ route, navigation }) {
   React.useEffect(() => {
     AsyncStorage.getItem('categories').then((value) => {
       var categories = value != null ? JSON.parse(value) : [];
-      categories.sort((a,b) =>  new Date(b.key) - new Date(a.key));
+      categories.sort((a, b) => new Date(b.key) - new Date(a.key));
       setAllCategories(categories);
     });
   }, []);
@@ -70,7 +70,6 @@ function CategoriesScreen({ route, navigation }) {
   const _categorySelected = (category) => {
     switch (action) {
       case 'view':
-        console.log(category)
         navigation.navigate('AddCategory', { category: category, mode: 'edit' });
         break;
       case 'roll':
@@ -85,12 +84,12 @@ function CategoriesScreen({ route, navigation }) {
             var minutes = category.tasks[i].minutes;
             var task = category.tasks[i];
 
-            for (var x = 0; x < data.length; x++) {
-              if (minutes >= data[x].min && (minutes <= data[x].max || data[x].max == undefined)) {
-                data[x].tasks.push(task);
+            for (var x = 0; x < quickTimeRanges.length; x++) {
+              if (minutes >= quickTimeRanges[x].min && (minutes <= quickTimeRanges[x].max || quickTimeRanges[x].max == undefined)) {
+                quickTimeRanges[x].tasks.push(task);
 
-                if (newTimeRange.indexOf(data[x]) == -1) {
-                  newTimeRange.push(data[x]);
+                if (newTimeRange.indexOf(quickTimeRanges[x]) == -1) {
+                  newTimeRange.push(quickTimeRanges[x]);
                 }
               }
             }
@@ -149,7 +148,6 @@ function CategoriesScreen({ route, navigation }) {
         .then((success) => {
           console.log(success);
           navigation.navigate('ImportExport', { action: 'export', path: path2 });
-          console.log('WORKED');
         })
         .catch((err) => {
           console.log('ERROR');
@@ -188,13 +186,23 @@ function CategoriesScreen({ route, navigation }) {
   const _exactRoll = () => {
     var tasks = selectedCategory.tasks
     var rollTasks = []
+    var lowerTime = minutes - global.settings.timeRange;
+    lowerTime = lowerTime < 0 ? 0 : lowerTime;
+
+    var higherTime = minutes
+    console.log(`Lower Time range: ${lowerTime}`)
+    console.log(`Higher time range: ${higherTime}`)
     for (var i = 0; i < tasks.length; i++) {
-      if (tasks[i].minutes >= minutes - global.settings.timeRange && tasks[i].minutes <= minutes) {
+      var taskMinutes = Number(tasks[i].minutes)
+      if (taskMinutes >= lowerTime && taskMinutes <= higherTime) {
         rollTasks.push(tasks[i])
       }
     }
 
-    if(rollTasks.length == 0){
+    console.log(`Filtered list of tasks to roll from:`)
+    console.log(rollTasks)
+
+    if (rollTasks.length == 0) {
       Toast.show(`No taks found within ${global.settings.timeRange} minutes of ${minutes}`)
       return;
     }

@@ -150,7 +150,6 @@ function AddCategoryScreen({ route, navigation }) {
       });
     } catch (e) {
       console.log(e);
-      console.log('something happend');
     }
   };
 
@@ -187,7 +186,7 @@ function AddCategoryScreen({ route, navigation }) {
     }
     else {
       for (var i = 0; i < allCategories.length; i++) {
-        if (allCategories[i].name == category.name) {
+        if (allCategories[i].name == category.name && category.name != originalCategoryName) {
           Toast.show(`The category name '${category.name}' already exists!`, 3)
           return;
         }
@@ -318,7 +317,7 @@ function AddCategoryScreen({ route, navigation }) {
                 <Kitten.Input
                   keyboardType='number-pad'
                   value={task.minutes == undefined ? '' : task.minutes.toString()}
-                  onChangeText={(text) => setTask((task) => ({ ...task, minutes: text }))}
+                  onChangeText={(text) => setTask((task) => ({ ...task, minutes: Number(text) }))}
                 ></Kitten.Input>
                 <Kitten.Text style={{ marginTop: 10 }}>  minutes.</Kitten.Text>
               </Kitten.Layout>
