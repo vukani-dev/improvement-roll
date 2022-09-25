@@ -105,10 +105,10 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 ### Linux
 
 - Follow react-native instructions for setting up the environment
-  - Essentially, you need the following and any relevant tools added to your path:
+  - Essentially you need the following and any relevant tools added to your path:
     - Java version 8+ (I use 8 from openjdk)
     - Node/npm (I use nvm to install a specific LTS version, which is 14.17.4)
-    - yarn (I'm using version 1.22.11)
+    - yarn (Im using version 1.22.11)
     - Android SDK Manager (You can install via android-studio or command-line tool)
       - Android SDK Platform 29
       - Intel x86 Atom_64 System Image
@@ -117,6 +117,7 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 
 - `yarn` to install packages
 - `yarn start` to start react native server
+- open another terminal
 - `yarn run android` start the app
 
 ## Screenshots
