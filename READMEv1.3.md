@@ -16,6 +16,22 @@ You can also sort tasks in a category by how long it would take to complete them
 
 There is already a pre-generated category available called **General**
 
+## Updating from version 1.2.x
+
+**First off, export all categories to ensure you wont lose anything!**
+
+With version 1.3 there is a change from `time` to `minutes`.  Rolling is governed by that and the new `timeRange` variable set in advanced settings (which is default to 2).
+This makes category creation more flexible as you no longer need to adhear to the strict time ranges that were there before.
+
+However, if you have categories with tasks that are still using `time` there may be some unforseen effects from updating to v1.3+.
+In general this is what you can do to roll those older categories over:
+
+
+- In the app edit the category's tasks. Each task will have a blank input for minutes. Set the appropriate minutes for each task and save the category
+- You can also export your categories, edit the `time` attribute to `minutes`, set the appropriate minutes, Reset the data on the app (found in adv settings), and import them back into the app.
+
+Go [HERE](https://github.com/vukani-dev/improvement-roll/tree/main/READMEv1.2) for docs on the older version.
+
 ### Simple Example:
 Say you want to get in shape but are too lazy to commit to a program.
 You can create a Category called **Fitness**.
@@ -100,6 +116,7 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 - **Reset option** ⇾ This will wipe the memory of the app back to its initial state.
 
 
+
 ## Development
 
 ### Linux
@@ -123,7 +140,7 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 ## Screenshots
 
 <p>
-<img src="pictures/home.png" alt="home" width="250">
+<img src="pictures/homev1.3.png" alt="home" width="250">
 <img src="pictures/category.png" alt="category" width="250">
 <img src="pictures/roll.png" alt="roll" width="250">
 </p>

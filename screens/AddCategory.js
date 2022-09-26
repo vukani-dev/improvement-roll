@@ -193,7 +193,13 @@ function AddCategoryScreen({ route, navigation }) {
       }
     }
 
-    var newCategoryList = allCategories.filter(obj => obj.name != category.name && obj.name != originalCategoryName)
+    var newCategoryList = []
+    if (categoryMode != 'edit') {
+      newCategoryList = allCategories.filter(obj => obj.name != category.name)
+    }
+    else {
+      newCategoryList = allCategories.filter(obj => obj.name != category.name && obj.name != originalCategoryName)
+    }
     newCategoryList.push(category);
 
     var action = ''

@@ -1,0 +1,3 @@
+Major Update! 
+Changing from time to minutes. 
+Added Community Category sharing
