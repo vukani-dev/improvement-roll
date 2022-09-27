@@ -318,7 +318,7 @@ export default ({navigation}) => {
             marginBottom: 15
           }}>
           <Kitten.Text selectable={true}>
-            3JEbKevTtts3ZAdt4vKnN7sbqdAkcoDKqY
+            1LBQjRRWNCAMfX7s364N2HE11rG18d9Rxy 
           </Kitten.Text>
         </Kitten.Layout>
         <Kitten.Layout

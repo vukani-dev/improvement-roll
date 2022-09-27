@@ -1,3 +1,4 @@
 Major Update! 
-Changing from time to minutes. 
+Changing tasks from using "time" to using "minutes" 
 Added Community Category sharing
+More details at the repo: https://github.com/vukani-dev/improvement-roll
