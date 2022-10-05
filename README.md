@@ -30,7 +30,7 @@ In general this is what you can do to roll those older categories over:
 - In the app edit the category's tasks. Each task will have a blank input for minutes. Set the appropriate minutes for each task and save the category
 - You can also export your categories, edit the `time` attribute to `minutes`, set the appropriate minutes, Reset the data on the app (found in adv settings), and import them back into the app.
 
-Go [HERE](https://github.com/vukani-dev/improvement-roll/tree/main/READMEv1.2) for docs on the older version.
+Go [HERE](https://github.com/vukani-dev/improvement-roll/tree/main/READMEv1.2.md) for docs on the older version.
 
 ### Simple Example:
 Say you want to get in shape but are too lazy to commit to a program.
