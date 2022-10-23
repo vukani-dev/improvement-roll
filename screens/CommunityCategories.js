@@ -8,6 +8,8 @@ import StyleSheetFactory from '../utility_components/styles.js';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import * as logger from '../utility_components/logging.component.js';
 
+import * as logger from '../utility_components/logging.component.js';
+
 const SearchIcon = (props) => <Kitten.Icon {...props} name="search-outline" />;
 const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
 const filterTypes = ['name', 'author', 'tag'];
@@ -47,7 +49,8 @@ export default ({ route, navigation }) => {
     );
 
     const categorySelected = (category) => {
-        console.log(category.category)
+        //console.log(category.category)
+        logger.logDebug(category.category)
         navigation.navigate('AddCategory', { category: category.category, mode: 'import' })
     };
 
@@ -202,7 +205,8 @@ export default ({ route, navigation }) => {
 
         clearTimeout(timer)
         const newTimer = setTimeout(() => {
-            console.log(`Filtering categories. Searching for ${searchValue} with the string ${text}`)
+            //console.log(`Filtering categories. Searching for ${searchValue} with the string ${text}`)
+            logger.logDebug(`Filtering categories. Searching for ${searchValue} with the string ${text}`)
 
             fetch(`${shareServiceURL}?page=1&${searchValue}=${text}`
                 , { method: 'GET', })

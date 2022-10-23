@@ -14,6 +14,8 @@ import { PermissionsAndroid } from 'react-native';
 import * as TOML from '@iarna/toml';
 import * as YAML from 'js-yaml';
 
+import * as logger from '../utility_components/logging.component.js';
+
 function CategoriesScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
   const [timeRanges, setTimeRanges] = React.useState([]);
@@ -124,7 +126,8 @@ function CategoriesScreen({ route, navigation }) {
         buttonPositive: 'OK',
       },
     ).then((res) => {
-      console.log(res);
+      //console.log(res);
+      logger.logDebug(res);
       var filename =
         categories.length > 1
           ? `imp_roll_categories_${Date.now()}`
@@ -146,12 +149,15 @@ function CategoriesScreen({ route, navigation }) {
 
       RNFS.writeFile(path2, data, 'utf8')
         .then((success) => {
-          console.log(success);
+          //console.log(success);
+          logger.logDebug(success);
           navigation.navigate('ImportExport', { action: 'export', path: path2 });
         })
         .catch((err) => {
-          console.log('ERROR');
-          console.log(err);
+          //console.log('ERROR');
+          logger.logDebug('ERROR');
+          //console.log(err);
+          logger.logDebug(err);
         });
     });
   };
@@ -190,8 +196,10 @@ function CategoriesScreen({ route, navigation }) {
     lowerTime = lowerTime < 0 ? 0 : lowerTime;
 
     var higherTime = minutes
-    console.log(`Lower Time range: ${lowerTime}`)
-    console.log(`Higher time range: ${higherTime}`)
+    //console.log(`Lower Time range: ${lowerTime}`)
+    logger.logDebug(`Lower Time range: ${lowerTime}`)
+    //console.log(`Higher time range: ${higherTime}`)
+    logger.logDebug(`Higher time range: ${higherTime}`)
     for (var i = 0; i < tasks.length; i++) {
       var taskMinutes = Number(tasks[i].minutes)
       if (taskMinutes >= lowerTime && taskMinutes <= higherTime) {
@@ -199,8 +207,10 @@ function CategoriesScreen({ route, navigation }) {
       }
     }
 
-    console.log(`Filtered list of tasks to roll from:`)
-    console.log(rollTasks)
+    //console.log(`Filtered list of tasks to roll from:`)
+    logger.logDebug(`Filtered list of tasks to roll from:`)
+    //console.log(rollTasks)
+    logger.logDebug(rollTasks)
 
     if (rollTasks.length == 0) {
       Toast.show(`No taks found within ${global.settings.timeRange} minutes of ${minutes}`)
