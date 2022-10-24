@@ -154,10 +154,11 @@ function CategoriesScreen({ route, navigation }) {
           navigation.navigate('ImportExport', { action: 'export', path: path2 });
         })
         .catch((err) => {
+          logger.logWarning(err.message);
           //console.log('ERROR');
-          logger.logDebug('ERROR');
+          //logger.logDebug('ERROR');
           //console.log(err);
-          logger.logDebug(err);
+          //logger.logDebug(err);
         });
     });
   };

@@ -195,6 +195,7 @@ export default ({ route, navigation }) => {
                     setFetchLoading(false);
                 })
                 .catch((error) => {
+                    logger.logWarning(error.message);
                     handleServiceError(error)
                 });
         }
@@ -217,6 +218,7 @@ export default ({ route, navigation }) => {
                     setLoading(false);
                 })
                 .catch((error) => {
+                    logger.logWarning(error.message);
                     handleServiceError(error)
                 });
         }, 400)
@@ -234,6 +236,7 @@ export default ({ route, navigation }) => {
                 setLoading(false);
             })
             .catch((error) => {
+                logger.logWarning(error.message);
                 handleServiceError(error)
             });
     }, []);

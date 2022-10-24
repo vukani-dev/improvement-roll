@@ -152,8 +152,9 @@ function AddCategoryScreen({ route, navigation }) {
         });
       });
     } catch (e) {
+      logger.logWarning(e.message);
       //console.log(e);
-      logger.logDebug(e);
+      //logger.logDebug(e);
     }
   };
 
