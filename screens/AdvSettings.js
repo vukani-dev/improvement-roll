@@ -39,6 +39,7 @@ export default ({ navigation }) => {
                 });
             });
         } catch (e) {
+            logger.logWarning(e.message);
             Toast.show('Error reseting categores. Please try again.');
         }
     };

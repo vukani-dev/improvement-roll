@@ -12,6 +12,8 @@ import Toast from 'react-native-simple-toast';
 
 import Modal from "react-native-modal";
 
+import * as logger from '../utility_components/logging.component.js';
+
 
 function AddCategoryScreen({ route, navigation }) {
   const [allCategories, setAllCategories] = React.useState([]);
@@ -88,7 +90,8 @@ function AddCategoryScreen({ route, navigation }) {
     }
 
     return () => {
-      console.log('unmounted');
+      //console.log('unmounted');
+      logger.logDebug('unmounted');
     };
   }, []);
 
@@ -149,7 +152,9 @@ function AddCategoryScreen({ route, navigation }) {
         });
       });
     } catch (e) {
-      console.log(e);
+      logger.logWarning(e.message);
+      //console.log(e);
+      //logger.logDebug(e);
     }
   };
 

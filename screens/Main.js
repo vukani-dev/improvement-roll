@@ -7,6 +7,8 @@ import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import * as logger from '../utility_components/logging.component.js';
+
 export default ({ route, navigation }) => {
 
   const themeContext = React.useContext(ThemeContext);
@@ -45,8 +47,10 @@ export default ({ route, navigation }) => {
 
       if (value.indexOf('settings') >= 0) {
         AsyncStorage.getItem('settings').then((val) => {
-          console.log(`Current settings:`)
-          console.log(val)
+          //console.log(`Current settings:`)
+          logger.logDebug(`Current settings:`)
+          //console.log(val)
+          logger.logDebug(val)
           global.settings = JSON.parse(val)
         });
       }

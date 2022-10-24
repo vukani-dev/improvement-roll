@@ -14,6 +14,8 @@ import { checkMultiple, PERMISSIONS } from 'react-native-permissions';
 import * as logger from './utility_components/logging.component.js';
 
 
+
+
 const handleError = (e, isFatal) => {
   if (global.settings != undefined && global.settings.debugMode) {
 
@@ -39,7 +41,9 @@ const handleError = (e, isFatal) => {
       }]
     );
   } else {
-    console.log(e);
+    //console.log(e);
+    logger.logDebug(e);
+    
   }
 };
 
