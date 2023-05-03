@@ -14,7 +14,6 @@ import BTCIcon from '../pictures/bitcoin-btc-logo.svg';
 import XMRIcon from '../pictures/monero-xmr-logo.svg';
 import Toast from 'react-native-simple-toast';
 
-import * as logger from '../utility_components/logging.component.js';
 
 export default ({navigation}) => {
   const [resetModalVisible, setResetModalVisible] = React.useState(false);

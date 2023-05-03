@@ -8,7 +8,6 @@ import StyleSheetFactory from '../utility_components/styles.js';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import * as logger from '../utility_components/logging.component.js';
 
-import * as logger from '../utility_components/logging.component.js';
 
 const SearchIcon = (props) => <Kitten.Icon {...props} name="search-outline" />;
 const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
