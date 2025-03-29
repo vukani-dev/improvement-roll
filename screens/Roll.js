@@ -29,7 +29,16 @@ const RollResultScreen = ({ route, navigation }) => {
     setTimeout(() => {
       if (tasks.length > 1) {
         var filteredTasks = tasks.filter((e) => e.name != lastRolledTask.name);
-        setLastRolledTask(rollAndPickTask(filteredTasks));
+        if (filteredTasks.length > 0) {
+          setLastRolledTask(rollAndPickTask(filteredTasks));
+        } else {
+          setLastRolledTask(rollAndPickTask(tasks));
+        }
+        setLoading(false);
+      } else if (tasks.length === 1) {
+        setLastRolledTask(tasks[0]);
+        setLoading(false);
+      } else {
         setLoading(false);
       }
     }, 1000);

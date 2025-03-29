@@ -97,10 +97,6 @@ function CategoriesScreen({ route, navigation }) {
             }
           }
 
-          if (newTimeRange.length == 1) {
-            navigation.navigate('Roll', { tasks: category.tasks });
-            return;
-          }
 
           setTimeRanges(newTimeRange);
           setSelectedCategory(category);
@@ -126,7 +122,6 @@ function CategoriesScreen({ route, navigation }) {
         buttonPositive: 'OK',
       },
     ).then((res) => {
-      //console.log(res);
       logger.logDebug(res);
       var filename =
         categories.length > 1
@@ -193,7 +188,8 @@ function CategoriesScreen({ route, navigation }) {
   const _exactRoll = () => {
     var tasks = selectedCategory.tasks
     var rollTasks = []
-    var lowerTime = minutes - global.settings.timeRange;
+    const timeRange = (global.settings && global.settings.timeRange !== undefined) ? global.settings.timeRange : 2;
+    var lowerTime = minutes - timeRange;
     lowerTime = lowerTime < 0 ? 0 : lowerTime;
 
     var higherTime = minutes
@@ -214,7 +210,7 @@ function CategoriesScreen({ route, navigation }) {
     logger.logDebug(rollTasks)
 
     if (rollTasks.length == 0) {
-      Toast.show(`No taks found within ${global.settings.timeRange} minutes of ${minutes}`)
+      Toast.show(`No taks found within ${timeRange} minutes of ${minutes}`)
       return;
     }
     setModalVisible(false)
