@@ -27,7 +27,7 @@ function CategoriesScreen({ route, navigation }) {
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
-  const quickTimeRanges = [
+  const quickTimeRanges = React.useMemo(() => [
     {
       label: '0 - 10 min',
       tasks: [],
@@ -38,7 +38,7 @@ function CategoriesScreen({ route, navigation }) {
       label: '11 - 30 min',
       tasks: [],
       min: 11,
-      max: 20
+      max: 30
     },
     {
       label: '31 min - 1 hour',
@@ -52,21 +52,33 @@ function CategoriesScreen({ route, navigation }) {
       min: 60,
       max: undefined
     },
-  ];
+  ], []);
 
-  const BackAction = () => (
+  const BackAction = React.useCallback(() => (
     <K.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
-  );
+  ), [navigation]);
 
-  const AddIcon = (props) => <K.Icon {...props} name="plus-square-outline" />;
-  const ExportIcon = (props) => <K.Icon {...props} name="arrow-upward-outline" />;
-  const BackIcon = (props) => <K.Icon {...props} name="arrow-back" />;
+  const AddIcon = React.useCallback((props) => <K.Icon {...props} name="plus-square-outline" />, []);
+  const ExportIcon = React.useCallback((props) => <K.Icon {...props} name="arrow-upward-outline" />, []);
+  const BackIcon = React.useCallback((props) => <K.Icon {...props} name="arrow-back" />, []);
+  
   React.useEffect(() => {
-    AsyncStorage.getItem('categories').then((value) => {
-      var categories = value != null ? JSON.parse(value) : [];
-      categories.sort((a, b) => new Date(b.key) - new Date(a.key));
-      setAllCategories(categories);
-    });
+    let isMounted = true;
+    AsyncStorage.getItem('categories')
+      .then((value) => {
+        if (isMounted) {
+          const categories = value != null ? JSON.parse(value) : [];
+          categories.sort((a, b) => new Date(b.key) - new Date(a.key));
+          setAllCategories(categories);
+        }
+      })
+      .catch(error => {
+        logger.logWarning(`Error loading categories: ${error.message}`);
+      });
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const _categorySelected = (category) => {
@@ -76,28 +88,46 @@ function CategoriesScreen({ route, navigation }) {
         break;
       case 'roll':
         if (category.timeSensitive) {
-
-          var newTimeRange = [];
-
-          for (var i = 0; i < category.tasks.length; i++) {
-            if (newTimeRange.length == 4) {
-              break;
-            }
-            var minutes = category.tasks[i].minutes;
-            var task = category.tasks[i];
-
-            for (var x = 0; x < quickTimeRanges.length; x++) {
-              if (minutes >= quickTimeRanges[x].min && (minutes <= quickTimeRanges[x].max || quickTimeRanges[x].max == undefined)) {
-                quickTimeRanges[x].tasks.push(task);
-
-                if (newTimeRange.indexOf(quickTimeRanges[x]) == -1) {
-                  newTimeRange.push(quickTimeRanges[x]);
+          // Reset time ranges at the beginning
+          quickTimeRanges.forEach(range => {
+            range.tasks = [];
+          });
+          
+          // Limit to 4 ranges with a Set for faster lookup
+          const rangeSet = new Set();
+          
+          // Process all tasks in a single pass
+          for (let i = 0; i < category.tasks.length; i++) {
+            const task = category.tasks[i];
+            const taskMinutes = task.minutes;
+            
+            // Early exit if we already have 4 ranges
+            if (rangeSet.size >= 4) break;
+            
+            // Find the correct range for this task
+            for (let j = 0; j < quickTimeRanges.length; j++) {
+              const range = quickTimeRanges[j];
+              
+              if (taskMinutes >= range.min && 
+                 (taskMinutes <= range.max || range.max === undefined)) {
+                // Add task to this range
+                range.tasks.push(task);
+                
+                // Track unique ranges with Set
+                if (!rangeSet.has(j)) {
+                  rangeSet.add(j);
                 }
+                
+                // Each task can only belong to one range in this implementation
+                // so we can break the inner loop early
+                break;
               }
             }
           }
-
-
+          
+          // Convert the set of indices back to ranges
+          const newTimeRange = Array.from(rangeSet).map(index => quickTimeRanges[index]);
+          
           setTimeRanges(newTimeRange);
           setSelectedCategory(category);
           setModalVisible(true);
@@ -186,39 +216,57 @@ function CategoriesScreen({ route, navigation }) {
   };
 
   const _exactRoll = () => {
-    var tasks = selectedCategory.tasks
-    var rollTasks = []
-    const timeRange = (global.settings && global.settings.timeRange !== undefined) ? global.settings.timeRange : 2;
-    var lowerTime = minutes - timeRange;
-    lowerTime = lowerTime < 0 ? 0 : lowerTime;
-
-    var higherTime = minutes
-    //console.log(`Lower Time range: ${lowerTime}`)
-    logger.logDebug(`Lower Time range: ${lowerTime}`)
-    //console.log(`Higher time range: ${higherTime}`)
-    logger.logDebug(`Higher time range: ${higherTime}`)
-    for (var i = 0; i < tasks.length; i++) {
-      var taskMinutes = Number(tasks[i].minutes)
-      if (taskMinutes >= lowerTime && taskMinutes <= higherTime) {
-        rollTasks.push(tasks[i])
-      }
-    }
-
-    //console.log(`Filtered list of tasks to roll from:`)
-    logger.logDebug(`Filtered list of tasks to roll from:`)
-    //console.log(rollTasks)
-    logger.logDebug(rollTasks)
-
-    if (rollTasks.length == 0) {
-      Toast.show(`No taks found within ${timeRange} minutes of ${minutes}`)
+    // Avoid unnecessary calculations if no minutes value is provided
+    if (!minutes) {
+      Toast.show('Please enter a time value');
       return;
     }
-    setModalVisible(false)
-    navigation.navigate('Roll', { tasks: rollTasks });
+    
+    const categoryTasks = selectedCategory.tasks;
+    // Use default time range of 2 if setting is not loaded/available
+    const timeRange = (global.settings && global.settings.timeRange !== undefined) ? global.settings.timeRange : 2;
+    const lowerTimeLimit = Math.max(0, minutes - timeRange);
+    const upperTimeLimit = minutes;
+    
+    logger.logDebug(`Lower Time range: ${lowerTimeLimit}`);
+    logger.logDebug(`Higher time range: ${upperTimeLimit}`);
+    
+    // Use filter for cleaner code and potentially better performance
+    const filteredTasks = categoryTasks.filter(task => {
+      const taskMinutes = Number(task.minutes);
+      return taskMinutes >= lowerTimeLimit && taskMinutes <= upperTimeLimit;
+    });
+
+    logger.logDebug(`Filtered list of tasks to roll from:`);
+    logger.logDebug(filteredTasks);
+
+    if (filteredTasks.length === 0) {
+      Toast.show(`No tasks found within ${timeRange} minutes of ${minutes}`);
+      return;
+    }
+    
+    setModalVisible(false);
+    navigation.navigate('Roll', { tasks: filteredTasks });
   };
 
   const _renderTimeModal = () => {
-    const timeIcon = (props) => <K.Icon {...props} name="clock-outline" />;
+    // Memoize the time icon to prevent re-creation on every render
+    const timeIcon = React.useCallback((props) => 
+      <K.Icon {...props} name="clock-outline" />, []);
+    
+    // Memoize the time range buttons to avoid unnecessary re-renders
+    const timeRangeButtons = React.useMemo(() => 
+      timeRanges.map((timeRange) => (
+        <K.Button
+          status="primary"
+          accessoryLeft={timeIcon}
+          onPress={() => _timeSelected(timeRange.tasks)}
+          style={{ marginTop: 15 }}
+          key={timeRange.label || `range-${timeRange.min}-${timeRange.max}`}>
+          {timeRange.label}
+        </K.Button>
+      )), [timeRanges, timeIcon]);
+
     return (
       <Modal
         animationType={'slide'}
@@ -233,14 +281,12 @@ function CategoriesScreen({ route, navigation }) {
           position: 'absolute'
         }}
       >
-
         <K.Layout style={styleSheet.modal_container}>
           <K.Text style={{ fontSize: 20, marginBottom: 10, textAlign: 'center', fontWeight: 'bold' }}>How much time do you have?</K.Text>
 
           <K.Text style={{ marginBottom: 7, fontWeight: 'bold' }}>Exact:</K.Text>
 
           <K.Layout style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-start' }}>
-
             <K.Input
               value={minutes}
               onChangeText={(min) => setMinutes(min)}
@@ -249,28 +295,18 @@ function CategoriesScreen({ route, navigation }) {
                 flex: .5,
                 marginRight: 50,
               }}
-            ></K.Input>
+            />
             <K.Button
               onPress={() => _exactRoll()}
               accessoryLeft={timeIcon}
               style={{
                 flex: .5,
               }}
-
             >Roll!</K.Button>
           </K.Layout>
 
           <K.Text style={{ marginBottom: 7, fontWeight: 'bold' }}>Quick Ranges:</K.Text>
-          {timeRanges.map((timeRange) => (
-            <K.Button
-              status="primary"
-              accessoryLeft={timeIcon}
-              onPress={() => _timeSelected(timeRange.tasks)}
-              style={{ marginTop: 15 }}
-              key={timeRange.value}>
-              {timeRange.label}
-            </K.Button>
-          ))}
+          {timeRangeButtons}
         </K.Layout>
       </Modal>
     );
@@ -323,4 +359,4 @@ function CategoriesScreen({ route, navigation }) {
   );
 }
 
-export default CategoriesScreen;
+export default React.memo(CategoriesScreen);
