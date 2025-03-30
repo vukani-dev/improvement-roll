@@ -175,15 +175,67 @@ public class ImprovementRollWidget extends AppWidgetProvider {
                         editor.putString("task_desc_" + appWidgetId, task.optString("desc", ""));
                         editor.apply();
                         
-                        // Update the widget
+                        // Update the widget with the new task
                         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
                         updateAppWidget(context, appWidgetManager, appWidgetId);
+                        return; // Task rolled and widget updated
+                    } else {
+                        // Category found, but no tasks - Update widget with message
+                        Log.w(TAG, "Category '" + categoryName + "' has no tasks.");
+                        updateWidgetWithError(context, appWidgetId, categoryName, "No tasks in category");
+                        return;
                     }
+                } else if (targetCategory == null) {
+                     // Category not found - Update widget with message
+                     Log.w(TAG, "Configured category '" + categoryName + "' not found.");
+                     updateWidgetWithError(context, appWidgetId, "Category Not Found", "Please reconfigure widget");
+                     return;
                 }
             }
         } catch (Exception e) {
             Log.e(TAG, "Error rolling task for widget", e);
         }
+    }
+    
+    // Helper method to update widget with an error/status message
+    private static void updateWidgetWithError(Context context, int appWidgetId, String title, String message) {
+        AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.improvement_roll_widget);
+        
+        views.setTextViewText(R.id.widget_task_name, title);
+        views.setTextViewText(R.id.widget_task_desc, message);
+        // Keep category name if available, otherwise show title
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        String categoryName = prefs.getString(PREF_CATEGORY_KEY + appWidgetId, "");
+        views.setTextViewText(R.id.widget_category_name, 
+            categoryName.isEmpty() ? title : "Category: " + categoryName);
+            
+        // Ensure intents are still set up
+        // Set up intent for rolling a new task
+        Intent rollIntent = new Intent(context, ImprovementRollWidget.class);
+        rollIntent.setAction(ACTION_ROLL_TASK);
+        rollIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        PendingIntent rollPendingIntent = PendingIntent.getBroadcast(
+                context, appWidgetId, rollIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        views.setOnClickPendingIntent(R.id.widget_roll_button, rollPendingIntent);
+        
+        // Set up intent for opening the main app
+        Intent openAppIntent = new Intent(context, ImprovementRollWidget.class);
+        openAppIntent.setAction(ACTION_OPEN_APP);
+        PendingIntent openAppPendingIntent = PendingIntent.getBroadcast(
+                context, 0, openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        views.setOnClickPendingIntent(R.id.widget_open_app, openAppPendingIntent);
+        
+        // Set up config intent if needed
+        if (categoryName.isEmpty()) {
+            Intent configIntent = new Intent(context, ImprovementRollWidgetConfigureActivity.class);
+            configIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            PendingIntent configPendingIntent = PendingIntent.getActivity(
+                    context, appWidgetId, configIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            views.setOnClickPendingIntent(R.id.widget_category_name, configPendingIntent);
+        }
+
+        appWidgetManager.updateAppWidget(appWidgetId, views);
     }
     
     // Method to update configuration
