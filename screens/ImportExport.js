@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as TOML from '@iarna/toml';
 import * as YAML from 'js-yaml';
+import widgetManager from '../utility_components/widget-manager';
 
 export default ({ navigation, route }) => {
   // Handle route params once on component mount
@@ -138,6 +139,9 @@ export default ({ navigation, route }) => {
       const jsonValue = JSON.stringify(categories);
       await AsyncStorage.setItem('categories', jsonValue);
       logger.logDebug('Successfully imported category');
+      
+      // Update widgets after import
+      widgetManager.updateWidgets();
 
       if (categoryArray.length > 1) {
         Toast.show(`Imported ${categoryArray.length} categories with unique names`, 20);

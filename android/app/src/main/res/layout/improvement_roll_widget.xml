@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="#BB34495E">
+
+    <TextView
+        android:id="@+id/widget_category_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Category"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:padding="4dp"
+        android:background="#33000000" />
+
+    <TextView
+        android:id="@+id/widget_task_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text="Task Name"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:padding="4dp" />
+
+    <TextView
+        android:id="@+id/widget_task_desc"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="4dp"
+        android:text="Task Description"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:padding="4dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/widget_roll_button"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:layout_marginEnd="8dp"
+            android:text="Roll"
+            android:textColor="#FFFFFF"
+            android:background="#800000" />
+
+        <Button
+            android:id="@+id/widget_open_app"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Open App"
+            android:textColor="#FFFFFF"
+            android:background="#800000" />
+    </LinearLayout>
+</LinearLayout> 

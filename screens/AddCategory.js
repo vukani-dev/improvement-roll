@@ -13,6 +13,7 @@ import Toast from 'react-native-simple-toast';
 import Modal from "react-native-modal";
 
 import * as logger from '../utility_components/logging.component.js';
+import widgetManager from '../utility_components/widget-manager';
 
 
 function AddCategoryScreen({ route, navigation }) {
@@ -146,6 +147,9 @@ function AddCategoryScreen({ route, navigation }) {
     try {
       const jsonValue = JSON.stringify(categoryList);
       AsyncStorage.setItem('categories', jsonValue).then((value) => {
+        // Update widgets when categories are changed
+        widgetManager.updateWidgets();
+        
         navigation.navigate('Main', {
           categoryName: catName,
           action: action,
@@ -153,8 +157,6 @@ function AddCategoryScreen({ route, navigation }) {
       });
     } catch (e) {
       logger.logWarning(e.message);
-      //console.log(e);
-      //logger.logDebug(e);
     }
   };
 
