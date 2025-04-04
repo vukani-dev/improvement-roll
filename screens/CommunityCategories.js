@@ -176,10 +176,12 @@ export default ({ route, navigation }) => {
             setFetchLoading(true);
             var url = `${shareServiceURL}?page=${page + 1}`
             if (searchString != '') {
-                url = url + `&${searchValue}=${searchString}`
+                // Use lowercase for consistency with main search
+                const lowerCaseText = searchString.toLowerCase();
+                const encodedText = encodeURIComponent(lowerCaseText);
+                url = url + `&${searchValue}=${encodedText}`
             }
-            fetch(url
-                , { method: 'GET', })
+            fetch(url, { method: 'GET' })
                 .then((response) => response.json())
                 .then((responseJson) => {
                     if (responseJson.sharedCategories == null) {
@@ -205,20 +207,46 @@ export default ({ route, navigation }) => {
 
         clearTimeout(timer)
         const newTimer = setTimeout(() => {
-            //console.log(`Filtering categories. Searching for ${searchValue} with the string ${text}`)
             logger.logDebug(`Filtering categories. Searching for ${searchValue} with the string ${text}`)
+            
+            // Don't search with empty string (reset to initial load)
+            if (text.trim() === '') {
+                fetch(`${shareServiceURL}?page=1`)
+                    .then((response) => response.json())
+                    .then((responseJson) => {
+                        setCategories(responseJson.sharedCategories || []);
+                        setPage(responseJson.page);
+                        setLoading(false);
+                        setStopFetching(false);
+                    })
+                    .catch((error) => {
+                        logger.logWarning(error.message);
+                        handleServiceError(error);
+                    });
+                return;
+            }
 
-            fetch(`${shareServiceURL}?page=1&${searchValue}=${text}`
-                , { method: 'GET', })
+            // Add encoding to handle special characters in search and convert to lowercase for case-insensitive search
+            const lowerCaseText = text.toLowerCase();
+            const encodedText = encodeURIComponent(lowerCaseText);
+            
+            fetch(`${shareServiceURL}?page=1&${searchValue}=${encodedText}`, { method: 'GET' })
                 .then((response) => response.json())
                 .then((responseJson) => {
-                    setCategories(responseJson.sharedCategories);
+                    if (!responseJson.sharedCategories || responseJson.sharedCategories.length === 0) {
+                        // No results found
+                        Toast.show(`No categories found for "${text}"`, 3);
+                        setCategories([]);
+                    } else {
+                        setCategories(responseJson.sharedCategories);
+                    }
                     setPage(responseJson.page);
                     setLoading(false);
+                    setStopFetching(responseJson.page >= responseJson.totalPages);
                 })
                 .catch((error) => {
                     logger.logWarning(error.message);
-                    handleServiceError(error)
+                    handleServiceError(error);
                 });
         }, 400)
 
@@ -259,11 +287,13 @@ export default ({ route, navigation }) => {
                 <Kitten.Layout
                     style={{ flexDirection: 'row' }}
                 >
-                    <Kitten.Input style={{ marginLeft: 10, flex: 1, marginRight: 10 }}
+                    <Kitten.Input 
+                        style={{ marginLeft: 10, flex: 1, marginRight: 10 }}
+                        placeholder="Search..."
+                        value={searchString}
+                        accessoryLeft={(props) => <Kitten.Icon {...props} name="search-outline" />}
                         onChangeText={(text) => filter(text)}
-                    >
-
-                    </Kitten.Input>
+                    />
 
                     <Kitten.Select
                         style={{ width: 170 }}

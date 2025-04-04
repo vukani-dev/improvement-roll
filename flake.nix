@@ -33,6 +33,7 @@
             gnumake
             gcc
             pkg-config
+            fdroidserver
           ];
 
           shellHook = ''
