@@ -65,3 +65,4 @@ build-release.gradle
 
 android/app/src/main/assets.android-sdk/
 .android-sdk/
+android/app/keystore.properties

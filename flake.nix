@@ -22,6 +22,8 @@
         androidComposition = pkgs.androidenv.composeAndroidPackages {
           platformVersions = [ "29" ];
           buildToolsVersions = [ "29.0.2" "28.0.3" ];
+          includeNDK = true;
+          ndkVersions = [ "21.4.7075529" ];
           };
       in
       {
@@ -47,9 +49,12 @@
             export ANDROID_SDK_ROOT="${androidComposition.androidsdk}"
             # Correct ANDROID_HOME path
             export ANDROID_HOME="${androidComposition.androidsdk}/libexec/android-sdk"
+            # Set NDK path
+            export ANDROID_NDK_ROOT="$ANDROID_HOME/ndk-bundle"
+            export PATH="$ANDROID_NDK_ROOT:$PATH"
             export JAVA_HOME="${pkgs.jdk8}"
             # Point Gradle to the correct aapt2 binary
-            export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=\$ANDROID_HOME/build-tools/28.0.3/aapt2"
+            export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=$ANDROID_HOME/build-tools/28.0.3/aapt2"
           '';
 
         };
