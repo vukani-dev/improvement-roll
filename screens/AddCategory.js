@@ -148,12 +148,23 @@ function AddCategoryScreen({ route, navigation }) {
       const jsonValue = JSON.stringify(categoryList);
       AsyncStorage.setItem('categories', jsonValue).then((value) => {
         // Update widgets when categories are changed
-        widgetManager.updateWidgets();
+        try {
+          widgetManager.updateWidgets();
+        } catch (e) {
+          logger.logWarning("Widget update failed: " + e.message);
+        }
         
-        navigation.navigate('Main', {
-          categoryName: catName,
-          action: action,
-        });
+        if (categoryMode === 'import') {
+          // Show toast confirmation for imported category
+          Toast.show(`Category "${catName}" successfully imported!`, 3);
+          // When importing from community categories, navigate back to the community categories screen
+          navigation.navigate('CommunityCategories');
+        } else {
+          navigation.navigate('Main', {
+            categoryName: catName,
+            action: action,
+          });
+        }
       });
     } catch (e) {
       logger.logWarning(e.message);
@@ -238,7 +249,25 @@ function AddCategoryScreen({ route, navigation }) {
 
   const _deleteCat = () => {
     setDeleteModalVisible(false);
-    _saveCategoryList(allCategories.filter(obj => obj.name != categoryName), 'removed', categoryName);
+    if (categoryMode === 'import') {
+      // When deleting a category imported from community categories, navigate back to CommunityCategories
+      const filteredCategories = allCategories.filter(obj => obj.name != categoryName);
+      const jsonValue = JSON.stringify(filteredCategories);
+      AsyncStorage.setItem('categories', jsonValue).then(() => {
+        // Update widgets when categories are changed
+        try {
+          widgetManager.updateWidgets();
+        } catch (e) {
+          logger.logWarning("Widget update failed: " + e.message);
+        }
+        
+        // Show toast confirmation for deleted imported category
+        Toast.show(`Category "${categoryName}" successfully deleted`, 3);
+        navigation.navigate('CommunityCategories');
+      });
+    } else {
+      _saveCategoryList(allCategories.filter(obj => obj.name != categoryName), 'removed', categoryName);
+    }
   };
 
   const _renderEditButton = (task) => (

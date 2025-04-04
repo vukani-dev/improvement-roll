@@ -1,7 +1,7 @@
 import { NativeModules, Platform } from 'react-native';
 import { rollFromCategory, rollFromAnyCategory, getCategoryNames } from './roll-helper';
 
-const { ImprovementRollWidget } = NativeModules;
+const { AppFeatures } = NativeModules;
 
 /**
  * Widget manager to handle widget functionality
@@ -11,7 +11,7 @@ class WidgetManager {
    * Check if widget module is available (Android only)
    */
   isAvailable() {
-    return Platform.OS === 'android' && ImprovementRollWidget !== undefined;
+    return Platform.OS === 'android' && AppFeatures !== undefined;
   }
   
   /**
@@ -19,7 +19,7 @@ class WidgetManager {
    */
   updateWidgets() {
     if (this.isAvailable()) {
-      ImprovementRollWidget.updateWidgets();
+      AppFeatures.updateWidgets();
       return true;
     }
     return false;
@@ -31,7 +31,7 @@ class WidgetManager {
    */
   async getCategories() {
     if (this.isAvailable()) {
-      return ImprovementRollWidget.getCategories();
+      return AppFeatures.getCategories();
     }
     
     // Fallback to JS implementation if native module not available
@@ -46,7 +46,7 @@ class WidgetManager {
    */
   async rollFromCategory(categoryName) {
     if (this.isAvailable()) {
-      return ImprovementRollWidget.rollFromCategory(categoryName);
+      return AppFeatures.rollFromCategory(categoryName);
     }
     
     // Fallback to JS implementation if native module not available
@@ -59,7 +59,7 @@ class WidgetManager {
    */
   async rollFromAnyCategory() {
     if (this.isAvailable()) {
-      return ImprovementRollWidget.rollFromAnyCategory();
+      return AppFeatures.rollFromAnyCategory();
     }
     
     // Fallback to JS implementation if native module not available
