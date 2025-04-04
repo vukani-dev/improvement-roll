@@ -1,0 +1,6 @@
+# What's New in 1.4.0
+
+* Added Home Screen Widgets - Access your tasks directly from your home screen
+* Added Notification System - Get random task reminders throughout the day
+* Customizable notification settings - Set frequency, probability, and active hours
+* Performance improvements and bug fixes 

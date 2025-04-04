@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.filepicker.FilePickerPackage;
 import com.rnfs.RNFSPackage;
+import com.improvement_roll.AppFeaturesPackage;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -31,6 +32,10 @@ public class MainApplication extends Application implements ReactApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
           // packages.add(new FilePickerPackage());
+          
+          // Use the renamed package
+          packages.add(new AppFeaturesPackage());
+          
           return packages;
         }
 
@@ -49,7 +54,7 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
-    initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    // initializeFlipper(this, getReactNativeHost().getReactInstanceManager()); // Comment out Flipper initialization
   }
 
   /**

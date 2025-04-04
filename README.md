@@ -20,10 +20,10 @@ There is already a pre-generated category available called **General**
 
 **First off, export all categories to ensure you wont lose anything!**
 
-With version 1.3 there is a change from `time` to `minutes`.  Rolling is governed by that and the new `timeRange` variable set in advanced settings (which is default to 2).
+With version 1.4 there is a change from `time` to `minutes`.  Rolling is governed by that and the new `timeRange` variable set in advanced settings (which is default to 2).
 This makes category creation more flexible as you no longer need to adhear to the strict time ranges that were there before.
 
-However, if you have categories with tasks that are still using `time` there may be some unforseen effects from updating to v1.3+.
+However, if you have categories with tasks that are still using `time` there may be some unforseen effects from updating to v1.4+.
 In general this is what you can do to roll those older categories over:
 
 
@@ -55,7 +55,7 @@ You can create the same Category called **Fitness**
 During the category creation, toggle the "This category is split by time" box.
 Now you can enter in tasks and enter how many minutes it takes for you to complete them.
 
-#### New in v1.3+
+#### New in v1.4+
 Once you select the **Fitness** category to roll this time, you will be asked how much time you have. 
 You can enter exactly how many minutes you have, and the app will give you a task that's less than that amount up to a range of **2** minutes (this can be changed in advance settings).
 **For example**: If you enter **15** minutes and the time range is set to **2** you will be given a task that is between 13 and 15 minutes.
@@ -115,7 +115,30 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 - **Debug mode toggle** ⇾ This enables debug mode. You will see logs being written to a file called `imp-roll-logs.txt`. Not all events and functions are being logged at the moment, but this is a work in process :wink:. This is really helpful for debugging strange bugs users have.
 - **Reset option** ⇾ This will wipe the memory of the app back to its initial state.
 
+## Notifications
 
+Never forget to work on your improvement tasks with random notifications:
+
+- **Random Task Reminders** ⇾ Enable notifications to receive random tasks from your selected category throughout the day.
+- **Customizable Frequency** ⇾ Set how often the app checks if it should send a notification (in hours).
+- **Probability Control** ⇾ Configure the chance (percentage) that a notification will be shown when the app checks.
+- **Active Hours** ⇾ Specify when notifications are allowed (for example, only between 9 AM and 10 PM).
+- **Direct Access** ⇾ Notifications include a "Roll Again" action to quickly get a new task.
+
+This feature helps you stay on track with your self-improvement goals by providing gentle reminders throughout your day.
+
+> **Note:** Enabling notifications requires the app to have notification permission. When you toggle on the notifications feature, the app will automatically request this permission if it hasn't been granted already.
+
+## Widgets
+
+Add Improvement Roll to your home screen for quick access to tasks:
+
+- **Home Screen Integration** ⇾ Add widgets to your home screen for immediate access to random tasks.
+- **Category Selection** ⇾ Configure each widget to show tasks from a specific category.
+- **One-Tap Rolling** ⇾ Get a new random task with just a single tap on the widget.
+- **Quick App Access** ⇾ Open the main app directly from the widget when needed.
+
+Widgets make it even easier to incorporate improvement tasks into your daily routine by reducing friction - no need to open the app first!
 
 ## Development
 
@@ -135,6 +158,17 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 - `npm start` to start react native server
 - open another terminal
 - `npm run android` start the app
+
+
+### Using Nix Flake
+
+A Nix flake is available for reproducible development environments:
+
+- Install Nix with flakes enabled: https://nixos.org/
+- Run `nix develop` in the project root to enter the dev environment
+- Run `npm i` to install packages
+- Run `npm start` to start the React Native server
+- Open another terminal and run `npm run android` to launch the app
 
 ## Screenshots
 

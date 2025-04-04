@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as Kitten from '../utility_components/ui-kitten.component.js';
 import * as logger from '../utility_components/logging.component.js';
 
-
 import Toast from 'react-native-simple-toast';
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
@@ -13,18 +12,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import * as TOML from '@iarna/toml';
 import * as YAML from 'js-yaml';
+import widgetManager from '../utility_components/widget-manager';
 
 export default ({ navigation, route }) => {
-  if (route.params != undefined) {
-    switch (route.params.action) {
-      case 'import':
-        break;
-      case 'export':
+  // Handle route params once on component mount
+  React.useEffect(() => {
+    if (route.params) {
+      if (route.params.action === 'export') {
         Toast.show(`Saved to ${route.params.path}`);
-        break;
+      }
+      // Clear params after handling
+      navigation.setParams({ action: undefined, path: undefined });
     }
-    route.params = undefined;
-  }
+  }, [route.params]);
 
   const importTypes = ['json', 'toml', 'yaml'];
   const [selectedIndex, setSelectedIndex] = React.useState(new Kitten.IndexPath(0));
@@ -33,55 +33,41 @@ export default ({ navigation, route }) => {
   const [errorText, setErrorText] = React.useState('');
   const [errorDetailText, setErrorDetailText] = React.useState('');
 
-  const BackAction = () => (
+  const BackIcon = React.useCallback((props) => 
+    <Kitten.Icon {...props} name="arrow-back" />, []);
+    
+  const BackAction = React.useCallback(() => (
     <Kitten.TopNavigationAction icon={BackIcon} onPress={navigation.goBack} />
-  );
-  const BackIcon = (props) => <Kitten.Icon {...props} name="arrow-back" />;
+  ), [BackIcon, navigation]);
+  
   const themeContext = React.useContext(ThemeContext);
   const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
 
-  const importFile = () => {
-    FilePickerManager.showFilePicker(null, (response) => {
-      if (response.didCancel) {
-        logger.logDebug('User cancelled file picker');
-      } else if (response.error) {
-        logger.logFatal(`Error while selecting file ===> ${response.error}`);
-        return showError('An error occured while selecting your file. Check the logs for details')
-      } else {
-
-        var filetype = getFileType(response);
-        if (!(importTypes.indexOf(filetype) > -1)) {
-          return showError('Only JSON, TOML, and YAML files are accepted')
-        }
-
-        parseFile(response, filetype);
-      }
-    });
-  };
-
-  const getFileType = (file) => {
-    var filetype = file.path
+  const getFileType = React.useCallback((file) => {
+    const filetype = file.path
       .substr(file.path.length - 4)
       .toLowerCase();
 
-    if (filetype == '.yml') {
+    if (filetype === '.yml') {
       return 'yaml';
     }
     return filetype;
-  }
+  }, []);
 
-  const parseFile = (file, type) => {
-    logger.logDebug(`Parsing filepath :${file.path}, type: ${type}`)
+  const parseFile = React.useCallback((file, type) => {
+    logger.logDebug(`Parsing filepath: ${file.path}, type: ${type}`);
+    
     RNFS.readFile(file.path).then((res) => {
       try {
-        var parsedArray = [];
+        let parsedArray = [];
+        let parsedFile;
 
         switch (type) {
           case 'json':
-            var parsedFile = JSON.parse(res);
+            parsedFile = JSON.parse(res);
             break;
           case 'yaml':
-            var parsedFile = YAML.load(res);
+            parsedFile = YAML.load(res);
             break;
           case 'toml':
             parsedArray.push(TOML.parse(res));
@@ -89,9 +75,9 @@ export default ({ navigation, route }) => {
         }
 
         if (Array.isArray(parsedFile)) {
-            parsedArray = parsedFile;
-        } else {
-            parsedArray.push(parsedFile);
+          parsedArray = parsedFile;
+        } else if (parsedFile) {
+          parsedArray.push(parsedFile);
         }
 
         addCategories(parsedArray);
@@ -99,31 +85,100 @@ export default ({ navigation, route }) => {
         logger.logFatal(err.message);
         return showError('Error parsing category from file. Ensure the file is formatted correctly.', err.message);
       }
+    }).catch(err => {
+      logger.logFatal(`File read error: ${err.message}`);
+      return showError('Error reading file', err.message);
     });
-  }
+  }, []);
 
-  const addCategories = (categoryArray) => {
-    AsyncStorage.getItem('categories').then((value) => {
-      var categories = value != null ? JSON.parse(value) : [];
+  const getUniqueName = React.useCallback((name, existingCategories) => {
+    let newName = `${name}`;
+    // Sort categories alphabetically
+    existingCategories.sort((a, b) => a.name.localeCompare(b.name));
+    
+    let instance = 1;
+    for (let i = 0; i < existingCategories.length; i++) {
+      if (existingCategories[i].name === newName) {
+        if (instance > 1) {
+          newName = newName.substring(0, newName.lastIndexOf('_'));
+        }
+        newName += `_${instance.toString().padStart(2, '0')}`;
+        instance++;
+      }
+    }
+    return newName;
+  }, []);
 
-      for (var i = 0; i < categoryArray.length; i++) {
-        categories.push(categoryArray[i]);
+  const addCategories = React.useCallback(async (categoryArray) => {
+    try {
+      const value = await AsyncStorage.getItem('categories');
+      const categories = value != null ? JSON.parse(value) : [];
+      
+      // Process each imported category for name uniqueness
+      for (let i = 0; i < categoryArray.length; i++) {
+        const category = categoryArray[i];
+        
+        // Make sure the category has a unique name
+        category.name = getUniqueName(category.name, categories);
+        
+        // If the category doesn't have a key, add one
+        if (!category.key) {
+          category.key = Date.now() + i;
+        }
+        
+        // Ensure timeSensitive is correctly set if it's using the old format
+        if (category.time_sensitive !== undefined && category.timeSensitive === undefined) {
+          category.timeSensitive = category.time_sensitive;
+          delete category.time_sensitive;
+        }
+        
+        // Add the category to the list
+        categories.push(category);
       }
 
       const jsonValue = JSON.stringify(categories);
-      AsyncStorage.setItem('categories', jsonValue);
+      await AsyncStorage.setItem('categories', jsonValue);
       logger.logDebug('Successfully imported category');
+      
+      // Update widgets after import
+      widgetManager.updateWidgets();
 
       if (categoryArray.length > 1) {
-        Toast.show(`Imported multiple categories `, 20);
-      } else {
+        Toast.show(`Imported ${categoryArray.length} categories with unique names`, 20);
+      } else if (categoryArray.length === 1) {
         Toast.show(`Imported category: ${categoryArray[0].name}`, 20);
       }
+    } catch (error) {
+      logger.logWarning(`Error importing categories: ${error.message}`);
+      showError('Error importing categories', error.message);
+    }
+  }, [getUniqueName]);
+
+  const importFile = React.useCallback(() => {
+    FilePickerManager.showFilePicker(null, (response) => {
+      if (response.didCancel) {
+        logger.logDebug('User cancelled file picker');
+      } else if (response.error) {
+        logger.logFatal(`Error while selecting file ===> ${response.error}`);
+        return showError('An error occurred while selecting your file. Check the logs for details');
+      } else {
+        const filetype = getFileType(response);
+        if (!importTypes.includes(filetype)) {
+          return showError('Only JSON, TOML, and YAML files are accepted');
+        }
+
+        parseFile(response, filetype);
+      }
     });
+  }, [getFileType, importTypes, parseFile]);
 
-  }
+  const showError = React.useCallback((text, detailedText = null) => {
+    setErrorText(text);
+    setErrorDetailText(detailedText || '');
+    setErrorModalVisible(true);
+  }, []);
 
-  const _errorModal = () => {
+  const _errorModal = React.useMemo(() => {
     return (
       <Kitten.Modal
         visible={errorModalVisible}
@@ -131,20 +186,12 @@ export default ({ navigation, route }) => {
         onBackdropPress={() => setErrorModalVisible(false)}>
         <Kitten.Card disabled={true}>
           <Kitten.Text>{errorText}</Kitten.Text>
-          <Kitten.Text>{errorDetailText}</Kitten.Text>
+          {errorDetailText ? <Kitten.Text>{errorDetailText}</Kitten.Text> : null}
           <Kitten.Button onPress={() => setErrorModalVisible(false)}>DISMISS</Kitten.Button>
         </Kitten.Card>
       </Kitten.Modal>
     );
-  };
-
-  const showError = (text, detailedText = null) => {
-    setErrorText(text);
-    setErrorModalVisible(true);
-
-    if (detailedText != null)
-      setErrorDetailText(detailedText)
-  }
+  }, [errorModalVisible, errorText, errorDetailText, styleSheet.modal_backdrop]);
 
   return (
     <Kitten.Layout style={styleSheet.columned_container}>
@@ -155,7 +202,7 @@ export default ({ navigation, route }) => {
         accessoryLeft={BackAction}
       />
 
-      {_errorModal()}
+      {_errorModal}
 
       <Kitten.Layout
         style={{
