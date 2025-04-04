@@ -12,6 +12,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import com.filepicker.FilePickerPackage;
 import com.rnfs.RNFSPackage;
+import com.improvement_roll.AppFeaturesPackage;
 
 
 public class MainApplication extends Application implements ReactApplication {
@@ -32,8 +33,8 @@ public class MainApplication extends Application implements ReactApplication {
           // packages.add(new MyReactNativePackage());
           // packages.add(new FilePickerPackage());
           
-          // Add our widget package
-          packages.add(new ImprovementRollWidgetPackage());
+          // Use the renamed package
+          packages.add(new AppFeaturesPackage());
           
           return packages;
         }

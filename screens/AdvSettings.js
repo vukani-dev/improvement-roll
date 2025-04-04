@@ -1,6 +1,5 @@
-
 import * as React from 'react';
-import { Linking, ActivityIndicator } from 'react-native';
+import { Linking, ActivityIndicator, Platform, View } from 'react-native';
 import * as K from '../utility_components/ui-kitten.component.js';
 import * as Icons from '../utility_components/icon.component.js';
 import * as logger from '../utility_components/logging.component.js';
@@ -11,6 +10,8 @@ import StyleSheetFactory from '../utility_components/styles.js';
 import { check, PERMISSIONS, request, RESULTS } from 'react-native-permissions';
 
 import Toast from 'react-native-simple-toast';
+import backgroundTaskManager from '../utility_components/background-task-manager';
+
 export default ({ navigation }) => {
 
     const [timeRangeModalVisible, setTimeRangeModalVisible] = React.useState(false);
@@ -26,6 +27,18 @@ export default ({ navigation }) => {
     const [loading, setLoading] = React.useState(false);
     const themeContext = React.useContext(ThemeContext);
     const styleSheet = StyleSheetFactory.getSheet(themeContext.backgroundColor);
+
+    const [randomNotifyEnabled, setRandomNotifyEnabled] = React.useState(false);
+    const [notifySettingsModalVisible, setNotifySettingsModalVisible] = React.useState(false);
+    const [selectedCategoryIndex, setSelectedCategoryIndex] = React.useState(new K.IndexPath(0));
+    const [categoryOptions, setCategoryOptions] = React.useState([]);
+    const [categoryNames, setCategoryNames] = React.useState([]);
+    const [frequency, setFrequency] = React.useState('6'); // Hours between checks (default: 6)
+    const [probability, setProbability] = React.useState('50'); // Percent chance of showing (default: 50%)
+    const [activeHoursStart, setActiveHoursStart] = React.useState('9'); // 9 AM
+    const [activeHoursEnd, setActiveHoursEnd] = React.useState('22'); // 10 PM
+
+    const [loadingSettings, setLoadingSettings] = React.useState(true);
 
     const BackAction = () => (
         <K.TopNavigationAction icon={Icons.BackIcon} onPress={navigation.goBack} />
@@ -81,6 +94,144 @@ export default ({ navigation }) => {
         );
     };
 
+    // Load all settings on mount
+    React.useEffect(() => {
+      let isMounted = true;
+      
+      const loadSettings = async () => {
+        try {
+          // Load notification toggle state
+          const enabled = await AsyncStorage.getItem('randomNotificationEnabled');
+          setRandomNotifyEnabled(enabled === 'true');
+          
+          // Load notification settings
+          const categoryIndex = await AsyncStorage.getItem('notifyCategoryIndex');
+          if (categoryIndex) setSelectedCategoryIndex(new K.IndexPath(parseInt(categoryIndex, 10)));
+          
+          const freqValue = await AsyncStorage.getItem('notifyFrequency');
+          if (freqValue) setFrequency(freqValue);
+          
+          const probValue = await AsyncStorage.getItem('notifyProbability');
+          if (probValue) setProbability(probValue);
+          
+          const startHour = await AsyncStorage.getItem('notifyActiveStart');
+          if (startHour) setActiveHoursStart(startHour);
+          
+          const endHour = await AsyncStorage.getItem('notifyActiveEnd');
+          if (endHour) setActiveHoursEnd(endHour);
+          
+          // Load available categories for selection
+          const categoriesValue = await AsyncStorage.getItem('categories');
+          if (categoriesValue) {
+            const categories = JSON.parse(categoriesValue);
+            const names = categories.map(cat => cat.name);
+            setCategoryNames(names);
+            setCategoryOptions(names);
+          }
+          
+          if(isMounted) {
+            setLoadingSettings(false);
+          }
+        } catch (error) {
+          logger.logWarning("Error loading settings: " + error.message);
+          if(isMounted) {
+            setLoadingSettings(false);
+          }
+        }
+      };
+      
+      loadSettings();
+      
+      return () => { isMounted = false; };
+    }, []);
+
+    // Basic toggle handler - just enables/disables notifications
+    const handleRandomNotifyToggle = async (isEnabled) => {
+      setRandomNotifyEnabled(isEnabled);
+      try {
+        await AsyncStorage.setItem('randomNotificationEnabled', isEnabled.toString());
+        if (isEnabled) {
+          // If enabling, show settings modal if this is first time
+          const configured = await AsyncStorage.getItem('notifyConfigured');
+          if (configured !== 'true') {
+            setNotifySettingsModalVisible(true);
+            return; // Don't schedule yet, wait for settings to be saved
+          }
+          
+          scheduleNotifications();
+        } else {
+          const success = await backgroundTaskManager.cancelRandomNotifications();
+          if (success) {
+            Toast.show('Random notifications disabled.');
+          } else {
+            Toast.show('Failed to disable random notifications.');
+          }
+        }
+      } catch (error) {
+        logger.logWarning("Error toggling random notifications: " + error.message);
+        Toast.show('Error saving setting.');
+        setRandomNotifyEnabled(!isEnabled); // Revert UI on failure
+      }
+    };
+    
+    // Notification scheduling with all settings
+    const scheduleNotifications = async () => {
+      try {
+        // Get selected category
+        const categoryName = categoryOptions[selectedCategoryIndex.row];
+        
+        // Parse numeric settings
+        const frequencyHours = parseFloat(frequency);
+        const probabilityPercent = parseFloat(probability);
+        const startHour = parseInt(activeHoursStart, 10);
+        const endHour = parseInt(activeHoursEnd, 10);
+        
+        // Schedule with all parameters
+        const success = await backgroundTaskManager.scheduleRandomNotifications(
+          categoryName,
+          frequencyHours,
+          probabilityPercent / 100, // Convert to 0-1 range
+          startHour,
+          endHour
+        );
+        
+        if (success) {
+          Toast.show('Random notifications enabled with your settings.');
+          // Mark as configured
+          await AsyncStorage.setItem('notifyConfigured', 'true');
+        } else {
+          Toast.show('Failed to enable random notifications.');
+          setRandomNotifyEnabled(false);
+          await AsyncStorage.setItem('randomNotificationEnabled', 'false');
+        }
+      } catch (error) {
+        logger.logWarning("Error scheduling notifications: " + error.message);
+        Toast.show('Error saving notification settings.');
+        setRandomNotifyEnabled(false);
+        await AsyncStorage.setItem('randomNotificationEnabled', 'false');
+      }
+    };
+    
+    // Save notification settings and schedule
+    const saveNotificationSettings = async () => {
+      try {
+        // Save all settings to AsyncStorage
+        await AsyncStorage.setItem('notifyCategoryIndex', selectedCategoryIndex.row.toString());
+        await AsyncStorage.setItem('notifyFrequency', frequency);
+        await AsyncStorage.setItem('notifyProbability', probability);
+        await AsyncStorage.setItem('notifyActiveStart', activeHoursStart);
+        await AsyncStorage.setItem('notifyActiveEnd', activeHoursEnd);
+        
+        // Schedule notifications with new settings
+        await scheduleNotifications();
+        
+        // Close modal
+        setNotifySettingsModalVisible(false);
+      } catch (error) {
+        logger.logWarning("Error saving notification settings: " + error.message);
+        Toast.show('Error saving settings.');
+      }
+    };
 
     const _renderResetModal = () => {
         return (
@@ -261,6 +412,76 @@ export default ({ navigation }) => {
             </K.Modal>
         );
     };
+
+    // Settings Modal for Notifications
+    const _renderNotifySettingsModal = () => {
+        return (
+            <K.Modal
+                visible={notifySettingsModalVisible}
+                backdropStyle={styleSheet.modal_backdrop}
+                onBackdropPress={() => setNotifySettingsModalVisible(false)}>
+                <K.Card style={{ width: 320, maxHeight: 500 }} disabled={true}>
+                    <K.Text category="h6" style={{ marginBottom: 15, textAlign: 'center' }}>
+                        Notification Settings
+                    </K.Text>
+                    
+                    {/* Category Selection */}
+                    <K.Text category="s1" style={{ marginBottom: 5 }}>Category to roll from:</K.Text>
+                    <K.Select
+                        selectedIndex={selectedCategoryIndex}
+                        value={categoryOptions[selectedCategoryIndex.row] || 'General'}
+                        onSelect={index => setSelectedCategoryIndex(index)}
+                        style={{ marginBottom: 15 }}>
+                        {categoryOptions.map(title => (
+                            <K.SelectItem key={title} title={title} />
+                        ))}
+                    </K.Select>
+                    
+                    {/* Frequency Control */}
+                    <K.Text category="s1" style={{ marginBottom: 5 }}>Check frequency (hours):</K.Text>
+                    <K.Input
+                        value={frequency}
+                        onChangeText={value => setFrequency(value.replace(/[^0-9.]/g, ''))}
+                        keyboardType="decimal-pad"
+                        style={{ marginBottom: 15 }}
+                    />
+                    
+                    {/* Probability Control */}
+                    <K.Text category="s1" style={{ marginBottom: 5 }}>Notification chance (%):</K.Text>
+                    <K.Input
+                        value={probability}
+                        onChangeText={value => setProbability(value.replace(/[^0-9.]/g, ''))}
+                        keyboardType="decimal-pad"
+                        style={{ marginBottom: 15 }}
+                    />
+                    
+                    {/* Active Hours */}
+                    <K.Text category="s1" style={{ marginBottom: 5 }}>Active hours:</K.Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 }}>
+                        <K.Input
+                            value={activeHoursStart}
+                            onChangeText={value => setActiveHoursStart(value.replace(/[^0-9]/g, ''))}
+                            keyboardType="number-pad"
+                            placeholder="Start (0-23)"
+                            style={{ width: '48%' }}
+                        />
+                        <K.Input
+                            value={activeHoursEnd}
+                            onChangeText={value => setActiveHoursEnd(value.replace(/[^0-9]/g, ''))}
+                            keyboardType="number-pad"
+                            placeholder="End (0-23)"
+                            style={{ width: '48%' }}
+                        />
+                    </View>
+                    
+                    <K.Button onPress={saveNotificationSettings}>
+                        Save Settings
+                    </K.Button>
+                </K.Card>
+            </K.Modal>
+        );
+    };
+
     return (
         <K.Layout
             style={{
@@ -278,8 +499,8 @@ export default ({ navigation }) => {
             <K.Layout
                 style={{
                     backgroundColor: themeContext.backgroundColor,
-                    marginHorizontal: 50
-
+                    marginHorizontal: 50,
+                    paddingTop: 20
                 }}
             >
                 <K.Button
@@ -303,11 +524,41 @@ export default ({ navigation }) => {
                     Reset Data
                 </K.Button>
 
+                <K.Layout style={{ 
+                    flexDirection: 'row', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center',
+                    marginTop: 20, 
+                    marginBottom: 10
+                }}>
+                    <K.Text>Random Task Notifications</K.Text>
+                    <K.Toggle 
+                        checked={randomNotifyEnabled} 
+                        onChange={handleRandomNotifyToggle} 
+                        disabled={loadingSettings || !backgroundTaskManager.isAvailable()}
+                    />
+                </K.Layout>
+                {!backgroundTaskManager.isAvailable() && Platform.OS === 'android' && 
+                    <K.Text category='c1' status='warning'>Background tasks module unavailable.</K.Text>
+                }
+                
+                {/* Settings Button */}
+                {randomNotifyEnabled && (
+                    <K.Button 
+                        appearance="outline" 
+                        size="small"
+                        style={{ marginTop: 5, marginBottom: 15 }}
+                        onPress={() => setNotifySettingsModalVisible(true)}>
+                        Notification Settings
+                    </K.Button>
+                )}
+                
             </K.Layout>
 
             {_renderResetModal()}
             {_renderDebugModal()}
             {_renderTimeRangeModal()}
+            {_renderNotifySettingsModal()}
         </K.Layout>
     )
 

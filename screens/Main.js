@@ -2,6 +2,8 @@ import * as React from 'react';
 import Toast from 'react-native-simple-toast';
 import generalCategory from '../categories/DefaultCategories';
 import { Button, Icon, Text, Layout } from '@ui-kitten/components';
+import { DeviceEventEmitter } from 'react-native';
+import { getCategories, rollFromCategory } from '../utility_components/roll-helper';
 
 import { ThemeContext } from '../utility_components/theme-context';
 import StyleSheetFactory from '../utility_components/styles.js';
@@ -62,6 +64,42 @@ export default ({ route, navigation }) => {
       }
     });
   }, []);
+
+  // Listen for notification roll again events
+  React.useEffect(() => {
+    const handleRollAgain = async (event) => {
+      try {
+        const categoryName = event.categoryName;
+        logger.logDebug(`Roll again requested for category: ${categoryName}`);
+        
+        // Find the category by name
+        const categories = await getCategories();
+        const category = categories.find(cat => cat.name === categoryName);
+        
+        if (category) {
+          // Navigate to Roll screen with the category's tasks
+          navigation.navigate('Roll', { tasks: category.tasks });
+          Toast.show(`Rolling from ${categoryName}`);
+        } else {
+          logger.logWarning(`Category ${categoryName} not found for roll again action`);
+          // Fall back to categories screen
+          navigation.navigate('Categories', { action: 'roll' });
+        }
+      } catch (error) {
+        logger.logWarning(`Error handling roll again event: ${error.message}`);
+        // Fall back to categories screen
+        navigation.navigate('Categories', { action: 'roll' });
+      }
+    };
+    
+    // Add event listener
+    const subscription = DeviceEventEmitter.addListener('onRollAgainRequested', handleRollAgain);
+    
+    return () => {
+      // Remove event listener on unmount
+      subscription.remove();
+    };
+  }, [navigation]);
 
   const RollIcon = (props) => <Icon name="flip-outline" {...props} />;
   const ListIcon = (props) => <Icon name="list-outline" {...props} />;

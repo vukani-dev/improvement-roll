@@ -112,6 +112,10 @@ dependencies {
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
 
+    // Add WorkManager dependency
+    def work_version = "2.7.1" // Use a recent version
+    implementation "androidx.work:work-runtime:$work_version"
+
     implementation(project(':react-native-device-info')) {
         exclude group: 'com.google.firebase'
         exclude group: 'com.google.android.gms'
