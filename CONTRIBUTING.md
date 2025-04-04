@@ -18,17 +18,27 @@ email, or any other method, with the owners of this repository before making a c
 ### Linux
 
 - Follow react-native instructions for setting up the environment
-  - Essentially, you need the following and any relevant tools added to your path:
-    - Java version 8+ (I use 8 from openjdk)
+  - Essentially you need the following and any relevant tools added to your path:
+    - Java version 8 (I use 8 from openjdk)
     - Node/npm (I use nvm to install a specific LTS version, which is 14.17.4)
-    - yarn (I'm using version 1.22.11)
     - Android SDK Manager (You can install via android-studio or command-line tool)
       - Android SDK Platform 29
       - Intel x86 Atom_64 System Image
       - Android SDK Tools 29.0.2
     - An android VM or device connected to pc
 
-- `yarn` to install packages
-- `yarn start` to start React Native server
+- `npm i` to install packages
+- `npm start` to start react native server
 - open another terminal
-- `yarn run android` start the app
+- `npm run android` start the app
+
+
+### Using Nix Flake
+
+A Nix flake is available for reproducible development environments:
+
+- Install Nix with flakes enabled: https://nixos.org/
+- Run `nix develop` in the project root to enter the dev environment
+- Run `npm i` to install packages
+- Run `npm start` to start the React Native server
+- Open another terminal and run `npm run android` to launch the app

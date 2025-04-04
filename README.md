@@ -136,6 +136,17 @@ On the Advanced Settings page (which can be found from the Options page) you wil
 - open another terminal
 - `npm run android` start the app
 
+
+### Using Nix Flake
+
+A Nix flake is available for reproducible development environments:
+
+- Install Nix with flakes enabled: https://nixos.org/
+- Run `nix develop` in the project root to enter the dev environment
+- Run `npm i` to install packages
+- Run `npm start` to start the React Native server
+- Open another terminal and run `npm run android` to launch the app
+
 ## Screenshots
 
 <p>

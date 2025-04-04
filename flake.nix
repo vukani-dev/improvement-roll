@@ -1,5 +1,5 @@
 {
-  description = "Improvement Roll - A React Native Task Randomizer";
+  description = "Improvement Roll";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -16,17 +16,21 @@
         pkgs = import nixpkgs {
           inherit system;
           config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
         };
         pkgs-node14 = import nixpkgs-node14 { inherit system; };
+        androidComposition = pkgs.androidenv.composeAndroidPackages {
+          platformVersions = [ "29" ];
+          buildToolsVersions = [ "29.0.2" "28.0.3" ];
+          };
       in
       {
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             pkgs-node14.nodejs-14_x
-            yarn
 
             jdk8 
-            gradle
+            pkgs-node14.gradle_6
 
             watchman
             
@@ -34,20 +38,20 @@
             gcc
             pkg-config
             fdroidserver
+            androidComposition.androidsdk
+            
           ];
 
           shellHook = ''
-            # Point to the project-local Android SDK using the current working directory
-            export ANDROID_HOME="$PWD/.android-sdk"
-            export ANDROID_SDK_ROOT="$ANDROID_HOME"
-            # Add platform-tools and emulator to PATH if they exist (user needs to install them)
-            export PATH="$PATH:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator"
-            
-            # Increase inotify watches as specified in the project
-            if [ -w /proc/sys/fs/inotify/max_user_watches ]; then
-              echo 524288 > /proc/sys/fs/inotify/max_user_watches
-            fi
+            # ANDROID_SDK_ROOT is deprecated but set for compatibility
+            export ANDROID_SDK_ROOT="${androidComposition.androidsdk}"
+            # Correct ANDROID_HOME path
+            export ANDROID_HOME="${androidComposition.androidsdk}/libexec/android-sdk"
+            export JAVA_HOME="${pkgs.jdk8}"
+            # Point Gradle to the correct aapt2 binary
+            export GRADLE_OPTS="-Dorg.gradle.project.android.aapt2FromMavenOverride=\$ANDROID_HOME/build-tools/28.0.3/aapt2"
           '';
+
         };
       }
     );
