@@ -147,73 +147,128 @@ export default ({ navigation }) => {
 
     // Basic toggle handler - just enables/disables notifications
     const handleRandomNotifyToggle = async (isEnabled) => {
-      setRandomNotifyEnabled(isEnabled);
-      try {
-        await AsyncStorage.setItem('randomNotificationEnabled', isEnabled.toString());
-        if (isEnabled) {
-          // If enabling, show settings modal if this is first time
-          const configured = await AsyncStorage.getItem('notifyConfigured');
-          if (configured !== 'true') {
-            setNotifySettingsModalVisible(true);
-            return; // Don't schedule yet, wait for settings to be saved
+      setLoading(true); // Set loading state at the beginning
+      
+      if (isEnabled) {
+        try {
+          // Check notification permission first
+          let status = await check(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+          
+          // On Android < 13, POST_NOTIFICATIONS doesn't exist, check might return GRANTED or UNAVAILABLE.
+          // Treat UNAVAILABLE as granted for older versions.
+          // Request only if DENIED (specifically denied on Android 13+)
+          if (status === RESULTS.DENIED) { 
+            status = await request(PERMISSIONS.ANDROID.POST_NOTIFICATIONS);
+          }
+
+          // Proceed only if granted (or unavailable on older Android)
+          if (status !== RESULTS.GRANTED && status !== RESULTS.UNAVAILABLE) {
+            Toast.show(
+              'Notification permission is required to enable this feature.',
+              5000,
+            );
+            setLoading(false); 
+            return; // Stop execution if permission not granted/blocked
           }
           
-          scheduleNotifications();
-        } else {
-          const success = await backgroundTaskManager.cancelRandomNotifications();
-          if (success) {
-            Toast.show('Random notifications disabled.');
-          } else {
-            Toast.show('Failed to disable random notifications.');
-          }
+          // Permission granted or not needed, continue with enabling notifications logic
+          await processNotificationToggle(true); 
+
+        } catch (error) {
+            logger.logWarning("Error checking/requesting notification permission: " + error.message);
+            Toast.show('Error checking notification permissions.');
+            setLoading(false); 
         }
-      } catch (error) {
-        logger.logWarning("Error toggling random notifications: " + error.message);
-        Toast.show('Error saving setting.');
-        setRandomNotifyEnabled(!isEnabled); // Revert UI on failure
+      } else {
+        // User is disabling notifications, no permission needed
+        await processNotificationToggle(false); 
       }
     };
     
-    // Notification scheduling with all settings
-    const scheduleNotifications = async () => {
+    // Renamed function to handle the actual enabling/disabling logic *after* permission check
+    const processNotificationToggle = async (isEnabled) => {
       try {
-        // Get selected category
-        const categoryName = categoryOptions[selectedCategoryIndex.row];
+        await AsyncStorage.setItem('randomNotificationEnabled', isEnabled.toString());
         
-        // Parse numeric settings
-        const frequencyHours = parseFloat(frequency);
-        const probabilityPercent = parseFloat(probability);
-        const startHour = parseInt(activeHoursStart, 10);
-        const endHour = parseInt(activeHoursEnd, 10);
-        
-        // Schedule with all parameters
-        const success = await backgroundTaskManager.scheduleRandomNotifications(
-          categoryName,
-          frequencyHours,
-          probabilityPercent / 100, // Convert to 0-1 range
-          startHour,
-          endHour
-        );
-        
-        if (success) {
-          Toast.show('Random notifications enabled with your settings.');
-          // Mark as configured
-          await AsyncStorage.setItem('notifyConfigured', 'true');
+        if (isEnabled) {
+          // If enabling, check if it's the first time to show settings modal
+          const configured = await AsyncStorage.getItem('notifyConfigured');
+          if (configured !== 'true') {
+            setRandomNotifyEnabled(true); // Update state now
+            setNotifySettingsModalVisible(true);
+            // Don't schedule yet, wait for settings to be saved
+            setLoading(false); // Stop loading here, settings modal is shown
+            return; 
+          } else {
+             await scheduleNotifications(); // scheduleNotifications runs if already configured
+             setRandomNotifyEnabled(true); // Update state after scheduling succeeds (implicitly handled by scheduleNotifications failures)
+             Toast.show('Random notifications enabled.'); // Moved Toast from scheduleNotifications
+          }
         } else {
-          Toast.show('Failed to enable random notifications.');
-          setRandomNotifyEnabled(false);
-          await AsyncStorage.setItem('randomNotificationEnabled', 'false');
+          // Disabling notifications
+          const success = await backgroundTaskManager.cancelRandomNotifications();
+          if (success) {
+            setRandomNotifyEnabled(false); // Update state only on successful cancellation
+            Toast.show('Random notifications disabled.');
+          } else {
+            Toast.show('Failed to disable random notifications.');
+             // Don't change state if disabling failed, keep it enabled
+          }
         }
+        setLoading(false); // Set loading false after successful operation (enable or disable) or if settings modal shown
       } catch (error) {
-        logger.logWarning("Error scheduling notifications: " + error.message);
-        Toast.show('Error saving notification settings.');
-        setRandomNotifyEnabled(false);
-        await AsyncStorage.setItem('randomNotificationEnabled', 'false');
+        // Catch errors from AsyncStorage, scheduleNotifications, or cancelRandomNotifications
+        logger.logWarning(`Error processing notification toggle (${isEnabled ? 'enabling' : 'disabling'}): ` + error.message);
+        Toast.show('Error updating notification settings.');
+        // Don't change the toggle state on error, leave it as it was before the attempt
+        setLoading(false); // Ensure loading is false on error
       }
+    };
+    
+    // Notification scheduling with all settings (modified to not handle state/toast directly)
+    const scheduleNotifications = async () => {
+      // Remove try/catch block here, let the caller handle it
+      // Get selected category
+      // Ensure categoryOptions and selectedCategoryIndex are valid before accessing
+      const categoryName = (categoryOptions && categoryOptions.length > selectedCategoryIndex.row) 
+                           ? categoryOptions[selectedCategoryIndex.row] 
+                           : 'General'; // Fallback to 'General' if needed
+
+      
+      // Parse numeric settings, provide defaults if parsing fails
+      const frequencyHours = parseFloat(frequency) || 6;
+      const probabilityPercent = parseFloat(probability) || 50;
+      const startHour = parseInt(activeHoursStart, 10) || 9;
+      const endHour = parseInt(activeHoursEnd, 10) || 22;
+
+      // Validate parsed values (optional but recommended)
+      if (isNaN(frequencyHours) || isNaN(probabilityPercent) || isNaN(startHour) || isNaN(endHour)) {
+          logger.logWarning("Invalid notification settings detected during scheduling.");
+          throw new Error("Invalid notification settings.");
+      }
+      
+      // Schedule with all parameters
+      const success = await backgroundTaskManager.scheduleRandomNotifications(
+        categoryName,
+        frequencyHours,
+        probabilityPercent / 100, // Convert to 0-1 range
+        startHour,
+        endHour
+      );
+      
+      if (success) {
+        // Mark as configured only on successful scheduling
+        await AsyncStorage.setItem('notifyConfigured', 'true');
+      } else {
+         // Throw an error if scheduling failed, to be caught by the caller
+         throw new Error("Failed to schedule background task."); 
+      }
+      // Removed Toast and state updates from here
     };
     
     // Save notification settings and schedule
     const saveNotificationSettings = async () => {
+      setLoading(true); // Add loading indicator
       try {
         // Save all settings to AsyncStorage
         await AsyncStorage.setItem('notifyCategoryIndex', selectedCategoryIndex.row.toString());
@@ -225,11 +280,20 @@ export default ({ navigation }) => {
         // Schedule notifications with new settings
         await scheduleNotifications();
         
+        // Update state and show success message only after scheduling succeeds
+        setRandomNotifyEnabled(true); 
+        Toast.show('Notification settings saved and notifications enabled.');
+
         // Close modal
         setNotifySettingsModalVisible(false);
       } catch (error) {
         logger.logWarning("Error saving notification settings: " + error.message);
         Toast.show('Error saving settings.');
+        // Optionally revert the toggle if saving/scheduling failed
+        // setRandomNotifyEnabled(false); 
+        // await AsyncStorage.setItem('randomNotificationEnabled', 'false');
+      } finally {
+          setLoading(false); // Ensure loading is turned off
       }
     };
 
@@ -535,7 +599,7 @@ export default ({ navigation }) => {
                     <K.Toggle 
                         checked={randomNotifyEnabled} 
                         onChange={handleRandomNotifyToggle} 
-                        disabled={loadingSettings || !backgroundTaskManager.isAvailable()}
+                        disabled={loading || loadingSettings || !backgroundTaskManager.isAvailable()} 
                     />
                 </K.Layout>
                 {!backgroundTaskManager.isAvailable() && Platform.OS === 'android' && 

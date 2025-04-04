@@ -127,6 +127,8 @@ Never forget to work on your improvement tasks with random notifications:
 
 This feature helps you stay on track with your self-improvement goals by providing gentle reminders throughout your day.
 
+> **Note:** Enabling notifications requires the app to have notification permission. When you toggle on the notifications feature, the app will automatically request this permission if it hasn't been granted already.
+
 ## Widgets
 
 Add Improvement Roll to your home screen for quick access to tasks:
