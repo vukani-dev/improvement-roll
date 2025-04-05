@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
+import com.facebook.react.ReactRootView;
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContext;
@@ -31,7 +32,15 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected ReactActivityDelegate createReactActivityDelegate() {
-    mDelegate = new ReactActivityDelegate(this, getMainComponentName());
+    mDelegate = new ReactActivityDelegate(this, getMainComponentName()) {
+      @Override
+      protected ReactRootView createRootView() {
+        ReactRootView reactRootView = new ReactRootView(getContext());
+        // If you opted-in for the New Architecture, we enable the Fabric Renderer.
+        reactRootView.setIsFabric(false);
+        return reactRootView;
+      }
+    };
     return mDelegate;
   }
   
