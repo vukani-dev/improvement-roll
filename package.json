@@ -11,7 +11,6 @@
     "install-android-release": "cd android && ./gradlew installRelease",
     "build-and-install-release": "npm run clean-android && npm run build-android-release && npm run install-android-release",
     "bundle-android": "mkdir -p android/app/src/main/assets && npx react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
-    "release-android": "npm run bundle-android && npm run build-and-install-release"
   },
   "dependencies": {
     "@eva-design/eva": "2.0.0",

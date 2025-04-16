@@ -4,6 +4,20 @@ apply plugin: "com.facebook.react"
 
 import com.android.build.OutputFile
 
+// Load keystore properties from keystore.properties file
+def keystorePropertiesFile = file("keystore.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+// Get properties from command line arguments if provided
+def getPropertyOrDefault(propertyName, defaultValue) {
+    return project.hasProperty(propertyName) ? project.property(propertyName) : defaultValue
+}
+
+def outputFileName = getPropertyOrDefault('outputFile', "improvement-roll-1.4.0.apk")
+
 /**
  * This is the React Native configuration block
  */
@@ -101,6 +115,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile keystoreProperties.getProperty('storeFile') ? file(keystoreProperties.getProperty('storeFile')) : file('improll.keystore')
+            storePassword keystoreProperties.getProperty('storePassword', 'android')
+            keyAlias keystoreProperties.getProperty('keyAlias', 'androiddebugkey')
+            keyPassword keystoreProperties.getProperty('keyPassword', 'android')
+        }
     }
     buildTypes {
         debug {
@@ -109,7 +129,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             // Re-enable minification with our robust ProGuard rules
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
@@ -129,6 +149,11 @@ android {
             if (abi != null) {  // null for the universal-debug, universal-release variants
                 output.versionCodeOverride =
                         versionCodes.get(abi) * 1048576 + defaultConfig.versionCode
+            }
+            
+            // Set custom output filename if provided
+            if (outputFileName != null && variant.buildType.name == "release") {
+                output.outputFileName = outputFileName
             }
         }
     }
