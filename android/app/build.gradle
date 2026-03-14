@@ -16,7 +16,7 @@ def getPropertyOrDefault(propertyName, defaultValue) {
     return project.hasProperty(propertyName) ? project.property(propertyName) : defaultValue
 }
 
-def outputFileName = getPropertyOrDefault('outputFile', "improvement-roll-1.4.0.apk")
+def outputFileName = getPropertyOrDefault('outputFile', "improvement-roll-1.5.1.apk")
 
 /**
  * This is the React Native configuration block
@@ -97,8 +97,8 @@ android {
         applicationId "com.improvement_roll"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 13
-        versionName "1.5.0"
+        versionCode 14
+        versionName "1.5.1"
     }
     splits {
         abi {
